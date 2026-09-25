@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jev"
+version = "0.0.1"
+description = "Yes/no decisions on the CPU"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+# The runtime is llama.cpp: prebuilt binaries fetched by `jev download` and driven through
+# ctypes, so the dependencies are the request schema, the chat template renderer and the server.
+dependencies = [
+  "pydantic>=2.11,<3",
+  "jinja2>=3.1,<4",
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.34,<1",
+]
+
+[project.scripts]
+jev = "jev.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jev"]

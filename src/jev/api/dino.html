@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jevos-1b plays Dino</title>
+<style>
+  :root { --bg: #f7f7f7; --ink: #535353; --panel: #ffffff; --line: #e2e2e2; --muted: #8a8a8a;
+          --yes: #2b9348; --no: #b0b0b0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: #222; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; align-items: baseline; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); background: #fff; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  header .model { margin-left: auto; font: 12px ui-monospace, Consolas, monospace; color: #444; }
+  main { display: grid; grid-template-columns: 800px minmax(0, 1fr); gap: 16px; padding: 16px 18px; max-width: 1240px; }
+  canvas { display: block; width: 800px; height: 300px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  button { background: #fff; border: 1px solid #cfcfcf; border-radius: 6px; padding: 6px 12px; cursor: pointer; font: inherit; }
+  button.primary { background: #222; color: #fff; border-color: #222; }
+  label { color: var(--muted); font-size: 13px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 8px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .stat { background: #fafafa; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+  .stat b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: 12px; }
+  .q { display: grid; grid-template-columns: 1fr 64px; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .q .txt { font-size: 13px; margin-bottom: 4px; }
+  .track { height: 22px; background: #efefef; border-radius: 5px; overflow: hidden; position: relative; }
+  .fill { display: block; height: 100%; width: 0; background: var(--no); transition: width .06s linear; }
+  .fill.yes { background: var(--yes); }
+  .half { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #00000022; }
+  .pct { font: 600 16px ui-monospace, Consolas, monospace; text-align: right; }
+  pre { background: #fafafa; border: 1px solid var(--line); border-radius: 6px; padding: 10px; font: 12px/1.45 ui-monospace, Consolas, monospace; white-space: pre-wrap; margin: 0; }
+  #log { max-height: 120px; overflow: auto; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>jevos-1b plays Dino</h1>
+  <span class="sub">two yes/no questions per decision · on the CPU · nothing is generated</span>
+  <span class="model" id="model">…</span>
+</header>
+<main>
+  <div>
+    <canvas id="c" width="1600" height="600"></canvas>
+    <div class="panel" style="margin-top:12px">
+      <h2>What the model reads</h2>
+      <pre id="state">Press Start.</pre>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="row">
+      <button class="primary" id="start">Start</button>
+      <button id="reset">New game</button>
+      <label><input type="checkbox" id="auto" checked> restart after a crash</label>
+    </div>
+    <div class="stats" style="margin-top:12px">
+      <div class="stat"><b id="score">0</b><span>obstacles</span></div>
+      <div class="stat"><b id="best">0</b><span>best</span></div>
+      <div class="stat"><b id="decisions">0</b><span>decisions</span></div>
+      <div class="stat"><b id="ms">–</b><span>ms / decision</span></div>
+    </div>
+    <h2>The model's answers (P(yes))</h2>
+    <div class="q"><div><div class="txt" id="qjump"></div><div class="track"><span class="fill" id="fjump"></span><span class="half"></span></div></div><div class="pct" id="pjump">–</div></div>
+    <div class="q"><div><div class="txt" id="qduck"></div><div class="track"><span class="fill" id="fduck"></span><span class="half"></span></div></div><div class="pct" id="pduck">–</div></div>
+    <h2>Log</h2>
+    <pre id="log"></pre>
+    <p class="note">A Chrome Dino-style game made for this demo. Every few frames the game tells the model what the
+      next obstacle is and whether it is close, and asks two yes/no questions. The dinosaur jumps or ducks when
+      P(yes) &gt; 0.5. The game waits while the model answers; the time per decision is shown above.</p>
+  </div>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const canvas = $("c"), ctx = canvas.getContext("2d");
+const S = 2, W = 800, H = 300, GROUND = 250;
+const DINO_X = 60, DINO_W = 44, DINO_H = 47, DUCK_H = 26;
+const G = 0.9, JUMP_V = -14, TICK = 4, CLOSE_K = 13, DUCK_FRAMES = 22, SPEED0 = 6.5, ACCEL = 0.0008, SPEED_MAX = 12;
+const QUESTIONS = {
+  jump: {type: "noul", instructions: "A cactus close ahead must be jumped over. Should the dinosaur jump now?"},
+  duck: {type: "noul", instructions: "A flying bird close ahead must be ducked under. Should the dinosaur duck now?"},
+};
+$("qjump").textContent = "Should the dinosaur jump now?";
+$("qduck").textContent = "Should the dinosaur duck now?";
+
+let game, running = false, looping = false, best = 0;
+function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+function makeObstacle(x) {
+  if (Math.random() < 0.3) return {kind: "bird", x, w: 46, y: GROUND - 55, h: 26, flap: 0};
+  const w = [18, 34, 50][rnd(0, 2)], h = [36, 48][rnd(0, 1)];
+  return {kind: "cactus", x, w, y: GROUND - h, h, name: w === 50 ? "three cacti in a row" : h === 48 ? "a tall cactus" : "a small cactus"};
+}
+function newGame() {
+  game = {y: GROUND - DINO_H, vy: 0, duck: 0, frame: 0, score: 0, over: false, decisions: 0, obs: [makeObstacle(W + 200)], ground: 0, clouds: [{x: 200, y: 60}, {x: 520, y: 90}, {x: 760, y: 50}]};
+  $("score").textContent = 0; $("decisions").textContent = 0;
+}
+function speed() { return Math.min(SPEED_MAX, SPEED0 + ACCEL * game.frame); }
+function onGround() { return game.y >= GROUND - DINO_H - 0.5; }
+
+function sense() {
+  const next = game.obs.find(o => o.x + o.w > DINO_X);
+  if (!next) return {next_obstacle: "nothing in sight", distance: "-"};
+  const dist = next.x - (DINO_X + DINO_W);
+  const close = dist >= 0 && dist <= CLOSE_K * speed();
+  return {next_obstacle: next.kind === "bird" ? "a flying bird" : next.name, distance: close ? "close ahead" : "far ahead"};
+}
+
+async function decide() {
+  const state = sense();
+  $("state").textContent = JSON.stringify({state, questions: {jump: QUESTIONS.jump.instructions, duck: QUESTIONS.duck.instructions}}, null, 1);
+  const started = performance.now();
+  const response = await fetch("/v1/systemone", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({state, model: "jev-latest", questions: QUESTIONS})});
+  const ms = performance.now() - started;
+  if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+  const body = await response.json();
+  $("model").textContent = body.model;
+  return {jump: body.answers.jump.noul, duck: body.answers.duck.noul, ms, state};
+}
+function show(id, p) {
+  const f = $("f" + id); f.style.width = (100 * p).toFixed(1) + "%"; f.classList.toggle("yes", p > 0.5);
+  $("p" + id).textContent = (100 * p).toFixed(0) + "%";
+}
+function log(line) { const el = $("log"); el.textContent = line + "\n" + el.textContent.split("\n").slice(0, 30).join("\n"); }
+
+function physics() {
+  const g = game, v = speed();
+  g.vy += G; g.y = Math.min(GROUND - DINO_H, g.y + g.vy); if (onGround()) g.vy = 0;
+  g.duck = Math.max(0, g.duck - 1); g.frame++; g.ground = (g.ground + v) % 40;
+  for (const o of g.obs) { o.x -= v; o.flap++; }
+  for (const c of g.clouds) { c.x -= v * 0.2; if (c.x < -60) c.x = W + 40; }
+  if (g.obs[0].x + g.obs[0].w < 0) { g.obs.shift(); g.score++; $("score").textContent = g.score; }
+  if (g.obs[g.obs.length - 1].x < W - rnd(260, 520)) g.obs.push(makeObstacle(W + 20));
+  const h = g.duck ? DUCK_H : DINO_H, top = onGround() ? GROUND - h : g.y;
+  for (const o of g.obs)
+    if (o.x < DINO_X + DINO_W - 6 && o.x + o.w > DINO_X + 6 && top < o.y + o.h - 4 && top + h > o.y + 4) return crash();
+}
+function crash() {
+  game.over = true; best = Math.max(best, game.score); $("best").textContent = best;
+  log(`crash after ${game.score} obstacles, ${game.decisions} decisions`);
+  if ($("auto").checked && running) setTimeout(() => { if (running) newGame(); }, 1500);
+}
+
+async function loop() {
+  if (!running) { looping = false; return; }
+  const g = game;
+  if (!g.over) {
+    if (g.frame % TICK === 0) {
+      try {
+        const {jump, duck, ms, state} = await decide();
+        g.decisions++; $("decisions").textContent = g.decisions; $("ms").textContent = Math.round(ms);
+        show("jump", jump); show("duck", duck);
+        if (jump > 0.5 && onGround()) { g.vy = JUMP_V; log(`jump  ${(100 * jump).toFixed(0)}%  — ${state.next_obstacle}, ${state.distance}`); }
+        else if (duck > 0.5 && onGround()) { g.duck = DUCK_FRAMES; log(`duck  ${(100 * duck).toFixed(0)}%  — ${state.next_obstacle}, ${state.distance}`); }
+      } catch (error) { log("error: " + error.message); running = false; $("start").textContent = "Start"; }
+    }
+    if (!g.over) physics();
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ---------- drawing (Chrome Dino look: grey pixel shapes on white) ----------
+function px(x, y, w, h) { ctx.fillRect(Math.round(x), Math.round(y), w, h); }
+function draw() {
+  const g = game;
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#d9d9d9";
+  for (const c of g.clouds) { px(c.x, c.y, 46, 8); px(c.x + 8, c.y - 6, 26, 6); }
+  ctx.fillStyle = "#535353"; px(0, GROUND, W, 2);
+  for (let x = -g.ground; x < W; x += 40) { px(x + 5, GROUND + 7, 6, 2); px(x + 23, GROUND + 12, 3, 2); }
+  for (const o of g.obs) (o.kind === "bird" ? drawBird : drawCactus)(o);
+  drawDino();
+  ctx.fillStyle = "#535353"; ctx.font = "bold 16px ui-monospace, Consolas, monospace"; ctx.textAlign = "right";
+  ctx.fillText(`HI ${String(best).padStart(4, "0")}  ${String(g.score).padStart(4, "0")}`, W - 16, 28);
+  if (g.over) { ctx.textAlign = "center"; ctx.font = "bold 22px ui-monospace, Consolas, monospace"; ctx.fillText("G A M E   O V E R", W / 2, 120); }
+}
+function drawCactus(o) {
+  ctx.fillStyle = "#535353";
+  const n = o.w === 50 ? 3 : o.w === 34 ? 2 : 1, cw = o.w / n;
+  for (let i = 0; i < n; i++) {
+    const x = o.x + i * cw, stem = Math.max(6, cw * 0.4);
+    px(x + (cw - stem) / 2, o.y, stem, o.h);
+    px(x + 1, o.y + o.h * 0.35, (cw - stem) / 2, 4); px(x + 1, o.y + o.h * 0.2, 3, o.h * 0.2);
+    px(x + (cw + stem) / 2, o.y + o.h * 0.45, (cw - stem) / 2 - 1, 4); px(x + cw - 4, o.y + o.h * 0.3, 3, o.h * 0.2);
+  }
+}
+function drawBird(o) {
+  ctx.fillStyle = "#535353";
+  px(o.x + 8, o.y + 10, 30, 7); px(o.x, o.y + 8, 10, 5); px(o.x + 38, o.y + 12, 8, 3);
+  if ((o.flap >> 3) % 2) px(o.x + 16, o.y, 10, 11); else px(o.x + 16, o.y + 16, 10, 10);
+}
+function drawDino() {
+  const g = game;
+  ctx.fillStyle = "#535353";
+  const run = (g.frame >> 2) % 2;
+  if (g.duck && onGround()) {
+    const y = GROUND - DUCK_H;
+    px(DINO_X, y + 6, 44, 14); px(DINO_X + 30, y, 24, 12); ctx.fillStyle = "#fff"; px(DINO_X + 44, y + 3, 3, 3); ctx.fillStyle = "#535353";
+    px(DINO_X + 8 + run * 8, y + 20, 5, 6); px(DINO_X + 22 - run * 8, y + 20, 5, 6);
+    return;
+  }
+  const y = g.y;
+  px(DINO_X + 22, y, 22, 16); ctx.fillStyle = "#fff"; px(DINO_X + 27, y + 4, 3, 3); ctx.fillStyle = "#535353";
+  px(DINO_X + 34, y + 16, 10, 4);
+  px(DINO_X + 12, y + 16, 22, 20); px(DINO_X, y + 18, 14, 6); px(DINO_X + 30, y + 22, 7, 3);
+  if (!onGround()) { px(DINO_X + 14, y + 36, 5, 11); px(DINO_X + 26, y + 36, 5, 11); }
+  else { px(DINO_X + 14, y + 36, 5, run ? 11 : 6); px(DINO_X + 26, y + 36, 5, run ? 6 : 11); }
+}
+
+$("start").onclick = () => { if (game.over) newGame(); running = !running; $("start").textContent = running ? "Pause" : "Start"; if (running && !looping) { looping = true; loop(); } };
+$("reset").onclick = () => { newGame(); draw(); };
+fetch("/health").then(r => r.json()).then(h => { $("model").textContent = h.model; }).catch(() => {});
+newGame(); draw();
+</script>
+</body>
+</html>
