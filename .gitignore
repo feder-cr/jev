@@ -1,0 +1,55 @@
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+.cache/
+
+# Build
+dist/
+build/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Downloaded runtime, weights and benchmark fixtures (see `jev download`, bench/README.md)
+runtimes/
+models/
+bench/data/
+
+# Local benchmark runs: committed runs live under results/<name>, local ones never do.
+# No trailing slash so both a file and a directory match.
+results/local-*
+
+# Local only
+datagen/
+teachers/
+train/
+docs/
+tests/test_public.py
+data/
+runs/
+results/
+models/
