@@ -18,6 +18,7 @@ import platform
 import shutil
 import sys
 import tarfile
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -281,6 +282,16 @@ def fetch(url: str, target: Path, sha256: str, progress=None, attempts: int = 5)
             if total and done < total:
                 failure = f"connection closed at {done} of {total} bytes"
                 continue
+        except urllib.error.HTTPError as error:
+            if error.code == 416 and have:
+                # The transfer may have finished just before the previous process exited.
+                if sha256_file(partial) == sha256:
+                    partial.replace(target)
+                    return target
+                # A stale or oversized partial cannot be resumed from this server.
+                partial.unlink()
+            failure = str(error)
+            continue
         except (OSError, http.client.HTTPException) as error:  # resets, timeouts, short reads
             failure = str(error)
             continue
