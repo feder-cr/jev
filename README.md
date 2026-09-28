@@ -147,6 +147,15 @@ engine's full output: probabilities, prompt hashes and timings.
 | `--threads` | 4 | CPU threads; set it to your core count, fewer if other heavy apps are running |
 | `--host`, `--port` | `127.0.0.1`, `8017` | where the server listens |
 
+## Guides
+
+The [wiki](https://github.com/feder-cr/jev/wiki) has the long version:
+[zero-shot text classification with yes/no questions](https://github.com/feder-cr/jev/wiki/zero-shot-text-classification-yes-no-questions),
+[LLM as a judge on a CPU](https://github.com/feder-cr/jev/wiki/llm-as-a-judge-on-a-cpu),
+[policy decisions](https://github.com/feder-cr/jev/wiki/llm-policy-decisions-put-the-rule-in-the-question),
+and what we measured about the model, including
+[why a small LLM says yes when the answer is no](https://github.com/feder-cr/jev/wiki/why-a-small-llm-says-yes).
+
 ## Credits
 
 Built together with [Loris Salsi (@LosaLosSantos)](https://github.com/LosaLosSantos).
