@@ -127,6 +127,19 @@ if answer["answers"]["billing"]["noul"] > 0.5:
     print("send to billing")
 ```
 
+### From the command line
+
+`jev decide` answers one request file without starting a server. The file holds the same body as
+`POST /v1/systemone`, and the answer comes back in the same shape:
+
+```bash
+uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu request.json
+```
+
+`--output answer.json` writes the answer to a new file instead of printing it; an existing file is
+never overwritten. A file without `model` is read as the engine's native request and gets the
+engine's full output: probabilities, prompt hashes and timings.
+
 ## Server options
 
 | Option | Default | |
