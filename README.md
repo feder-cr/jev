@@ -50,8 +50,6 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 }
 ```
 
-Then open <http://127.0.0.1:8017/dino> to watch it play.
-
 ## API
 
 The server speaks TypeSafe Jev's wire format, so code written for Jev's SDK works unchanged for

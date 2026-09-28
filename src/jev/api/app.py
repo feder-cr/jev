@@ -2,17 +2,14 @@
 
 import hmac
 from datetime import UTC, datetime
-from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from .. import __version__
 from . import wire
 from .translate import ALIAS_PREFIX, WireError, resolve_model, served_name, to_native, to_wire
-
-DINO = Path(__file__).with_name("dino.html")
 
 
 def create_app(engine, api_key: str | None = None) -> FastAPI:
@@ -87,11 +84,6 @@ def create_app(engine, api_key: str | None = None) -> FastAPI:
     @app.get("/health")
     def health():
         return {"status": "ready", "model": served, "engine": engine.backend.metadata}
-
-    @app.get("/dino", response_class=HTMLResponse, include_in_schema=False)
-    def dino():
-        # A Chrome Dino-style demo: two yes/no questions per decision, asked by the page.
-        return DINO.read_text(encoding="utf-8")
 
     return app
 
