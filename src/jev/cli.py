@@ -90,7 +90,12 @@ def main():
     commands.add_parser("devices", help="Show which compute backends this install can use")
     decide = commands.add_parser("decide", help="Answer the questions of one request file")
     add_model_options(decide)
-    decide.add_argument("input", type=Path)
+    decide.add_argument(
+        "input",
+        type=Path,
+        help="A POST /v1/systemone body, answered in the same wire format; or a native engine "
+        "request (no `model` field), answered with the engine's full output",
+    )
     decide.add_argument("--output")
     serve = commands.add_parser(
         "serve", help="Serve the Jev-compatible HTTP API (POST /v1/systemone, GET /v1/models)"
@@ -113,6 +118,8 @@ def main():
 
             write_json(describe(), None)
             return
+        from .api import wire
+        from .api.translate import resolve_model, served_name, to_native, to_wire
         from .engine.calibration import Calibration
         from .engine.engine import Engine
         from .engine.schema import Request
@@ -120,7 +127,16 @@ def main():
 
         # Validate the request before loading gigabytes of weights.
         if args.command == "decide":
-            request = Request.model_validate_json(args.input.read_text(encoding="utf-8"))
+            text = args.input.read_text(encoding="utf-8")
+            # The wire body always has a `model` field and the native request forbids one, so the
+            # field tells them apart; a wire body is translated exactly as the server does it.
+            wire_request = None
+            body = json.loads(text)
+            if isinstance(body, dict) and "model" in body:
+                wire_request = wire.SystemOneRequest.model_validate_json(text)
+                request, keys = to_native(wire_request)
+            else:
+                request = Request.model_validate_json(text)
         backend = load_backend(
             model=args.model,
             quant=args.quant,
@@ -140,7 +156,6 @@ def main():
             import uvicorn
 
             from .api.app import create_app
-            from .api.translate import served_name
 
             api_key = os.environ.get(API_KEY_ENV) or None
             print(
@@ -150,7 +165,12 @@ def main():
             )
             uvicorn.run(create_app(engine, api_key=api_key), host=args.host, port=args.port)
             return
-        write_json(engine.decide(request), args.output)
+        if wire_request is None:
+            write_json(engine.decide(request), args.output)
+            return
+        # Checked before inference, as the server does: any `jev-*` alias or the served name.
+        model = resolve_model(wire_request.model, served_name(backend.metadata))
+        write_json(to_wire(wire_request, engine.decide(request), keys, model), args.output)
     except (ValueError, OSError, ImportError) as error:
         print(f"jev: {error}", file=sys.stderr)
         raise SystemExit(1) from error
