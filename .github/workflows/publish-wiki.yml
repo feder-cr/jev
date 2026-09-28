@@ -1,0 +1,66 @@
+# publish-wiki.yml - mirror wiki/ into the GitHub wiki on every push to main that touches it.
+#
+# The wiki is a SEPARATE git repo (<repo>.wiki.git) with no front matter and its own
+# _Sidebar.md, so this is a render, not a copy: scripts/build_wiki.py strips the front matter,
+# rewrites [x](slug.md) links to the wiki's extensionless form, names each page by its slug
+# (index.md becomes Home.md) and regenerates _Sidebar.md from the parent/nav_order tree.
+#
+# The wiki checkout is wiped and rebuilt on each run, so a page deleted from wiki/ also
+# disappears from the wiki; nothing but generated output is ever committed there.
+#
+# Before the first run, the wiki repo must exist: GitHub creates <repo>.wiki.git only when the
+# first page is saved from the web UI. And search engines index a wiki only on a repo with 500+
+# stars whose wiki editing is restricted to collaborators, so that setting must stay on.
+#
+# After a merge, watch the run this starts; do not dispatch a second one. Both share the
+# concurrency group and the dispatch cancels the push run.
+name: publish-wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "wiki/**"
+      - "scripts/build_wiki.py"
+      - ".github/workflows/publish-wiki.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-wiki
+  cancel-in-progress: true
+
+jobs:
+  publish-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Render wiki/ into a wiki build directory
+        run: python scripts/build_wiki.py wiki wiki_build
+
+      - name: Publish to the wiki
+        env:
+          WIKI_PUSH_TOKEN: ${{ secrets.WIKI_TOKEN != '' && secrets.WIKI_TOKEN || github.token }}
+        run: |
+          set -euo pipefail
+          repo="${{ github.repository }}"
+          git clone "https://x-access-token:${WIKI_PUSH_TOKEN}@github.com/${repo}.wiki.git" wiki_repo
+          find wiki_repo -maxdepth 1 -name '*.md' -delete
+          cp wiki_build/*.md wiki_repo/
+          cd wiki_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "wiki already up to date"
+          else
+            git commit -m "docs: sync wiki from wiki/ (${{ github.sha }})"
+            git push origin HEAD:master
+          fi
