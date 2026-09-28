@@ -57,7 +57,8 @@ The short request is about 30 tokens and the long one about 190. The two local m
 the length of the text; Jev's time barely changes, because it is dominated by the round trip, so
 on a very long document the hosted model's relative cost falls. From a server closer to
 TypeSafe's, Jev's numbers would likely be lower; from a laptop in Europe, this is what an
-application sees.
+application sees. What "fastest" can honestly mean, and why nobody can claim the fastest model
+in general, is on [the fastest AI model for yes/no decisions](fastest-ai-model-for-yes-no-decisions.md).
 
 ## Accuracy on rules none of them was tuned on
 
@@ -87,7 +88,9 @@ by doing arithmetic in code.
 
 **Jev** if accuracy on hard rules matters more than latency and cost, if you need multiple
 choice or scores now, or if you do not want to run anything. Because the wire format is the
-same, starting with jevos and moving the hard cases to Jev is a change of URL, not of code.
+same, starting with jevos and moving the hard cases to Jev is a change of URL, not of code. The switch itself, step by step, is on
+[an open-source alternative to Jev](open-source-alternative-to-jev.md), and the same trade-off
+against a general hosted chat API is on [jevos vs the OpenAI API](jevos-vs-openai-api-for-classification.md).
 
 **Laya** if you need many languages, or local multiple choice and scores today, and your texts
 fit its context.

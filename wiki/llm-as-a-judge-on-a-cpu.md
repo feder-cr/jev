@@ -114,6 +114,9 @@ your outputs to someone else.
   rule-based questions the hosted Jev was right 0.927 of the time against 0.815 for jevos.
 
 A common split is the small judge on every commit and the large one on the release candidate.
+For retrieval pipelines, the same criteria applied per passage and per answer are on
+[RAG evaluation with yes/no questions](rag-evaluation-with-yes-no-questions.md), and how to turn a
+vague rubric into checkable criteria is on [rubric design for an LLM judge](rubric-design-for-an-llm-judge.md).
 
 ## Short answers to the questions that lead here
 

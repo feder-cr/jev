@@ -118,7 +118,9 @@ is a reason to set the upper band higher than the lower one is low.
 The model is not a rules engine and should not be the only check on a decision with legal or
 financial weight. On rules it has never seen it is wrong about one time in five. It is a fast,
 local way to turn free text into the facts a rule needs, and to handle the easy majority of
-cases, so that people spend their time on the rest.
+cases, so that people spend their time on the rest. How the model and a rules engine divide that
+work is on [a yes/no LLM vs a business rules engine](yes-no-llm-vs-business-rules-engine.md), and the
+whole refund flow end to end is on [refund request triage](refund-request-triage-with-a-local-llm.md).
 
 ## Short answers to the questions that lead here
 

@@ -30,7 +30,9 @@ at a time.
 Asking a yes/no question per label is the second idea with a model built for it. Each question
 is answered on its own, so a label can be described as precisely as you need ("Is the customer
 asking for money back, not just complaining?") without the other labels getting in the way, and
-you can add a label without touching the rest.
+you can add a label without touching the rest. How this compares with the entailment approach is
+on [jevos vs bart-large-mnli](jevos-vs-bart-large-mnli.md), and with a few labelled examples per
+class on [jevos vs SetFit](jevos-vs-setfit.md).
 
 The cost is that the probabilities are independent. They do not sum to 1, and two of them can
 both be high. The code below deals with that explicitly.
@@ -118,7 +120,8 @@ questions.
 On the README's three-question example, three questions about one text take about 165 ms
 together, against 103 ms for one alone, on an Intel Core Ultra 7 255H with 16 threads. The text
 is the expensive part and it is read once; each extra label adds a fraction of that. So ten
-labels on one ticket are one request, not ten.
+labels on one ticket are one request, not ten. A deep taxonomy asked level by level is on
+[product categorization with yes/no questions](product-categorization-with-yes-no-questions.md).
 
 The limit is context, 8,192 tokens for the text and all the questions together, which leaves
 room for long documents and many labels before it matters.

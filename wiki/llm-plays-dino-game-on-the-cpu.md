@@ -81,7 +81,8 @@ decisions and not a race between the model and the frame rate.
 
 **A decision is a yes/no question plus a threshold.** "Should I jump?" is the same shape as
 "Should this ticket go to billing?" or "Should this agent call the refund tool?". The action is
-code; the model only answers.
+code; the model only answers. The same pattern guards an agent's actions on
+[gating AI agent tool calls](gating-ai-agent-tool-calls.md).
 
 **Perception belongs to code when code can do it.** The game could have sent raw coordinates and
 asked "Is the obstacle within 90 pixels?". That would be a comparison, the model's weakest kind

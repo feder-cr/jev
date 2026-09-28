@@ -69,6 +69,7 @@ Arithmetic at 0.56 against 0.58 on the hand-written set, dates at 0.61 against 0
 tests agree on the weakness. They disagree on thresholds (0.85 here, 0.65 there), most likely
 because a template states its numbers cleanly and a hand-written email buries them in prose. That also makes the generated set a cheap stand-in for the
 expensive one, since it can be regenerated at any size without anyone writing a question.
+How to build one for your own data is on [generating test questions with code](generating-test-questions-with-code.md).
 
 ## Why one pass cannot carry a sum
 
@@ -80,7 +81,8 @@ place to hold the intermediate total.
 Large models asked to reason step by step get around this by writing the steps as text and
 reading them back. That is exactly the generation jevos does not do, and it is the reason it
 answers in 50 to 220 ms on a CPU instead of seconds. The trade is deliberate, and it means the
-arithmetic has to happen somewhere else.
+arithmetic has to happen somewhere else. The same reading-versus-computing split is the thread
+of [small language models explained](small-language-models-explained.md).
 
 ## How to keep arithmetic out of the model
 

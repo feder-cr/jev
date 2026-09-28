@@ -46,6 +46,19 @@ model, including where it is wrong, and how it compares with the alternatives.
 - [jevos vs Jev vs Laya for yes/no decisions](jevos-vs-jev-vs-laya.md): speed, accuracy,
   context, cost and what each one can answer.
 
+## Browse by topic
+
+- [Speed](speed.md): where LLM latency comes from, and why a model that generates nothing is fast.
+- [Probability and thresholds](probability-and-thresholds.md): what P(yes) means, calibration,
+  and how to turn a probability into a decision.
+- [Question design](question-design.md): how to write questions a small model answers well.
+- [Use cases](use-cases.md): moderation, triage, routing, screening, documents.
+- [Evaluation](evaluation.md): grading RAG pipelines, judges, CI checks and test sets.
+- [Agents and routing](agents-and-routing.md): routers, cascades, tool gating and guardrails.
+- [Integrations](integrations.md): Python, JavaScript, curl, n8n, Slack, CI and more.
+- [Local and private AI](local-and-private-ai.md): self-hosted, offline and on-premise decisions.
+- [llama.cpp and GGUF](llama-cpp-and-gguf.md): the runtime and the file format underneath.
+
 ## What it is not
 
 jevos answers yes/no questions in English, and only those. Multiple choice and scores are on
