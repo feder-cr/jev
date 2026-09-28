@@ -1,6 +1,6 @@
 ---
 title: "Guides"
-description: "How to use jevos: yes/no questions over HTTP, zero-shot classification, policy checks, LLM-as-a-judge criteria and the Dino demo, all on a CPU."
+description: "How to use jevos: yes/no questions over HTTP, zero-shot classification, policy checks, and LLM-as-a-judge criteria, all on a CPU, with no text generated."
 nav_order: 1
 has_children: true
 ---
@@ -18,5 +18,3 @@ probability back per question. What changes is what the question is for.
   covers business rules, which is where the model is weakest and where the wording matters most.
 - [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md) uses the same questions to grade another
   model's output.
-- [An LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md) is the loop behind
-  the README demo, and a template for any program that asks a model what to do next.

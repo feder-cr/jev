@@ -31,10 +31,9 @@ gate goes between that step and the execution. It sees three things:
 - the proposed call, as JSON;
 - any facts the call depends on that code has already computed.
 
-The loop around it is the same loop the Dino demo runs: describe the state, ask a yes/no
-question, act on a threshold. That loop is walked through in the demo's own code on
-[an LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md); a gate is that loop
-with "Should the dinosaur jump now?" replaced by "Should this refund run?".
+The loop around it is short: describe the state, ask a yes/no question, act on a threshold. A
+gate is that loop with one question, "Should this refund run?", placed between the agent's
+plan and the tool.
 
 ## What does the gate ask?
 

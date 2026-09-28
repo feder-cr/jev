@@ -18,8 +18,8 @@ The useful way to read those numbers is as a budget. At 54 to 220 ms, the model 
 anything a person waits for, but a design that asks it dozens of questions per keystroke, or
 feeds it long documents in a tight loop, will not feel instant.
 
-This page is the measured numbers, what they allow, the Dino demo as a real-time loop, what it
-is like to share the laptop with the model, and the practical questions, battery and heat, that
+This page is the measured numbers, what they allow, how a real-time loop has to wait for the
+model, what it is like to share the laptop with the model, and the practical questions, battery and heat, that
 we have not measured.
 
 ## The measured numbers
@@ -50,7 +50,7 @@ Measured against what people and programs wait for:
 - **An email or a ticket.** One request per item, several questions each, is a fraction of a
   second per message: a mailbox of a thousand messages is minutes, not hours.
 - **A game or control loop.** A few decisions per second, not one per frame. The loop has to
-  be designed around the model's time, as the next section shows.
+  be designed around the model's time, as the next section explains.
 
 What the same CPU-only profile allows away from a laptop, on small servers and branch machines,
 is on [edge AI decisions on a CPU](edge-ai-decisions-on-a-cpu.md).
@@ -60,18 +60,15 @@ fired at once and all expected back within the single-request time. The laptop f
 latency of one request; capacity under load is a different measurement. How to spend the budget
 is on [latency budgets: where a 200 ms model fits](latency-budgets-for-llm-decisions.md).
 
-## The Dino game as a real-time loop
+## A real-time loop has to wait for the model
 
-The README's demo is a Chrome Dino-style game played by the model. Every few frames, the page
-sends a small JSON state, `{"next_obstacle": "a tall cactus", "distance": "close ahead"}`, and
-two yes/no questions, one of them "A cactus close ahead must be jumped over. Should the dinosaur
-jump now?". It acts when P(yes) is above 0.5.
-
-The design choice that makes it work: the game waits for the model. It does not pretend the
-model is instantaneous; it pauses the world until the answer comes back, and the README's
-recording plays at 2x speed. That is the honest pattern for any real-time use of a model: the
-loop is built around the decision time, not the other way round. The details are on
-[an LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md).
+A loop that asks the model something every few steps cannot pretend the answer is instant. The
+honest design pauses the loop, or holds the last decision, until the answer comes back, and shows
+the time per decision. At 54 to 220 ms that means a few decisions per second, about slow-changing
+things, with the per-frame work left to code. That is the pattern for any real-time use of a
+model: the loop is built around the decision time, not the other way round, and how to split the
+work is on [gating AI agent tool calls](gating-ai-agent-tool-calls.md), which uses the same
+describe, ask, act shape.
 
 ## Sharing the laptop with the model
 
@@ -129,7 +126,6 @@ Warm it up and measure with your own inputs.
 - Latency, the three-question timing, memory, file size and the q8_0 ratio: our measurements
   on an Intel Core Ultra 7 255H laptop, 16 threads, no GPU, reported in the
   [jev README](https://github.com/feder-cr/jev).
-- The Dino demo's request, questions and threshold: the README and the `/dino` page in the repo.
 - Battery, heat and thread settings on battery: not measured.
 
 ---

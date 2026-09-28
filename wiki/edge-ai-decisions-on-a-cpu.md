@@ -100,10 +100,8 @@ An edge deployment has to decide what happens when the model cannot answer in ti
   loaded. Until then, the application should know it is running without the model.
 - **Timeouts.** Put a timeout on every call, set from the p90 you measured, and choose the
   default action explicitly: hold for a person, queue for later, or take the safe branch.
-- **Wait or skip.** The Dino demo in the README chooses to wait: the game pauses until the
-  model answers, as described on
-  [an LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md). A process line
-  usually cannot wait, and should skip to its safe default instead.
+- **Wait or skip.** A demo or an interactive tool can pause until the model answers. A process
+  line usually cannot wait, and should skip to its safe default instead.
 - **Log locally, sync later.** Keep the question names, probabilities, thresholds and the
   `/health` fingerprint on the device, and ship them when a connection is available.
 

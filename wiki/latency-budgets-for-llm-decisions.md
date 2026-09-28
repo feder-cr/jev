@@ -83,10 +83,8 @@ the fields the questions need.
 This is where a 200 ms model does not fit. At 60 frames per second a frame is about 16 ms, and
 RAIL suggests 10 ms of work per frame. Even the short request is several frames long.
 
-The jevos demo shows the honest way around it: in the Dino-style game, the game waits for the
-model while it answers, and shows the time per decision. That makes it a demonstration of
-decisions, not of reaction speed; the loop is described on
-[an LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md). A real-time system
+The honest way around it is to let the loop wait for the model and show the time per decision,
+which demonstrates decisions, not reaction speed. A real-time system
 would ask the model less often, about slower-changing things (a strategy, not a jump), and keep
 the per-frame logic in code.
 
@@ -135,8 +133,7 @@ median is missed by one request in two.
 
 ## Sources
 
-- jevos latencies (54 ms, 220 ms, 165 ms against 103 ms, about 1.1 ms per prompt token) and the
-  Dino demo: our measurements and the [jev README](https://github.com/feder-cr/jev).
+- jevos latencies (54 ms, 220 ms, 165 ms against 103 ms, about 1.1 ms per prompt token): our measurements and the [jev README](https://github.com/feder-cr/jev).
 - Response time limits: Jakob Nielsen,
   [Response Times: The 3 Important Limits](https://www.nngroup.com/articles/response-times-3-important-limits/),
   1993, fetched 2026-09-29.

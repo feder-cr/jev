@@ -117,9 +117,7 @@ def run(goal, max_steps=20):
 `needs_user` for missing information) and returns the probabilities by name. It is a sketch,
 not tested code. The order is a
 choice: asking the user comes before declaring success, so an agent that "finished" on a guess
-is caught. The same describe, ask, act shape runs the demo game on
-[an LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md), where each step asks
-whether to jump or duck.
+is caught.
 
 A check on every step costs 50 to 220 ms on our reference laptop, usually a small fraction of
 the step it follows.
@@ -167,5 +165,5 @@ which is usually small next to the step itself.
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), a yes/no decision model that runs on
-a laptop CPU. A stop check is the same kind of question as "Should the dinosaur jump now?", asked
-about an agent instead of a cactus.*
+a laptop CPU. A stop check is one more yes/no question in the loop, asked about the agent
+instead of the user's text.*

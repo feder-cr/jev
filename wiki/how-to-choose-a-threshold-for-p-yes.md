@@ -34,8 +34,8 @@ if answer["answers"]["billing"]["noul"] > 0.5:
     print("send to billing")
 ```
 
-and so does the Dino demo, which acts when P(yes) is above 0.5. For a game demo, where the next
-frame is a new decision and nothing is lost for good, that is a sensible default. For a refund,
+For a demo, where the next request is a new decision and nothing is lost for good, that is a
+sensible default. For a refund,
 a ban or an email sent to a customer, it is a placeholder. Two things move it away from 0.5:
 unequal costs, covered on
 [thresholds when a wrong yes costs more](thresholds-when-a-wrong-yes-costs-more.md), and a model
@@ -139,7 +139,7 @@ model file changes.
 ## Sources
 
 - Our measurements: accuracy and mean P(yes) by kind of question, 999-question set,
-  `jevos-q4_k_m`. The 0.5 rule in the README Python example and the Dino demo, and the
+  `jevos-q4_k_m`. The 0.5 rule in the README Python example, and the
   `/health` sha256, are from the [jev repository](https://github.com/feder-cr/jev).
 - [scikit-learn, Tuning the decision threshold](https://scikit-learn.org/stable/modules/classification_threshold.html):
   default of 0.5, never tune and train on the same data, fetched 2026-09-29.
@@ -148,5 +148,5 @@ model file changes.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), whose own Dino demo acts at 0.5;
+*From the notes of [jev](https://github.com/feder-cr/jev), whose README example acts at 0.5;
 a refund queue deserves a threshold chosen on its own cases.*

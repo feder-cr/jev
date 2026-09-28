@@ -62,7 +62,6 @@ Only `POST /v1/systemone` and `GET /v1/models` check the key. With a key set:
 | `POST /v1/systemone` | yes | the decisions |
 | `GET /v1/models` | yes | served model name and the `jev-latest` alias |
 | `GET /health` | no, by design | readiness, model name, and engine metadata such as the model file's sha256, the llama.cpp release and the device |
-| `GET /dino` | no | the demo page's HTML; its calls to `/v1/systemone` get `401`, because the page sends no key |
 | `/docs`, `/redoc`, `/openapi.json` | no | FastAPI's default API documentation, which jev does not turn off |
 
 `/health` stays open so that load balancers and process supervisors can check readiness without
@@ -131,9 +130,6 @@ the server on `127.0.0.1`.
 **Is it safe to expose on the internet?** Not on its own. With a key, TLS, a firewall rule and
 rate limits in a proxy it is a normal internal service; without them it is not.
 
-**Why does the Dino page stop working with a key set?** The page does not send a key, so its
-decision calls are refused with `401`.
-
 **See also:** [curl examples for a local LLM decision API](curl-examples-for-a-local-llm-api.md),
 [on-premise LLM for business decisions](on-premise-llm-for-business-decisions.md) and
 [logging LLM decisions for audit](logging-llm-decisions-for-audit.md).
@@ -142,8 +138,7 @@ decision calls are refused with `401`.
 
 - `JEV_API_KEY`, the start-up line, the 401 response, the header comparison, which routes check
   the key, the `--host`/`--port` defaults and the plain-HTTP uvicorn start: read from
-  `src/jev/cli.py` and `src/jev/api/app.py` of [jev](https://github.com/feder-cr/jev). The Dino
-  page's key-less `fetch`: `src/jev/api/dino.html`. Request bounds: `src/jev/engine/schema.py`.
+  `src/jev/cli.py` and `src/jev/api/app.py` of [jev](https://github.com/feder-cr/jev). Request bounds: `src/jev/engine/schema.py`.
 - [FastAPI: metadata and docs URLs](https://fastapi.tiangolo.com/tutorial/metadata/), fetched
   2026-09-29.
 - [Caddy: reverse proxy quick-start](https://caddyserver.com/docs/quick-starts/reverse-proxy),

@@ -11,7 +11,7 @@ nav_order: 2
 `/v1/systemone` and read `answers.<name>.noul`, the probability of yes.** In Node.js, where the
 global `fetch` is stable since v21.0.0, that is all there is to it, plus a timeout and a check of
 `response.ok`, because `fetch` does not reject on HTTP errors. In the browser it works only
-from a page served by the same server, like the `/dino` demo: the server sends no CORS headers,
+from a page served by the same origin as the server: the server sends no CORS headers,
 so a page on another origin is blocked by the browser.
 
 The CORS point is the one that costs people an afternoon. The same request that works from
@@ -86,10 +86,6 @@ preflight `OPTIONS` request, after which the server must answer with
 middleware, so none of those headers are sent, and per MDN the browser then blocks access to the
 response and reports a CORS error that "for security reasons" JavaScript cannot inspect.
 
-The `/dino` page works because the same server serves it: its script calls
-`fetch("/v1/systemone", ...)` with a relative URL, which is same-origin. How that game uses two
-questions per frame is on [an LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md).
-
 For your own front end, two designs work:
 
 1. **Call jevos from your backend.** The browser talks to your server, your server calls
@@ -141,8 +137,8 @@ be visible to every visitor.
 ## Sources
 
 - Request and response fields, 422 and 401 behaviour, the absence of CORS middleware, the
-  one-at-a-time engine, and the `/dino` page's relative `fetch`: read from `src/jev/api/app.py`,
-  `src/jev/api/wire.py`, `src/jev/engine/engine.py` and `src/jev/api/dino.html` of
+  one-at-a-time engine: read from `src/jev/api/app.py`,
+  `src/jev/api/wire.py`, `src/jev/engine/engine.py` of
   [jev](https://github.com/feder-cr/jev).
 - Latencies and the billing example: the [jev README](https://github.com/feder-cr/jev).
 - [Node.js globals: fetch and AbortSignal.timeout](https://nodejs.org/api/globals.html), fetched
@@ -155,5 +151,5 @@ be visible to every visitor.
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), a yes/no decision model that runs on
-a laptop CPU. The Dino page is the only browser client it ships, and it lives on the same origin
-for exactly the reason on this page.*
+a laptop CPU. The server sends no CORS headers, so the browser question is decided by where the
+page is served from, not by the code.*

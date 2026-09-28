@@ -19,6 +19,8 @@ This wiki is the long version of the [README](https://github.com/feder-cr/jev): 
 server, how to turn other kinds of decisions into yes/no questions, what we measured about the
 model, including where it is wrong, and how it compares with the alternatives.
 
+![jevos playing a browser game on the CPU, answering two yes/no questions per step (recording at 2x speed)](https://raw.githubusercontent.com/feder-cr/jev/main/assets/dino_run.gif)
+
 ## Start here
 
 - [Ask a local LLM a yes/no question and get P(yes)](ask-a-local-llm-yes-no-questions.md):
@@ -29,8 +31,6 @@ model, including where it is wrong, and how it compares with the alternatives.
   refunds, access rules and thresholds, and why rules are the model's hardest case.
 - [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md): evaluation criteria as yes/no
   questions, scored locally.
-- [An LLM plays a Dino game on the CPU](llm-plays-dino-game-on-the-cpu.md): the demo in the
-  README, and the control loop behind it.
 
 ## What we measured
 
