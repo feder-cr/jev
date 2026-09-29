@@ -87,7 +87,7 @@ there, step 2 above is your code. The general reason this route still costs a de
 
 ## What jev serve adds
 
-`jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16` gives you, on 127.0.0.1:8017:
+`jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16` gives you, on 127.0.0.1:8017:
 
 - **One endpoint, one answer shape.** `state` (text or any JSON) plus named questions in; each
   question back as `{"type": "noul", "noul": ...}`, with `output_tokens` always 0.

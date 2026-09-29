@@ -87,7 +87,7 @@ three places, and each needs an owner:
   [thresholds when a wrong yes costs more](thresholds-when-a-wrong-yes-costs-more.md).
 - **The rule.** Anything that is really a policy ("refund if reported within 30 days") should
   be computed in code from facts the model reads, not left to the model. On 2,000 yes/no
-  questions about business policies none of the models was tuned on, jevos was right 0.815 of
+  questions about business policies none of the models was tuned on, jevos was right 0.811 of
   the time; the hosted Jev, 0.927. That is a good first reader, not a final judge. The pattern
   is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 

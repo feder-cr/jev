@@ -43,8 +43,8 @@ which lacked versioning, a way to name the architecture, or both.
 A classifier in production is usually a small service that must be reproducible and boring.
 Three properties of GGUF help directly.
 
-**One artifact to verify.** The jevos release is two GGUF files, `jevos-q4_k_m.gguf` (619 MB)
-and `jevos-q8_0.gguf` (943 MB), plus a `SHA256SUMS.txt`. Checking one file against one line of
+**One artifact to verify.** The jevos release is two GGUF files, `jevos-v2-q4_k_m.gguf` (619 MB)
+and `jevos-v2-q8_0.gguf` (943 MB), plus a `SHA256SUMS.txt`. Checking one file against one line of
 that list tells you the whole model arrived intact, which is what makes
 [offline and air-gapped use](offline-ai-for-decisions.md) practical.
 
@@ -131,7 +131,7 @@ says nothing about the model's own version, which lives in `general.version` if 
 ## Sources
 
 - Our own facts: the release file names, sizes and `SHA256SUMS.txt`, from the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos); the startup hash and
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); the startup hash and
   `/health` fields and the template check, from the jev source code.
 - [GGUF specification, ggml repository](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md),
   fetched 2026-09-29: layout, goals, metadata keys, naming convention, predecessor formats.

@@ -43,7 +43,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
-            jev/jevos-q4_k_m.gguf
+            jev/jevos-v2-q4_k_m.gguf
             jev/runtimes
           key: jevos-q4_k_m-llama-b11081-linux-cpu
       - name: Model and runtime
@@ -52,14 +52,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           uv sync
-          gh release download jevos --repo feder-cr/jev -p 'jevos-q4_k_m.gguf' --skip-existing
+          gh release download jevos --repo feder-cr/jev -p 'jevos-v2-q4_k_m.gguf' --skip-existing
           uv run jev download --only runtime --runtime cpu
       - name: Decide
         working-directory: jev
         run: |
           mkdir -p ../answers
           for f in ../checks/*.json; do
-            uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu --threads 4 \
+            uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 4 \
               "$f" --output "../answers/$(basename "$f")"
           done
       - name: Assert
@@ -154,7 +154,7 @@ piece; adapt it and run it on a branch first.
 - `jev download --only runtime --runtime`, the pinned release, the `runtimes/` directory,
   `jev decide` and `--output`: read from `src/jev/cli.py` and `src/jev/runtime/llama_release.py`
   of [jev](https://github.com/feder-cr/jev). Model size, memory and latencies: the README and
-  the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos).
+  the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
 - [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners),
   [dependency caching](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching)
   and [using GitHub CLI in workflows](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-github-cli),

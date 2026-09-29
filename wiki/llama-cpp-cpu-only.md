@@ -38,7 +38,7 @@ may install a CUDA or Vulkan build instead.
   GPU, even when a GPU runtime is installed. `uv run jev devices` shows what the runtime sees.
 
 ```bash
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 ## How the thread options work

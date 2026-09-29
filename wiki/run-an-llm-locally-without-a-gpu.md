@@ -41,7 +41,7 @@ explained on [prefill vs decode: where LLM latency comes from](prefill-vs-decode
 
 llama.cpp supports integer quantization at 1.5, 2, 3, 4, 5, 6 and 8 bits, and ships prebuilt
 binaries for many platforms, which is why it is a common way to run models on a CPU. jevos
-comes in two builds: `jevos-q4_k_m.gguf` (619 MB), a 4-bit build, and `jevos-q8_0.gguf`
+comes in two builds: `jevos-v2-q4_k_m.gguf` (619 MB), a 4-bit build, and `jevos-v2-q8_0.gguf`
 (943 MB), an 8-bit one. On the reference laptop `q8_0` is about 1.7 times slower. Whether it is more
 accurate has not been measured on the same test set, so the smaller file is the default here.
 What the letters in those names mean is on
@@ -49,8 +49,8 @@ What the letters in those names mean is on
 
 ## The quickstart, step by step
 
-**1. Get the model.** Download `jevos-q4_k_m.gguf` from the
-[release page](https://github.com/feder-cr/jev/releases/tag/jevos).
+**1. Get the model.** Download `jevos-v2-q4_k_m.gguf` from the
+[release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
 
 **2. Install the project and the runtime.** From a clone of the repo:
 
@@ -66,7 +66,7 @@ to compile.
 **3. Start the server on the CPU.**
 
 ```bash
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 `--device cpu` keeps everything on the processor even if a GPU is present. `--threads`

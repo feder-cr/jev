@@ -24,13 +24,13 @@ sketches to adapt; field names are from the n8n docs as fetched on 2026-09-29.
 
 ## Start the decision server next to n8n
 
-Download `jevos-q4_k_m.gguf` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos)
+Download `jevos-v2-q4_k_m.gguf` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v2)
 and, from a clone of the repo:
 
 ```bash
 uv sync
 uv run jev download --only runtime
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 8
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 8
 ```
 
 `--threads` should match the cores you can spare. n8n on the same box also needs CPU, so leave

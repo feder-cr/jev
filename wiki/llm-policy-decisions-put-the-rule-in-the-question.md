@@ -16,7 +16,7 @@ names the rule ("Is this eligible under policy R-12?") is one it can only guess.
 
 Rules are also where a small model is weakest. On 2,000 yes/no questions about three business
 policies jevos never saw, with the exact answer computed by code from the rule and the facts,
-it was right 0.815 of the time, against 0.927 for TypeSafe's hosted Jev. That is useful as a
+it was right 0.811 of the time, against 0.927 for TypeSafe's hosted Jev. That is useful as a
 first pass and it decides how to design around it.
 
 This page is how to write the question, how to split a rule the model gets wrong into parts it
@@ -125,7 +125,7 @@ whole refund flow end to end is on [refund request triage](refund-request-triage
 ## Short answers to the questions that lead here
 
 **Can an LLM apply a business policy?** It can apply a rule written into the question. jevos
-answered 0.815 of 2,000 questions on policies it had never seen correctly; a large hosted model
+answered 0.811 of 2,000 questions on policies it had never seen correctly; a large hosted model
 answered 0.927.
 
 **Where do I put the policy?** In the question's `instructions`. The `criteria` field is

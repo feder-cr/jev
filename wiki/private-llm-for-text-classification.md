@@ -114,7 +114,7 @@ example, three questions take about 165 ms together against 103 ms for one alone
   set that does not change, a classifier trained on those examples will usually be more accurate; see
   [a yes/no LLM vs a fine-tuned BERT classifier](yes-no-llm-vs-fine-tuned-bert.md). It can be
   just as private.
-- **Hard rules.** On 2,000 questions about unseen business policies, jevos was right 0.815 of
+- **Hard rules.** On 2,000 questions about unseen business policies, jevos was right 0.811 of
   the time against 0.927 for the hosted Jev. If the label is really a policy decision, compute
   the policy in code.
 

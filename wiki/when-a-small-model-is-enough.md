@@ -69,7 +69,7 @@ the parcel late?" may need a subtraction.
 
 Rules sit in between. On the 999-question set, applying a rule was right 0.721 of the time. On
 2,000 yes/no questions about three business policies none of the models was tuned on, jevos
-was right 0.815 of the time and the hosted Jev 0.927, with the widest gap on additive point
+was right 0.811 of the time and the hosted Jev 0.927, with the widest gap on additive point
 scores. A rule with one condition written into the question works; a policy with points,
 exceptions and cut-offs belongs in code, with the model answering only the factual questions
 the code needs. The method is on
@@ -112,7 +112,7 @@ especially where latency, cost or privacy rule out a hosted API.
 rule, another language, or a generated answer.
 
 **Is a bigger model always more accurate?** On our 2,000 policy questions the hosted Jev was
-ahead, 0.927 against 0.815. We have not compared the two on pure reading questions, so measure
+ahead, 0.927 against 0.811. We have not compared the two on pure reading questions, so measure
 on yours.
 
 **Can I mix small and large models?** Yes. A cascade that escalates only the uncertain middle

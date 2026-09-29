@@ -70,7 +70,7 @@ documented body of `POST /v1/systemone`:
 mkdir -p answers
 for f in cases/*.request.json; do
   name=$(basename "$f" .request.json)
-  uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu "$f" --output "answers/$name.json"
+  uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu "$f" --output "answers/$name.json"
 done
 ```
 
@@ -176,7 +176,7 @@ one `jev serve` per job may be simpler. Measure both on your runner.
 
 - `jev decide`, `--output`, `/health` and `SHA256SUMS.txt`: the
   [jev README](https://github.com/feder-cr/jev) and the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos).
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
 - The lean toward yes: our 999-question test set, `jevos-q4_k_m`.
 - The shell and Python snippets are sketches written for this page, not tested scripts.
 

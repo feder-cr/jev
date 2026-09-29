@@ -150,7 +150,7 @@ and [intent detection with a local LLM](intent-detection-with-a-local-llm.md).
 
 ## Sources
 
-- The 2,000-question policy comparison (jevos 0.815, Jev 0.927) and latency 54 and 220 ms: the
+- The 2,000-question policy comparison (jevos 0.811, Jev 0.927) and latency 54 and 220 ms: the
   [jev README](https://github.com/feder-cr/jev). That the gap is largest on additive point
   scores is our own breakdown of the same comparison.
 - Not stated 0.847, mean P(yes) 0.23 on its no-answers, number 0.654, arithmetic 0.584, error

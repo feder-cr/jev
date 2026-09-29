@@ -36,7 +36,7 @@ has to happen anyway. That is also the reason the offline setup on
 
 These are properties of the release, true on any machine that runs it:
 
-- **Model file:** `jevos-q4_k_m.gguf`, 619 MB on disk; `jevos-q8_0.gguf`, 943 MB.
+- **Model file:** `jevos-v2-q4_k_m.gguf`, 619 MB on disk; `jevos-v2-q8_0.gguf`, 943 MB.
 - **Memory:** about 1.2 GB more once the model is loaded.
 - **Compute:** CPU only, with `--device cpu`. `--threads` defaults to 4.
 - **Context:** up to 8,192 tokens per request.
@@ -109,7 +109,7 @@ An edge deployment has to decide what happens when the model cannot answer in ti
 
 When the decision needs more than the small model gives. It reads English only, answers yes/no
 only, and on 2,000 questions about business policies none of the models was tuned on it was
-right 0.815 of the time against 0.927 for the hosted Jev. If a site can reach a data centre,
+right 0.811 of the time against 0.927 for the hosted Jev. If a site can reach a data centre,
 answering locally and sending only the doubtful cases upstream is often the better shape; see
 [a model cascade: small model first](model-cascade-small-model-first.md).
 

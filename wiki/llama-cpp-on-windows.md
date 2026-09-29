@@ -94,7 +94,7 @@ processor, even if a GPU runtime is installed. The jevos numbers were measured o
 no GPU, and the README's command is:
 
 ```bash
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 The default `--device auto` prefers a discrete GPU, then an integrated one, then the CPU. On a

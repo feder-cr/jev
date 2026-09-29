@@ -80,7 +80,7 @@ threads and no GPU in use.
 Being straight about the limits: two requests, one machine, one location. The hosted numbers
 would be lower from a server closer to the provider, and the local numbers would change on a
 different CPU. Accuracy is a separate question with a different winner: on 2,000 policy
-questions none of them was tuned on, Jev was right 0.927 of the time against 0.815 for jevos.
+questions none of them was tuned on, Jev was right 0.927 of the time against 0.811 for jevos.
 The full comparison, both directions, is on [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 
 To reproduce numbers like these, see

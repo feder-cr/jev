@@ -28,12 +28,12 @@ The variable is read once, when the server starts:
 
 ```bash
 export JEV_API_KEY="$(openssl rand -hex 32)"
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 ```powershell
 $env:JEV_API_KEY = "<a long random string>"
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 The start-up line on stderr says which mode you are in: it ends with `(Bearer auth)` when a key

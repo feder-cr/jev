@@ -25,7 +25,7 @@ mean is on [GGUF quantization types explained](gguf-quantization-types-explained
 
 ## Which file should I download?
 
-| | `jevos-q4_k_m.gguf` | `jevos-q8_0.gguf` |
+| | `jevos-v2-q4_k_m.gguf` | `jevos-v2-q8_0.gguf` |
 |---|---|---|
 | File size | 619 MB | 943 MB |
 | Speed on our reference CPU | baseline | about 1.7x slower |
@@ -37,7 +37,7 @@ questions on one text) was taken with it. Move to `q8_0` only if you have tested
 own questions and the larger file is measurably better for you, and the extra time fits your
 budget.
 
-Both files are on the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos) with a
+Both files are on the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2) with a
 `SHA256SUMS.txt`; check the hash after downloading, as described on
 [offline AI for decisions](offline-ai-for-decisions.md).
 
@@ -86,7 +86,7 @@ here, and by how much, is exactly what has not been tested.
 ## How to check on your own machine
 
 1. Download both files and verify them against `SHA256SUMS.txt`.
-2. Start the server with one file, `uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu`,
+2. Start the server with one file, `uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu`,
    wait for `/health` to report ready, and time your real requests; then repeat with the
    other file. Never both at once on one CPU.
 3. Run your own labelled questions through both and compare accuracy per kind of question, not
@@ -124,7 +124,7 @@ speed, once you have your own measurement.
 
 - File sizes, the 1.7x factor, the `q4_0` and `iq4_nl` observation, latencies, memory and the
   accuracy figures with the build each was run on: our own measurements and the
-  [jev release page](https://github.com/feder-cr/jev/releases/tag/jevos).
+  [jev release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
 - Bits per weight, the example benchmark table and the size and accuracy caveats:
   [llama.cpp quantize README](https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md),
   fetched 2026-09-29. Its hardware is not stated there.

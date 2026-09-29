@@ -22,13 +22,13 @@ Python and from the command line, and what to do with the number once you have i
 
 ## Start the server
 
-Download `jevos-q4_k_m.gguf` (619 MB) from the
-[release](https://github.com/feder-cr/jev/releases/tag/jevos), then from a clone of the repo:
+Download `jevos-v2-q4_k_m.gguf` (619 MB) from the
+[release](https://github.com/feder-cr/jev/releases/tag/jevos-v2), then from a clone of the repo:
 
 ```bash
 uv sync
 uv run jev download --only runtime        # llama.cpp for this machine
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 `jev download --only runtime` fetches the official prebuilt llama.cpp for your platform, so
@@ -47,7 +47,7 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-q4_k_m",
+  "model": "jevos-v2-q4_k_m",
   "answers": {"billing": {"type": "noul", "noul": 0.9}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
@@ -93,7 +93,7 @@ the second and third cost a fraction of the first:
 
 ```json
 {
-  "model": "jevos-q4_k_m",
+  "model": "jevos-v2-q4_k_m",
   "answers": {
     "refund": {"type": "noul", "noul": 0.78},
     "upset": {"type": "noul", "noul": 0.73},
@@ -131,7 +131,7 @@ against this server for yes/no questions. `choice` and `score` questions are ref
 request, and the answer comes back in the same shape:
 
 ```bash
-uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu request.json
+uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu request.json
 ```
 
 `--output answer.json` writes the answer to a new file instead of printing it, and never

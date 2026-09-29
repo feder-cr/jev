@@ -26,7 +26,7 @@ enough, and how we build tests now.
 |---|---|---|
 | development split, 12,320 questions | nothing but the specific texts | 0.915 |
 | held-out split, 27,274 questions | three policies and three workflows never seen | 0.855 |
-| 2,000 questions on the held-out policies, answers computed by code | the policies, and a separate question set | 0.815 |
+| 2,000 questions on the held-out policies, answers computed by code | the policies, and a separate question set | 0.811 |
 | 999 questions written after training | everything: texts, questions, phrasing, author | 0.757 |
 
 Each step away from the training data costs accuracy, and the biggest step is the last one,
@@ -82,7 +82,7 @@ hand-written set on arithmetic and dates within two points.
 
 For jevos, the number to plan with is the independent one, 0.757 overall, together with its
 breakdown: above 0.84 on everything that is reading, 0.58 to 0.72 on everything that is
-computing or applying a rule. The README reports the 2,000-question comparison, 0.815, because
+computing or applying a rule. The README reports the 2,000-question comparison, 0.811, because
 the same questions were put to Jev and Laya and the comparison is fair; this page is the
 context for reading it.
 

@@ -8,7 +8,7 @@ nav_order: 7
 # Batch decisions from files with jev decide
 
 **`jev decide` answers one request file and exits, with no server: `uv run jev decide --gguf
-jevos-q4_k_m.gguf --device cpu request.json` prints the answer, and `--output answer.json`
+jevos-v2-q4_k_m.gguf --device cpu request.json` prints the answer, and `--output answer.json`
 writes it to a new file that is never overwritten.** A file with a `model` field is the same
 body you would POST to `/v1/systemone` and gets the same answer shape back. A file without
 `model` is read as the engine's native request and gets the engine's full output: probabilities,
@@ -26,7 +26,7 @@ sketches to adapt; every flag shown is in `src/jev/cli.py`.
 ## One file, one answer
 
 ```bash
-uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu request.json
+uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu request.json
 ```
 
 With `request.json` holding the README's Quickstart body (`"model": "jev-latest"`, the
@@ -87,7 +87,7 @@ mkdir -p answers
 for f in requests/*.json; do
   out="answers/$(basename "$f")"
   [ -e "$out" ] && continue
-  uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu --threads 8 "$f" --output "$out" \
+  uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 8 "$f" --output "$out" \
     || echo "failed: $f" >&2
 done
 ```
@@ -97,7 +97,7 @@ New-Item -ItemType Directory -Force answers | Out-Null
 foreach ($f in Get-ChildItem requests\*.json) {
   $out = "answers\$($f.Name)"
   if (Test-Path $out) { continue }
-  uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu --threads 8 $f.FullName --output $out
+  uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 8 $f.FullName --output $out
   if ($LASTEXITCODE -ne 0) { Write-Warning "failed: $($f.Name)" }
 }
 ```

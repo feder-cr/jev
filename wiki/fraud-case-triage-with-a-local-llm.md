@@ -47,7 +47,7 @@ four for a high amount, review above ten. It is tempting to paste that rule into
 ask the model whether the case scores above ten. Do not.
 
 On 2,000 yes/no questions about three business policies it had never seen, jevos was right
-0.815 of the time against 0.927 for TypeSafe's hosted Jev, and the gap was largest on exactly
+0.811 of the time against 0.927 for TypeSafe's hosted Jev, and the gap was largest on exactly
 this shape: additive point scores, where several signals are summed and compared with a
 cut-off. It was the weakest kind of rule in that comparison. On the 999-question set,
 arithmetic questions were right 0.584 of the time, close to a coin.
@@ -150,7 +150,7 @@ on your own machine, on a CPU, with no per-token bill.
 
 ## Sources
 
-- Our measurements: the 2,000-question policy comparison (jevos 0.815, Jev 0.927, largest gap on
+- Our measurements: the 2,000-question policy comparison (jevos 0.811, Jev 0.927, largest gap on
   additive point scores) from the [jev README](https://github.com/feder-cr/jev); accuracy by kind
   and the 152 to 91 error split from our 999-question test set on `jevos-q4_k_m`.
 - OWASP GenAI Security Project,

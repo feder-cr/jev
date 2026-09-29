@@ -48,7 +48,7 @@ request names it.
 jevos does one thing. A server started with
 
 ```bash
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 listens on 127.0.0.1:8017, loads one model file (about 1.2 GB of memory), and answers

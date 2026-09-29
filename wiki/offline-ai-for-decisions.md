@@ -28,7 +28,7 @@ Three downloads, all before the first decision:
 |---|---|---|
 | Python dependencies | `uv sync` in a clone of the repo | resolved from the project's lock file |
 | llama.cpp runtime | `uv run jev download --only runtime` | official prebuilt package, unpacked under `runtimes/` |
-| Model file | from the [release page](https://github.com/feder-cr/jev/releases/tag/jevos) | `jevos-q4_k_m.gguf`, 619 MB |
+| Model file | from the [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2) | `jevos-v2-q4_k_m.gguf`, 619 MB |
 
 The runtime step picks the package for the platform it runs on, from a llama.cpp release pinned
 in the source, and checks each archive against a sha256 written in the code before unpacking
@@ -54,7 +54,7 @@ system and processor architecture, then carry it across.
 1. On the connected machine, clone the repo, run `uv sync`, then
    `uv run jev download --only runtime`. The runtime package is chosen for that machine's
    platform, which is why the two machines should match.
-2. Download `jevos-q4_k_m.gguf` and `SHA256SUMS.txt` from the release into the same directory.
+2. Download `jevos-v2-q4_k_m.gguf` and `SHA256SUMS.txt` from the release into the same directory.
 3. Verify the model file there (next section), then copy the project directory, including the
    environment `uv sync` created and the `runtimes/` folder, onto the transfer medium.
 4. On the isolated machine, verify the model file again after the copy, then start the server.
@@ -83,7 +83,7 @@ release files you did not download, such as the other quantization.
 On Windows, PowerShell's `Get-FileHash` computes SHA256 by default:
 
 ```powershell
-Get-FileHash .\jevos-q4_k_m.gguf
+Get-FileHash .\jevos-v2-q4_k_m.gguf
 ```
 
 Compare the `Hash` it prints with the line for that file in `SHA256SUMS.txt`. The sums file
@@ -106,7 +106,7 @@ decision log ties each answer to a verified file, as described on
   uncertain middle goes to a person, or waits. If you plan an escalation path like the one on
   [a model cascade: small model first](model-cascade-small-model-first.md), it needs a
   connected side.
-- **More capability.** The model is the same one: English only, yes/no only, 0.815 on 2,000
+- **More capability.** The model is the same one: English only, yes/no only, 0.811 on 2,000
   questions about unseen business policies against 0.927 for the hosted Jev. Offline changes
   where it runs, not what it knows.
 
