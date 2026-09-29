@@ -45,7 +45,7 @@ list would cover.
 
 It is weaker exactly where the engine is strong. On the same set: 0.721 on applying a rule, 0.654
 on comparing a number with a threshold, 0.598 on dates and 0.584 on arithmetic. On 2,000 questions
-about three business policies, jevos reached 0.815 against 0.927 for TypeSafe's hosted Jev,
+about three business policies, jevos reached 0.811 against 0.927 for TypeSafe's hosted Jev,
 and the gap was widest on additive point scores, where several signals are summed and compared
 with a cut-off. That is a rules engine's home ground.
 
@@ -137,7 +137,7 @@ the text. The rules themselves are cheap.
 - The refund example and its 0.78: the [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind (fact, tone, intent, negation, rule, number, dates, arithmetic) and the 152 to 91
   error split: our 999-question test set on `jevos-q4_k_m`.
-- 0.815 against 0.927 on 2,000 policy questions, and the additive point score gap: our own
+- 0.811 against 0.927 on 2,000 policy questions, and the additive point score gap: our own
   measurement, published in the README.
 - json-rules-engine description and features: its
   [GitHub repository](https://github.com/CacheControl/json-rules-engine), fetched 2026-09-29.

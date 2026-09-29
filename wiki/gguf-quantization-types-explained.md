@@ -87,7 +87,7 @@ measurement of your yes/no accuracy.
 
 ## The two jevos builds
 
-jevos ships two files: `jevos-q4_k_m.gguf` at 619 MB and `jevos-q8_0.gguf` at 943 MB. On the
+jevos ships two files: `jevos-v2-q4_k_m.gguf` at 619 MB and `jevos-v2-q8_0.gguf` at 943 MB. On the
 reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), q8_0 is about 1.7 times slower
 than q4_k_m; q4_0 and iq4_nl builds ran about as fast as q4_k_m. The speed and size side of that
 choice has its own page, [Q4_K_M vs Q8_0 for a small model](q4-k-m-vs-q8-0-speed-and-size.md).
@@ -134,7 +134,7 @@ higher-bit types are usually closer to the original model; measure the ones you 
 ## Sources
 
 - Our own measurements: file sizes from the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos); relative speed of
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); relative speed of
   q8_0, q4_0 and iq4_nl against q4_k_m on the reference laptop; the statement that accuracy of
   the two builds was not compared on one set.
 - [llama-quantize README](https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md),

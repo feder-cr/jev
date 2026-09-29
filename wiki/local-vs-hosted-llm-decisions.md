@@ -12,7 +12,7 @@ your machine; a hosted model wins on accuracy for hard questions, on languages, 
 to run anything.** In our one measured example, from a laptop in Europe, jevos answered a short
 request in 54 ms and a long one in 220 ms, while TypeSafe's hosted Jev took 344 and 345 ms with
 the network included. On 2,000 rule questions, the hosted model was right 0.927 of the time
-against 0.815 locally. Which of those rows matters most is the decision.
+against 0.811 locally. Which of those rows matters most is the decision.
 
 Conflict of interest, in one line: we build jevos, the local side of the one measurement on this
 page.
@@ -84,7 +84,7 @@ What local does not solve: who can reach the server, what your own logs keep, an
 ## Accuracy: often the deciding row
 
 On 2,000 yes/no questions about three business policies none of the models had been tuned on, Jev
-was right 0.927 of the time and jevos 0.815. The gap was largest on additive point scores, several
+was right 0.927 of the time and jevos 0.811. The gap was largest on additive point scores, several
 signals summed and compared with a cut-off, which is arithmetic. On reading questions the local
 model is much stronger than on computation: 0.954 on stated facts against 0.584 on arithmetic in
 our 999-question test.
@@ -118,7 +118,7 @@ it usually is; at low volume the API often is.
 **Is a local LLM more private?** The text stays on your machine. Access control and logs remain
 your job.
 
-**Is hosted more accurate?** In our test, yes: 0.927 against 0.815 on unseen rules.
+**Is hosted more accurate?** In our test, yes: 0.927 against 0.811 on unseen rules.
 
 **Can I use both?** Yes. Decide locally when confident and escalate the rest.
 

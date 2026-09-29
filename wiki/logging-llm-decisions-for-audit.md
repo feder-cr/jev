@@ -37,7 +37,7 @@ shortened placeholders.
   "answers": {"billing": 0.9},
   "rule": "billing > 0.5",
   "action": "queue:billing",
-  "model": "jevos-q4_k_m",
+  "model": "jevos-v2-q4_k_m",
   "model_file_sha256": "e41b...",
   "llama_cpp_release": "b....",
   "device": "cpu",
@@ -72,8 +72,8 @@ decisions just above the threshold is the first sign that it is in the wrong pla
 the `llama_cpp_release` in use, the device and a fingerprint. Read it at startup and attach
 those values to every record the process writes, instead of calling it per decision.
 
-Two consequences follow. Any change of model file, including a switch from `jevos-q4_k_m.gguf`
-to `jevos-q8_0.gguf`, shows up as a new hash in the log, so a before and after comparison is a
+Two consequences follow. Any change of model file, including a switch from `jevos-v2-q4_k_m.gguf`
+to `jevos-v2-q8_0.gguf`, shows up as a new hash in the log, so a before and after comparison is a
 query. And the release file can be checked against the published `SHA256SUMS.txt`, so the hash
 in your log can be tied to a specific public release file.
 
@@ -91,7 +91,7 @@ rebuild the request body: the state (or a way to fetch it again), the questions 
 name. Then run it offline against the same model file:
 
 ```bash
-uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu request.json --output replay.json
+uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu request.json --output replay.json
 ```
 
 `--output` writes to a new file and never overwrites one, which suits an audit trail. For a

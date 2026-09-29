@@ -12,7 +12,7 @@ TypeSafe's hosted Jev is the most accurate, and Laya is the one to pick when you
 languages or multiple choice today.** On the same laptop and the same requests, jevos answered
 in 54 ms and 220 ms, Laya in 104 ms and 449 ms, and Jev in about 345 ms both times, most of it
 network. On 2,000 yes/no questions about business policies none of them had been tuned on,
-Jev was right 0.927 of the time, jevos 0.815, and Laya 0.489.
+Jev was right 0.927 of the time, jevos 0.811, and Laya 0.489.
 
 A conflict of interest, stated first: we build jevos. Every number below was measured on the
 same requests or the same questions for all three, and the places where jevos loses are in the
@@ -68,7 +68,7 @@ rule and the facts, identical for all three:
 | | accuracy |
 |---|---|
 | Jev | **0.927** |
-| **jevos** | 0.815 |
+| **jevos** | 0.811 |
 | Laya (zero-shot, English checkpoint) | 0.489 |
 
 Jev is clearly stronger on rules, and the gap is largest on additive point scores, where
@@ -98,7 +98,7 @@ fit its context.
 ## Short answers to the questions that lead here
 
 **Is jevos an alternative to Jev?** For yes/no questions, yes: same wire format, local, free and
-faster from a laptop. Jev is more accurate on unseen rules (0.927 against 0.815) and answers
+faster from a laptop. Jev is more accurate on unseen rules (0.927 against 0.811) and answers
 multiple choice and scores.
 
 **Which is fastest?** jevos: 54 ms and 220 ms against 104/449 ms for Laya and about 345 ms for

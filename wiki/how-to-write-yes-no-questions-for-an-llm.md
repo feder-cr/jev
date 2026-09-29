@@ -116,7 +116,7 @@ Some limits are not about wording:
 - **Language.** jevos reads English only. The options for other languages are on
   [using an English-only LLM with other languages](using-an-english-only-model-with-other-languages.md).
 - **Rules the model has never seen.** Even a well written rule question is the harder case: on
-  2,000 questions from three unseen business policies, jevos was right 0.815 of the time. Put a
+  2,000 questions from three unseen business policies, jevos was right 0.811 of the time. Put a
   review band around decisions that cost money.
 
 ## Short answers to the questions that lead here
@@ -148,7 +148,7 @@ and [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md
 - The refund request, its answers, and the 165 ms against 103 ms timing: the
   [jev README](https://github.com/feder-cr/jev), reference laptop with an Intel Core Ultra 7
   255H, 16 threads.
-- The 0.815 on 2,000 policy questions: the jev README.
+- The 0.811 on 2,000 policy questions: the jev README.
 
 ---
 

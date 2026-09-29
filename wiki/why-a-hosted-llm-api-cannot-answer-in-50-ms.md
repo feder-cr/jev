@@ -88,7 +88,7 @@ nearest region is far, no client-side change fits it.
 ## When hosted is still the right call
 
 - **Accuracy matters more than milliseconds.** On 2,000 policy questions none of them was tuned
-  on, Jev was right 0.927 of the time against 0.815 for jevos. The comparison is on
+  on, Jev was right 0.927 of the time against 0.811 for jevos. The comparison is on
   [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 - **The texts are long.** Local latency grows about 1.1 ms per token on our laptop; a hosted
   model's fixed cost matters less the more work each request carries.

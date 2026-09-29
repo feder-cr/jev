@@ -63,11 +63,11 @@ model, including where it is wrong, and how it compares with the alternatives.
 
 jevos answers yes/no questions in English, and only those. Multiple choice and scores are on
 the roadmap and are refused today with a `422`. On rules it has never seen it is right about
-four times in five (0.815 on 2,000 such questions), which is good for a first pass and not good
+four times in five (0.811 on 2,000 such questions), which is good for a first pass and not good
 enough to be the last word on a refund, and the measurement pages say exactly where it fails.
 
 ---
 
 *jevos is built by [feder-cr](https://github.com/feder-cr) with
 [Loris Salsi (@LosaLosSantos)](https://github.com/LosaLosSantos). The code is MIT, the model is
-on the [release page](https://github.com/feder-cr/jev/releases/tag/jevos).*
+on the [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2).*

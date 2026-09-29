@@ -35,7 +35,7 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-q4_k_m",
+  "model": "jevos-v2-q4_k_m",
   "answers": {"billing": {"type": "noul", "noul": 0.9}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }

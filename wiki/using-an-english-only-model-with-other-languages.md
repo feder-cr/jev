@@ -29,7 +29,7 @@ number between 0 and 1 for any input, and a plausible-looking 0.3 on a French co
 exactly like a correct 0.3 on an English one.
 
 We have measured jevos on English text: 0.954 on stated facts and 0.938 on tone, among other
-kinds, on our 999-question test set, and 0.815 on 2,000 policy questions. None of those texts
+kinds, on our 999-question test set, and 0.811 on 2,000 policy questions. None of those texts
 was in another language. We have no result for any other language, good or bad, and this page
 does not guess one.
 
@@ -139,7 +139,7 @@ traffic or for the non-English part behind a language check.
 ## Sources
 
 - English only: our own statement of the model's scope.
-- The 220 ms latency for about 190 tokens and the 0.815 on 2,000 policy questions: the
+- The 220 ms latency for about 190 tokens and the 0.811 on 2,000 policy questions: the
   [jev README](https://github.com/feder-cr/jev) and our measurements on the reference laptop.
 - 0.954 on stated facts and 0.938 on tone: our 999-question test set, `jevos-q4_k_m`.
 - No measurement on other languages exists, and none is claimed on this page.

@@ -9,7 +9,7 @@ nav_order: 1
 
 **Self-hosting a decision model means running three things you control: a model file, a
 runtime that executes it, and a server on a port that your application calls.** For jevos that
-is `jevos-q4_k_m.gguf` (619 MB), the official prebuilt llama.cpp for your platform, and
+is `jevos-v2-q4_k_m.gguf` (619 MB), the official prebuilt llama.cpp for your platform, and
 `jev serve` listening on `127.0.0.1:8017`, using about 1.2 GB of memory once the model is
 loaded. There is no GPU to provision and no account to open. What you take on instead is the
 work a hosted API did quietly: knowing which model answered, updating it deliberately, keeping
@@ -34,12 +34,12 @@ Four pieces, all from the repository and its release:
    archive against a sha256 written in the source code, and unpacks it under `runtimes/`.
    Nothing is compiled.
 3. The model file from the
-   [release page](https://github.com/feder-cr/jev/releases/tag/jevos), with `SHA256SUMS.txt`
+   [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2), with `SHA256SUMS.txt`
    next to it.
 4. The server:
 
 ```bash
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 `--threads` defaults to 4; the README's advice is to set it to your core count, fewer if other
@@ -113,7 +113,7 @@ Self-hosting moves the model onto your machine and the responsibilities with it.
 Being straight about the limit: jevos answers yes/no questions in English and nothing else,
 and `choice` and `score` questions get a `422`. On 2,000 yes/no questions about business
 policies none of the models was tuned on, the hosted Jev was right 0.927 of the time against
-0.815 for jevos. If the decision needs that accuracy, other languages, or more than yes/no,
+0.811 for jevos. If the decision needs that accuracy, other languages, or more than yes/no,
 the hosted model is the right tool, and because the wire format is the same, moving between
 the two is a base URL change. The broader trade-off is on
 [local vs hosted LLM decisions](local-vs-hosted-llm-decisions.md).

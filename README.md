@@ -11,12 +11,15 @@ P(yes).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/jevos_bench_dark.png" />
-  <img src="assets/jevos_bench.png" alt="Latency on a short request: jevos 54 ms, Jev 344 ms, Laya 104 ms. On a long request: jevos 220 ms, Jev 345 ms, Laya 449 ms. Accuracy on 2,000 yes/no questions from unseen policies: jevos 0.815, Jev 0.927, Laya 0.489" width="100%" />
+  <img src="assets/jevos_bench.png" alt="Latency on a short request: jevos-v2 54 ms, Jev 344 ms, Laya 104 ms. On a long request: jevos-v2 220 ms, Jev 345 ms, Laya 449 ms. Accuracy on 2,000 yes/no questions from unseen policies: jevos-v2 0.811, Jev 0.927, Laya 0.489" width="100%" />
 </picture>
+
+jevos-v2 answers 79.5% of 999 hand-written yes/no questions correctly, against 75.7% for the first
+jevos, with the same size and speed.
 
 ## What each one does
 
-| | **jevos** | Jev | Laya |
+| | **jevos-v2** | Jev | Laya |
 |---|:---:|:---:|:---:|
 | Yes/no questions | ✓ | ✓ | ✓ |
 | Multiple choice | Soon | ✓ | ✓ |
@@ -27,12 +30,12 @@ P(yes).
 
 ## Quickstart
 
-Download `jevos-q4_k_m.gguf` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos), then:
+Download `jevos-v2-q4_k_m.gguf` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v2), then:
 
 ```bash
 uv sync
 uv run jev download --only runtime        # llama.cpp for this machine
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 ```bash
@@ -44,7 +47,7 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-q4_k_m",
+  "model": "jevos-v2-q4_k_m",
   "answers": {"billing": {"type": "noul", "noul": 0.9}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
@@ -88,7 +91,7 @@ together, against 103 ms for one of them alone.
 
 ```json
 {
-  "model": "jevos-q4_k_m",
+  "model": "jevos-v2-q4_k_m",
   "answers": {
     "refund": {"type": "noul", "noul": 0.78},
     "upset": {"type": "noul", "noul": 0.73},
@@ -131,7 +134,7 @@ if answer["answers"]["billing"]["noul"] > 0.5:
 `POST /v1/systemone`, and the answer comes back in the same shape:
 
 ```bash
-uv run jev decide --gguf jevos-q4_k_m.gguf --device cpu request.json
+uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu request.json
 ```
 
 `--output answer.json` writes the answer to a new file instead of printing it; an existing file is

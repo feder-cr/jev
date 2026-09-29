@@ -92,7 +92,7 @@ it network. The trade-off in general is on
 - **Decisions that need reasoning or knowledge beyond the text.** A small model reads; it does
   not know your domain beyond what you put in the question.
 - **Rules with sums and dates.** On 2,000 yes/no questions from three business policies neither
-  model was tuned on, the hosted Jev was right 0.927 of the time against 0.815 for jevos, and the
+  model was tuned on, the hosted Jev was right 0.927 of the time against 0.811 for jevos, and the
   gap was largest on additive point scores. Either compute those parts in code first, or keep the
   decision on the large model.
 - **Languages other than English.** jevos reads English only.
@@ -128,7 +128,7 @@ yes/no model produces none.
 **Is a local model free?** Free of per-token charges. It costs CPU time and about 1.2 GB of
 memory.
 
-**Will accuracy drop?** On hard rule questions, yes: 0.815 for jevos against 0.927 for the hosted
+**Will accuracy drop?** On hard rule questions, yes: 0.811 for jevos against 0.927 for the hosted
 Jev on our 2,000-question comparison. On reading questions the gap is smaller. Measure yours.
 
 **What should never move?** Generation, reasoning beyond the text, non-English input, and rare

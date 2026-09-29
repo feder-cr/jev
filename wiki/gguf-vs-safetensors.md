@@ -100,7 +100,7 @@ is better.
   tokenizer and template cannot drift away from the weights.
 - **You run a GPU serving stack built on PyTorch.** safetensors is the native input there.
 
-jevos ships only GGUF: `jevos-q4_k_m.gguf` (619 MB) and `jevos-q8_0.gguf` (943 MB), because the
+jevos ships only GGUF: `jevos-v2-q4_k_m.gguf` (619 MB) and `jevos-v2-q8_0.gguf` (943 MB), because the
 product is a CPU decision server on llama.cpp. There is no safetensors release to download.
 
 ## Short answers to the questions that lead here
@@ -127,7 +127,7 @@ and [self-hosted AI for decisions](self-hosted-ai-for-decisions.md).
 ## Sources
 
 - Our own facts: the jevos release files and sizes, from the
-  [release page](https://github.com/feder-cr/jev/releases/tag/jevos).
+  [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
 - [safetensors repository README](https://github.com/huggingface/safetensors) and
   [safetensors docs](https://huggingface.co/docs/safetensors/index), fetched 2026-09-29: format,
   constraints, comparison table, list of projects using it.

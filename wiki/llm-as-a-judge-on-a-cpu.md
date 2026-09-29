@@ -111,7 +111,7 @@ your outputs to someone else.
   medical advice sound".
 - Languages other than English.
 - The final evaluation of a release, where the extra accuracy is worth the cost. On 2,000
-  rule-based questions the hosted Jev was right 0.927 of the time against 0.815 for jevos.
+  rule-based questions the hosted Jev was right 0.927 of the time against 0.811 for jevos.
 
 A common split is the small judge on every commit and the large one on the release candidate.
 For retrieval pipelines, the same criteria applied per passage and per answer are on

@@ -20,7 +20,7 @@ which builds Jev.
 
 The code change is the easy part of a migration. The part that deserves a day of work is
 checking accuracy on your own cases, because on 2,000 rule questions neither model had been
-tuned on, Jev was right 0.927 of the time and jevos 0.815. For some applications that gap is
+tuned on, Jev was right 0.927 of the time and jevos 0.811. For some applications that gap is
 irrelevant; for others it is the whole decision.
 
 This page is what stays the same, the switch step by step, what the local server refuses or
@@ -44,14 +44,14 @@ with a `401` otherwise, which is the header TypeSafe's API reference documents f
 
 ## The switch, step by step
 
-1. Download `jevos-q4_k_m.gguf` (619 MB) and `SHA256SUMS.txt` from the
-   [release page](https://github.com/feder-cr/jev/releases/tag/jevos) and check the hash.
+1. Download `jevos-v2-q4_k_m.gguf` (619 MB) and `SHA256SUMS.txt` from the
+   [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2) and check the hash.
 2. Fetch llama.cpp for your machine and start the server:
 
 ```bash
 uv sync
 uv run jev download --only runtime
-uv run jev serve --gguf jevos-q4_k_m.gguf --device cpu --threads 16
+uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
 ```
 
 3. Change the base URL in your client. With raw HTTP, replace
@@ -111,7 +111,7 @@ before-and-after latency comparison possible without a separate benchmark harnes
 
 Keep Jev, or keep it for part of the traffic, when:
 
-- **Accuracy on hard rules matters most.** 0.927 against 0.815 on our 2,000 policy questions,
+- **Accuracy on hard rules matters most.** 0.927 against 0.811 on our 2,000 policy questions,
   with the gap largest on additive point scores, where several signals are summed and compared
   with a cut-off.
 - **You need `choice` or `score` today.**
@@ -139,7 +139,7 @@ definition of yes into `instructions`.
 and 345 ms for the hosted API, network included.
 
 **Is it as accurate?** No. On our 2,000 policy questions Jev was right 0.927 of the time and jevos
-0.815. Measure on your own cases before moving everything.
+0.811. Measure on your own cases before moving everything.
 
 **See also:** [jevos vs Jev vs Laya for yes/no decisions](jevos-vs-jev-vs-laya.md),
 [securing a local LLM server with an API key](securing-a-local-llm-server-with-an-api-key.md) and
@@ -150,7 +150,7 @@ and 345 ms for the hosted API, network included.
 - Wire format compatibility, the `jev-*` aliases, the `422` for `choice` and `score`, the
   `criteria` behaviour, `/health`, `/v1/models`, `Server-Timing` and `JEV_API_KEY`: the
   [jev README](https://github.com/feder-cr/jev) and the server source in `src/jev/api`.
-- Latency (54/220 ms against 344/345 ms) and accuracy (0.927 against 0.815): our own
+- Latency (54/220 ms against 344/345 ms) and accuracy (0.927 against 0.811): our own
   measurements, published in the README.
 - Jev's base URL, the Bearer header and the SDK's `base_url`, `TYPESAFE_BASE_URL` and
   `TYPESAFE_API_KEY`: [TypeSafe API reference](https://docs.typesafe.ai/api.md) and

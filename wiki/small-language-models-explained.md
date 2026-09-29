@@ -89,7 +89,7 @@ chatbot can be useful as a component.
 ## Small vs large on the same job
 
 On 2,000 yes/no questions about three business policies that none of the models was tuned on,
-with answers computed by code, the hosted Jev was right 0.927 of the time and jevos 0.815. The
+with answers computed by code, the hosted Jev was right 0.927 of the time and jevos 0.811. The
 gap was largest on additive point scores, where several signals are summed and compared with a
 cut-off: a computation again.
 
