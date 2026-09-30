@@ -28,7 +28,7 @@ the long request.
 |---|:---:|:---:|:---:|
 | Yes/no questions | ✓ | ✓ | ✓ |
 | Multiple choice | ✓ | ✓ | ✓ |
-| Scores | Soon | ✓ | ✓ |
+| Scores | ✓ (early) | ✓ | ✓ |
 | Runs on | your machine | cloud | your machine |
 | Cost | free | per token | free |
 | Context | 8,192 tokens | not stated | 512 tokens |
@@ -115,7 +115,7 @@ against 49 ms for one of them alone, and 39 ms when the same state is asked abou
 
 - **Put the rule in the question.** If the decision depends on a policy, write it into
   `instructions`, as in `refund` above. Jev's optional `criteria` field is accepted but not read.
-- **Yes/no and multiple choice.** `score` questions are refused with a `422` for now (see below for `choice`).
+- **Every question type.** `noul`, `choice` and `score`, in Jev's shapes (see below for the last two).
 - **Timing.** Every response carries a `Server-Timing` header: parsing, validation, tokenization,
   queue and inference times.
 
@@ -165,6 +165,43 @@ On 2,676 held-out choice questions, the most probable option is the right one 78
 on rental questions with labels from code, 81.2% agreement with Jev on workflow questions). The
 `confidence` says when to trust it: at 0.75 or more, 95% of the answers are right, on 46% of the
 questions; below 0.25, 47%.
+
+### Scores
+
+A `score` question lists its levels in `criteria`, lowest first, and gets back Jev's answer: the
+expected level (`score`, from 0 to the number of levels minus one), the levels as they were sent
+(`legend`), a probability per level and a `confidence`:
+
+```json
+"anger": {"type": "score", "instructions": "How angry is the customer?",
+          "criteria": ["calm", "annoyed", "angry", "furious"]}
+```
+
+```json
+"anger": {"type": "score", "score": 1.25, "legend": {"0": "calm", "1": "annoyed", "2": "angry", "3": "furious"},
+          "probabilities": {"0": 0.32, "1": 0.27, "2": 0.25, "3": 0.16}, "confidence": 0.0}
+```
+
+Here jevos cannot place the message on the scale (it gives "Is the customer angry?" a P(yes) of 0.28
+too), and `confidence` 0 says so: route answers like this one to a person or to another question.
+
+A score is asked as one yes/no question per level above the lowest, "is it at this level or higher?"
+("... Scale from lowest to highest: calm < annoyed < angry < furious. Is the answer at the following
+level or higher? Level: angry"), as in training. P(level ≥ k) is made non-increasing where the separate
+answers are not (pool adjacent violators, 19% of held-out questions), and P(level = k) is
+P(≥ k) − P(≥ k + 1). The `confidence` is Jev's: how concentrated the probabilities are around the most
+probable level, from 0 for a uniform spread to 1.
+
+Early: on 2,350 held-out score questions the most probable level is right 54% of the time, and within
+one level 82%. It depends on the kind of question:
+
+- **Rubrics** (contract clauses, logistics events, survey responses; 1,389 questions, labels from Jev):
+  69% right, 93% within one level, against 45% for always the most common level. Confidence 0.75 or
+  more: 93% right, on 24% of the questions.
+- **Points to add up** (a fraud score from six rules; 961 questions, labels from code): 34% right,
+  barely above the most common level's 33%, and confidently wrong: jevos overrates, and at confidence
+  0.75 or more it is right 44% of the time. Compute sums in code and ask jevos the parts as yes/no
+  questions.
 
 ### Other endpoints
 

@@ -196,7 +196,10 @@ NativeQuestion to_native(const std::string& qid, const Value& q) {
     } else {
         n.kind = "score";
         if (n.instructions.empty()) n.instructions = "Which level fits the evidence best?";
-        for (auto& level : crit->list) n.texts.emplace_back("levels", text_of(level));
+        for (auto& level : crit->list) {
+            n.texts.emplace_back("levels", text_of(level));
+            n.legend.push_back(pyjson::dumps(level, {-1, false, ",", ":", true}));
+        }
     }
     return n;
 }

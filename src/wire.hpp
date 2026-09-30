@@ -21,6 +21,7 @@ struct NativeQuestion {
     std::string instructions;
     std::vector<std::pair<std::string, std::string>> texts;  // (field, text): descriptions, options, levels
     std::vector<std::string> options;                        // choice: the option names, in order
+    std::vector<std::string> legend;                         // score: each level as JSON, as it was sent
 };
 
 NativeQuestion to_native(const std::string& qid, const Value& q);

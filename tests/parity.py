@@ -292,6 +292,17 @@ def compare(name, path, a, b, tol, multi_tol):
             if d > tol or (x["choice"] != y["choice"] and top[0] - top[1] > tol):
                 diffs.append(f"answer {k!r} {x['choice']} {px} vs {y['choice']} {py}")
             continue
+        if x["type"] == "score":
+            # the same legend, each probability, the expected level and the confidence within tol
+            px, py = x["probabilities"], y["probabilities"]
+            if x["legend"] != y["legend"] or list(px) != list(py):
+                diffs.append(f"answer {k!r} legend {x['legend']} vs {y['legend']}")
+                continue
+            d = max([abs(px[o] - py[o]) for o in px] + [abs(x["confidence"] - y["confidence"]), abs(x["score"] - y["score"]) / max(len(px) - 1, 1)])
+            worst = max(worst, d)
+            if d > tol:
+                diffs.append(f"answer {k!r} score {x['score']:.4f} {px} vs {y['score']:.4f} {py}")
+            continue
         d = abs(x["noul"] - y["noul"])
         worst = max(worst, d)
         flip = (x["noul"] > 0.5) != (y["noul"] > 0.5) and min(abs(x["noul"] - 0.5), abs(y["noul"] - 0.5)) > tol
@@ -301,7 +312,7 @@ def compare(name, path, a, b, tol, multi_tol):
 
 
 # Cases `jev` answers where the Python server it replaced refused them ("Binary model: only yes/no"): a
-# choice is answered from its options' yes/no answers, and a score's refusal names both kinds answered.
+# choice from its options' yes/no answers, a score from its thresholds'.
 # --skip-extensions leaves them out against that server's responses; tests/check.py checks them apart.
 EXTENSIONS = {"valid choice", "valid score", "choice mixed with noul"}
 

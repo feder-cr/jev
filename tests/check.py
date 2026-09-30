@@ -2,7 +2,8 @@
 
     python tests/check.py [--jev dist/jev/jev] [--build-dir build] [--exact] [--record]
 
-1. plan-calls-test: how requests are split into model calls; choice-test: a choice's distribution; tokenizer.py: the token ids of 3,054 texts,
+1. plan-calls-test: how requests are split into model calls; choice-test, score-test: a choice's and a score's
+   distribution; tokenizer.py: the token ids of 3,054 texts,
    the Python engine's wherever its std::regex pre-tokenizer could tokenize them;
 2. parity with the Python server this one replaced: the 215 cases of parity.py (errors, formats and
    answers; parity.py's EXTENSIONS, answered here where it refused them, left out) against its responses kept in golden/jev-python-q8.json (the jevos-v2 q8_0 GGUF, the INT8
@@ -14,7 +15,7 @@
    activations (--dynamic-quantization 0), so they compute the same function and every answer must match;
 5. jev decide: a request file answered as the server answers it, errors on stderr with exit 1, and
    an --output file never written over; a choice: the same numbers as its options' yes/no questions,
-   normalized, in Jev's shape; a score: refused;
+   normalized, in Jev's shape; a score: the same numbers as its thresholds' yes/no questions, in Jev's shape;
 6. /health: the SHA-256 of the model folder's files and their fingerprint, as Python's hashlib computes them;
 7. jev serve on a port another server holds: refused, with exit 1 and a reason, never a second listener.
 Exit status 1 when any step fails. The model folder is JEV_MODEL_DIR (tests/common.py).
@@ -137,10 +138,48 @@ def check_choice(url):
               and abs(a["confidence"] - (got[best] - 1 / 3) / (1 - 1 / 3)) < 1e-12
               and choice.json()["answers"]["upset"] == noul.json()["answers"]["upset"])
     step("choice: its options' yes/no answers, normalized, in Jev's shape", ok)
+
+
+LEVELS = ["calm", "annoyed", {"level": "angry", "note": "raises their voice"}, "furious"]
+SCORE_INSTRUCTIONS = "How angry is the customer?"
+SCORE_PHRASING = "Is the answer at the following level or higher?"
+
+
+def check_score(url):
+    """A score is its thresholds' yes/no answers (src/prompt.hpp score_instructions), P(>= k) made
+    non-increasing: the same prompts asked as noul questions give the same numbers; the levels come back
+    as sent in `legend`."""
+    state = REQUEST["state"]
+    named = [json.dumps(l, sort_keys=True, separators=(",", ":")) if isinstance(l, dict) else l for l in LEVELS]
+    scale = " < ".join(named)
+    as_noul = {f"k{k}": {"type": "noul", "instructions": f"{SCORE_INSTRUCTIONS}\nScale from lowest to highest: {scale}\n{SCORE_PHRASING}\nLevel: {named[k]}"}
+               for k in range(1, len(LEVELS))}
     score = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {
-        "s": {"type": "score", "instructions": "How angry?", "criteria": ["calm", "angry"]}}})
-    step("score: refused with a 422 that names what is answered",
-         score.status_code == 422 and "yes/no (noul) and choice questions are answered; not s" in score.text)
+        "anger": {"type": "score", "instructions": SCORE_INSTRUCTIONS, "criteria": LEVELS}}})
+    noul = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": as_noul})
+    ok = score.status_code == 200 and noul.status_code == 200
+    if ok:
+        a = score.json()["answers"]["anger"]
+        ge = [noul.json()["answers"][f"k{k}"]["noul"] for k in range(1, len(LEVELS))]
+        pools = []  # pool adjacent violators: P(>= k) non-increasing
+        for v in ge:
+            pools.append([v, 1])
+            while len(pools) > 1 and pools[-2][0] / pools[-2][1] < pools[-1][0] / pools[-1][1]:
+                s, c = pools.pop()
+                pools[-1][0] += s
+                pools[-1][1] += c
+        g = [1.0] + [s / c for s, c in pools for _ in range(c)] + [0.0]
+        expected = [g[i] - g[i + 1] for i in range(len(LEVELS))]
+        got = [a["probabilities"][str(i)] for i in range(len(LEVELS))]
+        mode = max(range(len(got)), key=got.__getitem__)
+        mid = (len(LEVELS) - 1) / 2
+        confidence = 1 - sum(p * abs(i - mode) for i, p in enumerate(got)) / (sum(abs(i - mid) for i in range(len(LEVELS))) / len(LEVELS))
+        ok = (list(a) == ["type", "score", "legend", "probabilities", "confidence"]
+              and a["legend"] == {str(i): l for i, l in enumerate(LEVELS)} and list(a["probabilities"]) == [str(i) for i in range(len(LEVELS))]
+              and all(abs(x - e) < 1e-12 for x, e in zip(got, expected))
+              and abs(a["score"] - sum(i * p for i, p in enumerate(got))) < 1e-12
+              and abs(a["confidence"] - min(max(confidence, 0.0), 1.0)) < 1e-12)
+    step("score: its thresholds' yes/no answers, in Jev's shape", ok)
 
 
 def check_health(url):
@@ -162,6 +201,7 @@ def main():
 
     step("plan-calls-test", run(args.build_dir / f"plan-calls-test{EXE}"))
     step("choice-test", run(args.build_dir / f"choice-test{EXE}"))
+    step("score-test", run(args.build_dir / f"score-test{EXE}"))
     step("tokenizer: the recorded token ids", run(sys.executable, "tokenizer.py", "--test", args.build_dir / f"tokenizer-test{EXE}"))
     with Server(args.jev, "--name", "jevos-v2-q8_0", "--warmup", "0") as s:
         step("parity with the Python server (jevos-v2 q8_0, P within 0.15)", parity(s.url, golden / "jev-python-q8.json", "0.15", "--skip-extensions"))
@@ -172,6 +212,7 @@ def main():
             step("parity with a verified build (zero tolerance)", parity(s.url, golden / "jev.json", "0"))
         check_decide(args.jev, s.url)
         check_choice(s.url)
+        check_score(s.url)
         check_health(s.url)
         check_port_taken(args.jev, 8045)
     with Server(args.jev, "--warmup", "0", "--dynamic-quantization", "0") as s:

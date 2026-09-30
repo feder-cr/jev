@@ -60,6 +60,13 @@ if(MSVC)
   target_compile_options(choice-test PRIVATE /utf-8 /EHsc /W3)
 endif()
 
+# A score's distribution from its thresholds' yes/no answers (src/score.hpp), checked without a model.
+add_executable(score-test tests/score_test.cpp)
+target_include_directories(score-test PRIVATE src)
+if(MSVC)
+  target_compile_options(score-test PRIVATE /utf-8 /EHsc /W3)
+endif()
+
 # How requests are split into model calls (src/calls.hpp), checked without a model.
 add_executable(plan-calls-test tests/plan_calls_test.cpp)
 target_include_directories(plan-calls-test PRIVATE src)

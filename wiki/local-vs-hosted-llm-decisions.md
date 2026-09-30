@@ -100,7 +100,7 @@ local one may be enough. The way to know is a labelled sample of your own cases.
 - **Region.** A client near the provider sees a lower floor. A client far away sees a higher one.
 - **Text length.** Short texts favour local; very long ones narrow or reverse the gap.
 - **Languages and question types.** jevos is English, and answers yes/no and `choice`
-  questions; `score` questions are refused with a `422`.
+  questions; its `score` answers are early (54% on held-out score questions, 82% within one level).
 - **Both at once.** With the same wire format, you can answer confident cases locally and send the
   uncertain band to the hosted model, as on
   [a model cascade: small model first](model-cascade-small-model-first.md).

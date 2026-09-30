@@ -27,7 +27,7 @@ taken, and which one fits which job.
 |---|:---:|:---:|:---:|
 | Yes/no questions | yes | yes | yes |
 | Multiple choice | yes | yes | yes |
-| Scores | soon | yes | yes |
+| Scores | early | yes | yes |
 | Runs on | your machine | TypeSafe's cloud | your machine |
 | Cost | free | per token | free |
 | Context | 8,192 tokens | not stated | 512 tokens (English checkpoint) |
@@ -37,7 +37,8 @@ taken, and which one fits which job.
 All three answer the same three primitives in principle: `noul` (yes/no, as a probability),
 `choice` and `score`, and none of them generates text to get there. jevos speaks the same wire
 format as Jev, so code written for Jev's SDK runs against a jevos server unchanged for yes/no
-and `choice` questions; `score` is refused with a `422` until it ships.
+and `choice` questions, and for `score` questions, whose answers are early (54% on held-out score
+questions, 82% within one level).
 
 Laya is an encoder model (ModernBERT-large, 421M parameters, per its own README) with an English
 checkpoint and a multilingual one. The numbers here use the English checkpoint as shipped.
@@ -107,7 +108,8 @@ Jev on our two requests.
 **Which is most accurate?** Jev, on our 2,000 policy questions.
 
 **Can jevos replace Laya?** For English yes/no decisions with texts longer than 512 tokens, it
-is faster and more accurate in our test. For other languages or for scores, not yet.
+is faster and more accurate in our test. For other languages, not yet; for scores, only where an
+answer within one level is good enough.
 
 **Does my data leave my machine?** With jevos and Laya, no. With Jev, the text is sent to
 TypeSafe's API.

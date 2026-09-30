@@ -110,7 +110,7 @@ Self-hosting moves the model onto your machine and the responsibilities with it.
 ## When a hosted API is still the better choice
 
 Being straight about the limit: jevos answers yes/no and multiple-choice questions in English
-and nothing else, and `score` questions get a `422`. On 2,000 yes/no questions about business
+and, early, scores (54% on held-out score questions). On 2,000 yes/no questions about business
 policies none of the models was tuned on, the hosted Jev was right 0.927 of the time against
 0.810 for jevos. If the decision needs that accuracy, other languages, or scores,
 the hosted model is the right tool, and because the wire format is the same, moving between

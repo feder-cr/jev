@@ -62,7 +62,8 @@ model, including where it is wrong, and how it compares with the alternatives.
 ## What it is not
 
 jevos answers yes/no questions, and multiple-choice questions asked as one yes/no question per
-option, in English only. Scores are on the roadmap and are refused today with a `422`. On rules it has never seen it is right about
+option, in English only. Scores, asked as one yes/no question per level, are early (54% on held-out
+score questions, 82% within one level). On rules it has never seen it is right about
 four times in five (0.810 on 2,000 such questions), which is good for a first pass and not good
 enough to be the last word on a refund, and the measurement pages say exactly where it fails.
 

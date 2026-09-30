@@ -108,8 +108,8 @@ Being straight about the limit: this is not a way to run a chatbot on a CPU.
 - **No text generation.** jevos answers yes/no and multiple-choice questions, as probabilities. It does not write,
   summarise or chat. For that you need a generative model, and on a CPU its speed will depend
   on how long the answers are; llama.cpp itself runs such models.
-- **No scores yet.** `score` questions are refused with a `422`. One yes/no question per
-  boundary is the workaround. Multiple choice is answered, as `choice` questions.
+- **Scores are early.** `score` questions are answered as one yes/no question per level, right 54% of the time on 2,350 held-out score questions and within one level 82%, weak on points to add up.
+  Multiple choice is answered, as `choice` questions.
 - **English only.**
 - **Reading, not computing.** On 999 questions written after training, it was right 0.954 of
   the time on facts stated in the text and 0.584 on questions that need arithmetic. Compute in
