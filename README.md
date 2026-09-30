@@ -163,6 +163,7 @@ status 1.
 | `--host`, `--port` | `127.0.0.1`, `8017` | where the server listens |
 | `--state-cache`, `--state-cache-tokens` | 16, 8,192 | texts kept for later requests, how many and how many tokens in all; 0 turns it off |
 | `--batch-tokens` | 384 | small requests arriving together are read in one model call while their tokens fit |
+| `--dynamic-quantization` | 128 | activations in INT8 groups of this many values; 0 keeps them f32, slower |
 
 With `JEV_API_KEY` set, every call but `/health` needs `Authorization: Bearer <key>`. The server needs about
 1 GB of memory once the model is loaded, up to 1.4 GB with its cache of recent texts full. `/health`

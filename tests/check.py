@@ -10,7 +10,8 @@
 3. --exact: the same cases against golden/jev.json, a verified build's own responses, with zero
    tolerance: a check of a change on the machine and OS they were recorded on (OpenVINO picks kernels by CPU,
    and the numbers differ in the last digits between OSes); --record keeps them again;
-4. snapshots.py: state snapshots, blocks and batching against an oracle that has none;
+4. snapshots.py: state snapshots, blocks and batching against an oracle that has none, both with f32
+   activations (--dynamic-quantization 0), so they compute the same function and every answer must match;
 5. jev decide: a request file answered as the server answers it, errors on stderr with exit 1, and
    an --output file never written over;
 6. /health: the SHA-256 of the model folder's files and their fingerprint, as Python's hashlib computes them.
@@ -128,8 +129,9 @@ def main():
             step("parity with a verified build (zero tolerance)", parity(s.url, golden / "jev.json", "0"))
         check_decide(args.jev, s.url)
         check_health(s.url)
-    with Server(args.jev, "--warmup", "0") as s:
-        step("snapshots, blocks, batching vs the plain oracle", run(sys.executable, "snapshots.py", "--target", s.url, "--model-dir", MODEL_DIR))
+    with Server(args.jev, "--warmup", "0", "--dynamic-quantization", "0") as s:
+        step("snapshots, blocks, batching vs the plain oracle", run(sys.executable, "snapshots.py", "--target", s.url, "--model-dir", MODEL_DIR,
+                                                                   "--dynamic-quantization", "0"))
     print(f"=== FAILED: {', '.join(failed)}" if failed else "=== every check passed", flush=True)
     sys.exit(1 if failed else 0)
 

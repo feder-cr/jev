@@ -12,6 +12,8 @@
 //   jev decide REQUEST.json [--output FILE] [model options]
 //   model options: [--model-dir DIR (model/ beside the binary)] [--name NAME (the folder's model.json)]
 //                  [--threads N (all logical CPUs)] [--ctx 8192]
+//                  [--dynamic-quantization 128] (activations in INT8 groups of N values; 0 = f32: slower, and
+//                                    answers no longer move in their last digits with how a call is composed)
 //
 // JEV_API_KEY set: `jev serve` requires `Authorization: Bearer <key>` on every call but /health.
 // /health reports the SHA-256 of the model folder's files and their fingerprint (model_files, below).
@@ -106,6 +108,7 @@ int main(int argc, char** argv) try {
     // attention of every block runs over all the call's cells.
     size_t ctx = 8192, warmup = Model::WARM_TOKENS, batch_tokens = 384;
     size_t state_cache = 16, state_cache_tokens = 8192;  // state snapshots: how many, how many state tokens in all
+    size_t quantization_group = 128;
     fs::path model_dir = fs::absolute(fs::path(argv[0])).parent_path() / "model";
     for (int i = 2; i < argc; ++i) {
         std::string a = argv[i];
@@ -115,6 +118,7 @@ int main(int argc, char** argv) try {
         else if (a == "--name") name = next();
         else if (a == "--threads") threads = std::stoi(next());
         else if (a == "--ctx") ctx = std::stoul(next());
+        else if (a == "--dynamic-quantization") quantization_group = std::stoul(next());
         else if (serving && a == "--host") host = next();
         else if (serving && a == "--port") port = std::stoi(next());
         else if (serving && a == "--warmup") warmup = std::stoul(next());
@@ -153,7 +157,7 @@ int main(int argc, char** argv) try {
     if (command == "serve") files = std::async(std::launch::async, model_files, model_dir);
     Vocab vocab(model_dir / "tokenizer.gguf");
     std::fprintf(stderr, "jev: loading %s (OpenVINO %s)\n", model_dir.string().c_str(), Model::openvino_version().c_str());
-    Model model(model_dir, threads, command == "serve" ? state_cache : 0, state_cache_tokens);
+    Model model(model_dir, threads, command == "serve" ? state_cache : 0, state_cache_tokens, quantization_group);
     if (command == "decide") {
         Scheduler scheduler(model, 0, 0);
         Api api{model, vocab, scheduler, name, ctx, ojson::object()};

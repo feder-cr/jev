@@ -29,8 +29,10 @@ public:
     static constexpr size_t WARM_TOKENS = 384;
 
     // `dir` holds openvino_model.xml/.bin; `snapshots` states of at most `snapshot_tokens` tokens in all
-    // are kept for later requests (0 = none).
-    Model(const std::filesystem::path& dir, int threads, size_t snapshots, size_t snapshot_tokens);
+    // are kept for later requests (0 = none). Activations are quantized to INT8 in groups of
+    // `quantization_group` values (0 = kept f32: slower, and an answer no longer moves, in its last digits,
+    // with how a call is composed).
+    Model(const std::filesystem::path& dir, int threads, size_t snapshots, size_t snapshot_tokens, size_t quantization_group);
     ~Model();
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;
