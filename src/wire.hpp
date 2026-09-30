@@ -20,6 +20,7 @@ struct NativeQuestion {
     std::string id, kind;  // boolean | choice | score
     std::string instructions;
     std::vector<std::pair<std::string, std::string>> texts;  // (field, text): descriptions, options, levels
+    std::vector<std::string> options;                        // choice: the option names, in order
 };
 
 NativeQuestion to_native(const std::string& qid, const Value& q);

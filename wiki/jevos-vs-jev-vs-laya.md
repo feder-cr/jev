@@ -9,7 +9,7 @@ nav_order: 1
 
 **For yes/no decisions on a CPU, jevos is the fastest of the three on short and long requests,
 TypeSafe's hosted Jev is the most accurate, and Laya is the one to pick when you need many
-languages or multiple choice today.** On the same laptop and the same requests, jevos answered
+languages or scores today.** On the same laptop and the same requests, jevos answered
 in 26 ms and 112 ms, Laya in 104 ms and 449 ms, and Jev in about 345 ms both times, most of it
 network. On 2,000 yes/no questions about business policies none of them had been tuned on,
 Jev was right 0.927 of the time, jevos 0.810, and Laya 0.489.
@@ -26,7 +26,7 @@ taken, and which one fits which job.
 | | **jevos** | Jev | Laya |
 |---|:---:|:---:|:---:|
 | Yes/no questions | yes | yes | yes |
-| Multiple choice | soon | yes | yes |
+| Multiple choice | yes | yes | yes |
 | Scores | soon | yes | yes |
 | Runs on | your machine | TypeSafe's cloud | your machine |
 | Cost | free | per token | free |
@@ -37,7 +37,7 @@ taken, and which one fits which job.
 All three answer the same three primitives in principle: `noul` (yes/no, as a probability),
 `choice` and `score`, and none of them generates text to get there. jevos speaks the same wire
 format as Jev, so code written for Jev's SDK runs against a jevos server unchanged for yes/no
-questions; `choice` and `score` are refused with a `422` until they ship.
+and `choice` questions; `score` is refused with a `422` until it ships.
 
 Laya is an encoder model (ModernBERT-large, 421M parameters, per its own README) with an English
 checkpoint and a multilingual one. The numbers here use the English checkpoint as shipped.
@@ -81,25 +81,25 @@ measure of Laya on the tasks it was built and documented for.
 
 ## Which one to use
 
-**jevos** if the decision is yes/no, the text is English, and you want it local: on a laptop,
+**jevos** if the decision is yes/no or multiple choice, the text is English, and you want it local: on a laptop,
 in CI, on a server without a GPU, or anywhere the text should not leave the machine. It is the
 fastest of the three on both request sizes, and free. Plan around its weak spot, computation,
 by doing arithmetic in code.
 
-**Jev** if accuracy on hard rules matters more than latency and cost, if you need multiple
-choice or scores now, or if you do not want to run anything. Because the wire format is the
+**Jev** if accuracy on hard rules matters more than latency and cost, if you need scores
+now, or if you do not want to run anything. Because the wire format is the
 same, starting with jevos and moving the hard cases to Jev is a change of URL, not of code. The switch itself, step by step, is on
 [an open-source alternative to Jev](open-source-alternative-to-jev.md), and the same trade-off
 against a general hosted chat API is on [jevos vs the OpenAI API](jevos-vs-openai-api-for-classification.md).
 
-**Laya** if you need many languages, or local multiple choice and scores today, and your texts
+**Laya** if you need many languages, or local scores today, and your texts
 fit its context.
 
 ## Short answers to the questions that lead here
 
-**Is jevos an alternative to Jev?** For yes/no questions, yes: same wire format, local, free and
-faster from a laptop. Jev is more accurate on unseen rules (0.927 against 0.810) and answers
-multiple choice and scores.
+**Is jevos an alternative to Jev?** For yes/no and multiple-choice questions, yes: same wire
+format, local, free and faster from a laptop. Jev is more accurate on unseen rules (0.927 against
+0.810) and answers scores.
 
 **Which is fastest?** jevos: 26 ms and 112 ms against 104/449 ms for Laya and about 345 ms for
 Jev on our two requests.
@@ -107,7 +107,7 @@ Jev on our two requests.
 **Which is most accurate?** Jev, on our 2,000 policy questions.
 
 **Can jevos replace Laya?** For English yes/no decisions with texts longer than 512 tokens, it
-is faster and more accurate in our test. For other languages or for choice and score, not yet.
+is faster and more accurate in our test. For other languages or for scores, not yet.
 
 **Does my data leave my machine?** With jevos and Laya, no. With Jev, the text is sent to
 TypeSafe's API.

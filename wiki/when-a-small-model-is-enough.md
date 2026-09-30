@@ -11,7 +11,7 @@ nav_order: 9
 questions, the answers are read from the text rather than computed, and speed, cost or privacy
 matter more than the last few points of accuracy.** It is not enough when the decision depends
 on applying a complex rule, doing arithmetic or date math, reading another language, or
-producing anything other than yes/no. Most real systems have both kinds of decision, and the
+producing anything other than yes/no or one option from a list. Most real systems have both kinds of decision, and the
 useful answer is to split them: the small model reads, code computes, and a large model or a
 person takes what is left.
 
@@ -45,9 +45,9 @@ at them. The options are laid out on
 [using an English-only LLM with other languages](using-an-english-only-model-with-other-languages.md).
 
 The yes/no shape fits more often than it seems. A label from a list becomes one question per
-label; a level such as low, medium or high becomes "is it at least medium?" and "is it high?". jevos answers only
-`noul` questions today: `choice` and `score` requests are refused with a `422`, and both are
-on the roadmap. If the output has to be text, a summary, a reply, an extracted list, a small
+label; a level such as low, medium or high becomes "is it at least medium?" and "is it high?". jevos answers
+`noul` and `choice` questions, the latter as one yes/no question per option; `score` requests
+are refused with a `422`, and are on the roadmap. If the output has to be text, a summary, a reply, an extracted list, a small
 yes/no model is the wrong tool, and a generative model is the right one.
 
 ## Is the answer read or computed?
@@ -98,7 +98,7 @@ reasonable default for the hard questions, and the trade-off is on
 
 Then use both. Ask the small model first; act when the probability is confidently high or low;
 send the middle band to a large model or a person. Because jevos speaks the same wire format as
-TypeSafe's Jev for yes/no questions, the escalation can be the same request sent to a different
+TypeSafe's Jev for yes/no and `choice` questions, the escalation can be the same request sent to a different
 base URL. How to size the band and what it saves is on
 [a model cascade: small model first, large model on doubt](model-cascade-small-model-first.md).
 Measure the split on your own labelled cases, split by kind of question, before trusting it.

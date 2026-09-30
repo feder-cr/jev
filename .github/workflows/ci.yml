@@ -38,6 +38,14 @@ jobs:
       - name: Build
         run: python scripts/build.py
 
+      # The built folder, without the model, for trying a branch before it is released
+      - name: Binaries of this run
+        uses: actions/upload-artifact@v4
+        with:
+          name: jev-${{ matrix.os }}
+          path: dist/jev
+          retention-days: 14
+
       - name: Model
         shell: bash
         env:

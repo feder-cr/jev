@@ -124,7 +124,7 @@ if answer["answers"]["billing"]["noul"] > 0.5:
 ```
 
 The wire format is the one TypeSafe's Jev uses, so code already written against Jev's SDK works
-against this server for yes/no questions. `choice` and `score` questions are refused with a
+against this server for yes/no and `choice` questions. `score` questions are refused with a
 `422` rather than answered badly.
 
 ## From the command line, without a server
@@ -156,8 +156,8 @@ A probability is more useful than a word because you choose where to cut it.
 ## Put the context in the question
 
 The model knows only what is in `state` and in `instructions`. If the answer depends on a rule,
-write the rule into the question, as the `refund` example does. Jev's optional `criteria` field
-is accepted for compatibility but not read. How to phrase rules, and how much to trust the answer
+write the rule into the question, as the `refund` example does. On a yes/no question, Jev's
+optional `criteria` field is accepted for compatibility but not read. How to phrase rules, and how much to trust the answer
 when you do, is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
 ## The other endpoints
@@ -187,8 +187,9 @@ first.
 
 **What languages does it understand?** English only.
 
-**Can it answer multiple-choice questions?** Not directly. Ask one yes/no question per option,
-or wait for `choice` support, which is on the roadmap.
+**Can it answer multiple-choice questions?** Yes. Send a `choice` question with the options as
+the keys of `criteria`; the answer is the most probable option, a probability for each option and
+a confidence. Each option costs about as much as one more yes/no question.
 
 **See also:** [zero-shot text classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md),
 [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md) and

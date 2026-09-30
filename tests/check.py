@@ -2,10 +2,10 @@
 
     python tests/check.py [--jev dist/jev/jev] [--build-dir build] [--exact] [--record]
 
-1. plan-calls-test: how requests are split into model calls; tokenizer.py: the token ids of 3,054 texts,
+1. plan-calls-test: how requests are split into model calls; choice-test: a choice's distribution; tokenizer.py: the token ids of 3,054 texts,
    the Python engine's wherever its std::regex pre-tokenizer could tokenize them;
 2. parity with the Python server this one replaced: the 215 cases of parity.py (errors, formats and
-   answers) against its responses kept in golden/jev-python-q8.json (the jevos-v2 q8_0 GGUF, the INT8
+   answers; parity.py's EXTENSIONS, answered here where it refused them, left out) against its responses kept in golden/jev-python-q8.json (the jevos-v2 q8_0 GGUF, the INT8
    model's precision class): formats and errors exact, P(yes) within 0.15;
 3. --exact: the same cases against golden/jev.json, a verified build's own responses, with zero
    tolerance: a check of a change on the machine and OS they were recorded on (OpenVINO picks kernels by CPU,
@@ -13,7 +13,8 @@
 4. snapshots.py: state snapshots, blocks and batching against an oracle that has none, both with f32
    activations (--dynamic-quantization 0), so they compute the same function and every answer must match;
 5. jev decide: a request file answered as the server answers it, errors on stderr with exit 1, and
-   an --output file never written over;
+   an --output file never written over; a choice: the same numbers as its options' yes/no questions,
+   normalized, in Jev's shape; a score: refused;
 6. /health: the SHA-256 of the model folder's files and their fingerprint, as Python's hashlib computes them;
 7. jev serve on a port another server holds: refused, with exit 1 and a reason, never a second listener.
 Exit status 1 when any step fails. The model folder is JEV_MODEL_DIR (tests/common.py).
@@ -80,8 +81,8 @@ def run(*args):
     return subprocess.run([str(a) for a in args], cwd=HERE).returncode == 0
 
 
-def parity(target, ref_file, tol):
-    return run(sys.executable, "parity.py", "--ref-file", ref_file, "--target", target, "--tol", tol, "--multi-tol", tol)
+def parity(target, ref_file, tol, *extra):
+    return run(sys.executable, "parity.py", "--ref-file", ref_file, "--target", target, "--tol", tol, "--multi-tol", tol, *extra)
 
 
 def check_decide(jev, url):
@@ -109,6 +110,39 @@ def check_port_taken(jev, port):
     step("serve: a port in use is refused, exit 1", second.returncode == 1 and "cannot listen" in second.stderr)
 
 
+CHOICE = {"billing": "payments, invoices, refunds", "shipping": "deliveries, missing or damaged parcels", "tech": "a product that does not work"}
+CHOICE_INSTRUCTIONS = "Which team should handle this message?"
+PHRASING = "Among the candidates, is it this one?"
+
+
+def check_choice(url):
+    """A choice is its options' yes/no answers (src/prompt.hpp choice_instructions), normalized: the same
+    prompts asked as noul questions in the same order give the same numbers."""
+    state, upset = REQUEST["state"], {"type": "noul", "instructions": "Is the customer upset?"}
+    options = [f"{k}: {v}" for k, v in CHOICE.items()]
+    listed = "\n".join(f"- {o}" for o in options)
+    as_noul = {f"o{i}": {"type": "noul", "instructions": f"{CHOICE_INSTRUCTIONS}\nCandidates:\n{listed}\n{PHRASING}\nCandidate: {o}"}
+               for i, o in enumerate(options)}
+    choice = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {
+        "team": {"type": "choice", "instructions": CHOICE_INSTRUCTIONS, "criteria": CHOICE}, "upset": upset}})
+    noul = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {**as_noul, "upset": upset}})
+    ok = choice.status_code == 200 and noul.status_code == 200
+    if ok:
+        a, ps = choice.json()["answers"]["team"], [noul.json()["answers"][f"o{i}"]["noul"] for i in range(len(options))]
+        expected = [x / sum(ps) for x in ps]
+        got = list(a["probabilities"].values())
+        best = max(range(len(got)), key=got.__getitem__)
+        ok = (list(a) == ["type", "choice", "probabilities", "confidence"] and list(a["probabilities"]) == list(CHOICE)
+              and all(abs(g - e) < 1e-12 for g, e in zip(got, expected)) and a["choice"] == list(CHOICE)[best]
+              and abs(a["confidence"] - (got[best] - 1 / 3) / (1 - 1 / 3)) < 1e-12
+              and choice.json()["answers"]["upset"] == noul.json()["answers"]["upset"])
+    step("choice: its options' yes/no answers, normalized, in Jev's shape", ok)
+    score = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {
+        "s": {"type": "score", "instructions": "How angry?", "criteria": ["calm", "angry"]}}})
+    step("score: refused with a 422 that names what is answered",
+         score.status_code == 422 and "yes/no (noul) and choice questions are answered; not s" in score.text)
+
+
 def check_health(url):
     health = requests.get(url + "/health").json()
     files = {n: hashlib.sha256((MODEL_DIR / n).read_bytes()).hexdigest() for n in ("model.json", "openvino_model.bin", "openvino_model.xml", "tokenizer.gguf")}
@@ -127,15 +161,17 @@ def main():
     golden = HERE / "golden"
 
     step("plan-calls-test", run(args.build_dir / f"plan-calls-test{EXE}"))
+    step("choice-test", run(args.build_dir / f"choice-test{EXE}"))
     step("tokenizer: the recorded token ids", run(sys.executable, "tokenizer.py", "--test", args.build_dir / f"tokenizer-test{EXE}"))
     with Server(args.jev, "--name", "jevos-v2-q8_0", "--warmup", "0") as s:
-        step("parity with the Python server (jevos-v2 q8_0, P within 0.15)", parity(s.url, golden / "jev-python-q8.json", "0.15"))
+        step("parity with the Python server (jevos-v2 q8_0, P within 0.15)", parity(s.url, golden / "jev-python-q8.json", "0.15", "--skip-extensions"))
     with Server(args.jev, "--warmup", "0") as s:
         if args.record:
             step("record golden/jev.json", run(sys.executable, "parity.py", "--ref", s.url, "--record", golden / "jev.json"))
         elif args.exact:
             step("parity with a verified build (zero tolerance)", parity(s.url, golden / "jev.json", "0"))
         check_decide(args.jev, s.url)
+        check_choice(s.url)
         check_health(s.url)
         check_port_taken(args.jev, 8045)
     with Server(args.jev, "--warmup", "0", "--dynamic-quantization", "0") as s:

@@ -70,7 +70,7 @@ As a small internal HTTP service. The common shapes:
 - **Batch.** `jev decide` answers a request file without a server, for nightly jobs over a
   queue of documents; see [batch decisions from files with jev decide](batch-decisions-with-jev-decide.md).
 
-Because the server speaks the same wire format as TypeSafe's hosted Jev for yes/no questions,
+Because the server speaks the same wire format as TypeSafe's hosted Jev for yes/no and `choice` questions,
 an application written against Jev's SDK can point at the internal server instead, and back,
 by changing the base URL.
 

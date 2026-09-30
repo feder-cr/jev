@@ -279,12 +279,31 @@ def compare(name, path, a, b, tol, multi_tol):
         if set(x) != set(y) or x["type"] != y["type"]:
             diffs.append(f"answer {k!r} shape {x} vs {y}")
             continue
+        if x["type"] == "choice":
+            # the same options in the same order, each probability and the confidence within tol; the
+            # same winner unless the reference's top two are within tol of each other
+            px, py = x["probabilities"], y["probabilities"]
+            if list(px) != list(py):
+                diffs.append(f"answer {k!r} options {list(px)} vs {list(py)}")
+                continue
+            d = max([abs(px[o] - py[o]) for o in px] + [abs(x["confidence"] - y["confidence"])])
+            worst = max(worst, d)
+            top = sorted(px.values(), reverse=True)
+            if d > tol or (x["choice"] != y["choice"] and top[0] - top[1] > tol):
+                diffs.append(f"answer {k!r} {x['choice']} {px} vs {y['choice']} {py}")
+            continue
         d = abs(x["noul"] - y["noul"])
         worst = max(worst, d)
         flip = (x["noul"] > 0.5) != (y["noul"] > 0.5) and min(abs(x["noul"] - 0.5), abs(y["noul"] - 0.5)) > tol
         if d > tol or flip:
             diffs.append(f"answer {k!r} P {x['noul']:.4f} vs {y['noul']:.4f}")
     return diffs, worst
+
+
+# Cases `jev` answers where the Python server it replaced refused them ("Binary model: only yes/no"): a
+# choice is answered from its options' yes/no answers, and a score's refusal names both kinds answered.
+# --skip-extensions leaves them out against that server's responses; tests/check.py checks them apart.
+EXTENSIONS = {"valid choice", "valid score", "choice mixed with noul"}
 
 
 class Recorded:
@@ -308,6 +327,7 @@ def main():
     ap.add_argument("--multi-tol", type=float, default=0.05)
     ap.add_argument("--only")
     ap.add_argument("--show", action="store_true", help="print every case, not only the failures")
+    ap.add_argument("--skip-extensions", action="store_true", help="leave out EXTENSIONS (against the Python server)")
     args = ap.parse_args()
     if bool(args.target) == bool(args.record) or (args.record and not args.ref):
         ap.error("give --target (compare) or --record with --ref (keep the reference's responses)")
@@ -331,6 +351,8 @@ def main():
     failed, worst_all, n = 0, 0.0, 0
     for name, method, path, payload, headers in cases(served):
         if args.only and args.only.lower() not in name.lower():
+            continue
+        if args.skip_extensions and name in EXTENSIONS:
             continue
         n += 1
         a = Recorded(kept["responses"][name]) if kept else send(sa, args.ref, method, path, payload, headers)

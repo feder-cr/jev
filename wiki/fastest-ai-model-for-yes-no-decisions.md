@@ -115,8 +115,8 @@ and, against generating even one word,
 - **Hard reasoning.** If the small model gets the answer wrong, it was not fast, it was early.
   Arithmetic and multi-step rules are its weak spot, measured on
   [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md).
-- **Anything that is not English yes/no.** jevos reads English only and refuses `choice` and
-  `score` questions with a `422` for now.
+- **Anything that is not English yes/no or multiple choice.** jevos reads English only and
+  refuses `score` questions with a `422` for now.
 
 ## Short answers to the questions that lead here
 

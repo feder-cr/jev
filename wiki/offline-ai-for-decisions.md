@@ -103,7 +103,7 @@ decision log ties each answer to a verified file, as described on
   uncertain middle goes to a person, or waits. If you plan an escalation path like the one on
   [a model cascade: small model first](model-cascade-small-model-first.md), it needs a
   connected side.
-- **More capability.** The model is the same one: English only, yes/no only, 0.810 on 2,000
+- **More capability.** The model is the same one: English only, yes/no and multiple choice only, 0.810 on 2,000
   questions about unseen business policies against 0.927 for the hosted Jev. Offline changes
   where it runs, not what it knows.
 

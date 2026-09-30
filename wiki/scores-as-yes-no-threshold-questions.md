@@ -14,8 +14,8 @@ clear answer, where "Is the urgency medium?" can be wrong in two directions, and
 come back as probabilities you can threshold, compare and log.
 
 This is also how jevos does scores today. The wire format it speaks has a `score` question
-type, and jevos refuses it with a `422` (scores and multiple choice are on the roadmap, marked
-"Soon"). Boundary questions are not a workaround, though. They are the same idea statisticians
+type, and jevos refuses it with a `422` (scores are on the roadmap, marked "Soon", to be
+answered the way `choice` is: one yes/no question per level). Boundary questions are not a workaround, though. They are the same idea statisticians
 use for ordered outcomes, and they often make a better score than asking for a number.
 
 This page is the idea behind boundary questions, the request, how to read a level and an
@@ -153,5 +153,5 @@ roadmap.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which answers only yes/no questions
-today, and gets its scores by asking several of them.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which answers yes/no and multiple-choice
+questions today, and gets its scores by asking several yes/no ones.*

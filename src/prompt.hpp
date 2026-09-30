@@ -1,6 +1,7 @@
 // The Python engine's binary prompt: the evidence block, then the question.
 #pragma once
 #include <string>
+#include <vector>
 
 #include "errors.hpp"
 #include "text.hpp"
@@ -27,4 +28,14 @@ inline std::string text_of(const Value& v) {
 
 inline std::string binary_prompt(const std::string& bos, const std::string& state_text, const std::string& instruction) {
     return bos + state_text + "\n\nQuestion: " + instruction + "\nAnswer:";
+}
+
+// A choice asked as yes/no questions, one per option, the way the model was trained on choices
+// (datagen/binary_templates.py): the instructions, every candidate, a phrasing, then the candidate asked
+// about. Each question sees all the others, so each is one option against the rest.
+inline std::string choice_instructions(const std::string& instructions, const std::vector<std::string>& options, size_t i,
+                                       const std::string& phrasing) {
+    std::string out = instructions + "\nCandidates:";
+    for (auto& o : options) out += "\n- " + o;
+    return out + "\n" + phrasing + "\nCandidate: " + options[i];
 }

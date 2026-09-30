@@ -70,7 +70,7 @@ the like. So the code checks the status itself. What each case means here:
   one model (small ones arriving together are read in one model call), so a timeout under load
   usually means the queue is long, not that the model hangs.
 - **`422`.** The body is `{"detail": [{"loc": [...], "msg": "...", "type": "..."}]}`. Common
-  causes: a `choice` or `score` question (only `noul` is answered), a model name that is not
+  causes: a `score` question (only `noul` and `choice` are answered), a model name that is not
   `jev-*` or the served model, a misspelt field (unknown fields are rejected), or a text over the
   context limit.
 - **`401`.** The server was started with `JEV_API_KEY` and the header is missing or wrong.

@@ -10,9 +10,9 @@ nav_order: 2
 **jevos is an open-source (MIT) local server that speaks TypeSafe Jev's wire format, so yes/no
 questions written for Jev move over by pointing the client at `http://127.0.0.1:8017` instead of
 TypeSafe's API.** The request body, the `jev-latest` model name and the shape of the answers stay
-the same. Two things do not: `choice` and `score` questions are refused with a `422`, and Jev's
-optional `criteria` field is accepted but not read, so the rule has to live in `instructions`.
-Whether the switch is worth it depends on how a local 1B model does on your questions, not on the
+the same, for `choice` questions too. Two things do not: `score` questions are refused with a
+`422`, and on a yes/no question Jev's optional `criteria` field is accepted but not read, so the
+rule has to live in `instructions`. Whether the switch is worth it depends on how a local 1B model does on your questions, not on the
 code.
 
 Conflict of interest, in one line: we build jevos, and we are not affiliated with TypeSafe AI,
@@ -31,7 +31,10 @@ ignores, how to confirm which model answered, and when to keep Jev.
 The endpoint is `POST /v1/systemone` on both. A request has `model`, `state` (a string, or any
 JSON object or array) and named `questions`; each yes/no question is
 `{"type": "noul", "instructions": "...?"}`, and each answer comes back as
-`{"type": "noul", "noul": <P(yes)>}` under the same name. The `usage` block is there too, with
+`{"type": "noul", "noul": <P(yes)>}` under the same name. A `choice` question,
+`{"type": "choice", "instructions": "...", "criteria": {"<option>": "<optional description>", ...}}`,
+comes back as `{"type": "choice", "choice": <most probable option>, "probabilities": {...}, "confidence": ...}`,
+Jev's shape. The `usage` block is there too, with
 `output_tokens` always 0, because jevos generates no text.
 
 The model name also carries over. `jev-latest` is accepted, and so is any other `jev-*` name, so a
@@ -79,7 +82,7 @@ The same steps are covered from the other direction, starting from nothing, on
 | Jev feature | On jevos |
 |---|---|
 | `noul` questions | answered |
-| `choice` questions | refused with `422` (on the roadmap) |
+| `choice` questions | answered, 2 to 26 options |
 | `score` questions | refused with `422` (on the roadmap) |
 | `criteria` on a `noul` | accepted, not read |
 | unknown fields | rejected with `422` |
@@ -92,9 +95,15 @@ policy refunds items reported missing within 30 days of delivery. Should this cu
 refund?" is the README's own example of a rule written into `instructions`, and the reasoning
 behind it is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
-If your code uses `choice`, the usual workaround is one yes/no question per option, which is
-how [zero-shot classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md)
-works. A `score` becomes one "is it at least level n?" question per boundary.
+A `choice` question is answered the way the model saw choices in training: one yes/no question
+per option, each listing all the options, and each option's P(yes) divided by the sum over the
+options. `probabilities` sum to 1, in the options' order, and `confidence` is Jev's: the peak
+probability rescaled from uniform (0) to certain (1). The text is read once, and each option
+costs about as much as one more yes/no question. When a text can fit several options at once,
+separate yes/no questions per option, as in
+[zero-shot classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md),
+give each option its own probability instead of a share of 1. A `score` becomes one "is it at least level n?"
+question per boundary.
 
 ## How to confirm which model answered
 
@@ -116,7 +125,7 @@ Keep Jev, or keep it for part of the traffic, when:
 - **Accuracy on hard rules matters most.** 0.927 against 0.810 on our 2,000 policy questions,
   with the gap largest on additive point scores, where several signals are summed and compared
   with a cut-off.
-- **You need `choice` or `score` today.**
+- **You need `score` today.**
 - **Your texts are not in English.**
 - **You do not want to operate anything.** A local server is a folder and a port, and
   you own its uptime.
@@ -128,13 +137,14 @@ difference between the two calls is the URL.
 
 ## Short answers to the questions that lead here
 
-**Is there an open-source alternative to Jev?** For yes/no questions, jevos: MIT code, a model
+**Is there an open-source alternative to Jev?** For yes/no and multiple-choice questions, jevos: MIT code, a model
 file on GitHub, and the same wire format, running on a CPU.
 
-**Do I have to change my code?** For `noul` questions, only the base URL. Code using `choice`,
-`score` or `criteria` needs the changes in the table above.
+**Do I have to change my code?** For `noul` and `choice` questions, only the base URL. Code
+using `score`, or `criteria` on a `noul`, needs the changes in the table above.
 
-**Why did my `criteria` stop working?** jevos accepts the field and does not read it. Put the
+**Why did my `criteria` stop working?** On a yes/no question, jevos accepts the field and does
+not read it. Put the
 definition of yes into `instructions`.
 
 **Is it faster?** From a laptop in Europe, on our two requests: 26 and 112 ms locally against 344
@@ -149,7 +159,7 @@ and 345 ms for the hosted API, network included.
 
 ## Sources
 
-- Wire format compatibility, the `jev-*` aliases, the `422` for `choice` and `score`, the
+- Wire format compatibility, the `jev-*` aliases, the `choice` answer, the `422` for `score`, the
   `criteria` behaviour, `/health`, `/v1/models`, `Server-Timing` and `JEV_API_KEY`: the
   [jev README](https://github.com/feder-cr/jev) and the jev source.
 - Latency (26/112 ms against 344/345 ms) and accuracy (0.927 against 0.810): our own
