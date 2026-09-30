@@ -70,7 +70,7 @@ documented body of `POST /v1/systemone`:
 mkdir -p answers
 for f in cases/*.request.json; do
   name=$(basename "$f" .request.json)
-  uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu "$f" --output "answers/$name.json"
+  jev/jev decide "$f" --output "answers/$name.json"
 done
 ```
 
@@ -137,8 +137,8 @@ the build is green is a test that no longer tests anything.
 
 A regression suite compares today's outputs with yesterday's, and that only works if the judge is
 the same. Pin the model file by name and check it against the release's `SHA256SUMS.txt` in the
-job. If you use `jev serve`, `GET /health` reports the model file's sha256 and the llama.cpp
-release, which you can print into the job log. Upgrade the judge in its own commit, re-run the
+job. If you use `jev serve`, `GET /health` reports the model's fingerprint, which you can print
+into the job log. Upgrade the judge in its own commit, re-run the
 suite, and review the scores that moved, the same way you would review a dependency upgrade.
 
 ## What to keep out of CI
@@ -157,7 +157,7 @@ suite, and review the scores that moved, the same way you would review a depende
 judge on each output, and assert on the probabilities with a pass band, a fail band and a warning
 band between them.
 
-**Do I need a GPU in CI?** No. jevos runs on the CPU with about 1.2 GB of memory.
+**Do I need a GPU in CI?** No. jevos runs on the CPU with about 1 GB of memory.
 
 **Why do my LLM tests pass and fail at random?** Usually because the system under test samples,
 or because outputs sit near a single threshold. Fix the sampling and add a warning band.

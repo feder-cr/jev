@@ -11,7 +11,7 @@ nav_order: 1
 the metric, the hardware and the request.** For a yes/no decision the metric that matters is
 the time from sending the question to having the answer, and a model that returns a probability
 instead of writing text has an advantage there, because it never has to generate a token. On
-our reference laptop, jevos answered a short request in 54 ms and a long one in 220 ms, the
+our reference laptop, jevos answered a short request in 26 ms and a long one in 112 ms, the
 fastest of the three systems we measured on those two requests.
 
 The non-obvious point is that most "fastest LLM" rankings measure something else: how many
@@ -73,14 +73,14 @@ threads and no GPU in use.
 
 | | short request (about 30 tokens) | long request (about 190 tokens) |
 |---|---|---|
-| jevos (llama.cpp, CPU, q4_k_m) | 54 ms | 220 ms |
+| jevos (jev, CPU, 8-bit weights, text read from scratch) | 26 ms | 112 ms |
 | Laya, English checkpoint (PyTorch, CPU) | 104 ms | 449 ms |
 | Jev, hosted API from Europe, network included | 344 ms | 345 ms |
 
 Being straight about the limits: two requests, one machine, one location. The hosted numbers
 would be lower from a server closer to the provider, and the local numbers would change on a
 different CPU. Accuracy is a separate question with a different winner: on 2,000 policy
-questions none of them was tuned on, Jev was right 0.927 of the time against 0.811 for jevos.
+questions none of them was tuned on, Jev was right 0.927 of the time against 0.810 for jevos.
 The full comparison, both directions, is on [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 
 To reproduce numbers like these, see
@@ -105,11 +105,13 @@ and, against generating even one word,
 
 ## When something else is faster for you
 
-- **Long documents.** Local latency grows with the text, about 1.1 ms per prompt token on our
-  laptop, while a hosted model's time was nearly flat. On long inputs the gap narrows and can
+- **Long documents.** Local latency grows with the text, from 26 ms for 30 tokens to 112 ms for
+  191 on our laptop, while a hosted model's time was nearly flat. On long inputs the gap narrows and can
   reverse; see [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 - **Many requests at once.** Capacity is a throughput question. A serving stack that batches
-  many users' requests, usually on a GPU, is built for it; one laptop answering in turn is not.
+  many users' requests, usually on a GPU, is built for it; one laptop is not. jev reads small
+  requests that arrive together in one model call, and on our laptop that levels off at about
+  10 requests per second.
 - **Hard reasoning.** If the small model gets the answer wrong, it was not fast, it was early.
   Arithmetic and multi-step rules are its weak spot, measured on
   [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md).

@@ -96,9 +96,9 @@ in code; the detail is on [small LLMs and arithmetic](small-llm-arithmetic-yes-n
 
 ## What it costs
 
-On an Intel Core Ultra 7 255H with 16 threads, a 190-token record takes about 220 ms and each
+On an Intel Core Ultra 7 255H with 16 threads, a 190-token record takes about 112 ms and each
 additional criterion on the same record costs a fraction of that, because the record is read
-once. The README's three-question example takes about 165 ms against 103 ms for one question.
+once. The README's three-question example takes about 66 ms against 49 ms for one question.
 
 So a test set of 1,000 outputs with five criteria is a few minutes on a laptop, costs nothing
 per token, and can run in CI on every prompt change. A hosted judge on the same set means 1,000
@@ -111,7 +111,7 @@ your outputs to someone else.
   medical advice sound".
 - Languages other than English.
 - The final evaluation of a release, where the extra accuracy is worth the cost. On 2,000
-  rule-based questions the hosted Jev was right 0.927 of the time against 0.811 for jevos.
+  rule-based questions the hosted Jev was right 0.927 of the time against 0.810 for jevos.
 
 A common split is the small judge on every commit and the large one on the release candidate.
 For retrieval pipelines, the same criteria applied per passage and per answer are on
@@ -129,8 +129,8 @@ in the text, yes. For hard reasoning or maths, no.
 **How do I avoid parsing the judge's answer?** Use a model that returns a probability. jevos
 generates no text.
 
-**Can it run in CI?** Yes. It needs a CPU and about 1.2 GB of memory, and `jev decide` answers a
-request file without a server.
+**Can it run in CI?** Yes. It needs only a CPU (x86-64 with AVX2, or Apple silicon), and `jev decide`
+answers a request file without a server.
 
 **Are the scores calibrated?** On our natural yes/no held-out questions, the calibration error
 is 0.009.

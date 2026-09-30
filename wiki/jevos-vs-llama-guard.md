@@ -64,7 +64,7 @@ each comes back as its own `noul`, P(yes):
 
 None of those three is a safety hazard in a published taxonomy, and all three are the kind of
 rule a community actually enforces. That is the space jevos is for. It is a 1B-class model on a
-CPU: 54 to 220 ms per request on our reference laptop, with the text read once for every
+CPU: 26 to 112 ms per request on our reference laptop, with the text read once for every
 question in the request.
 
 ## Where the specialist wins

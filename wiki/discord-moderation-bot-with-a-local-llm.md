@@ -65,9 +65,8 @@ the developer portal, and a large bot needs Discord's approval.
 ```
 
 Including the message it replies to is cheap and often decisive: "same" means nothing on its
-own. Keep `state` short, though. Latency grows with the text, about 1.1 ms per prompt token on
-our reference laptop, so a chat line with one parent message is near the 54 ms end, not the
-220 ms end. The question shapes come from
+own. Keep `state` short, though. Latency grows with the text read from scratch on our reference
+laptop, so a chat line with one parent message is near the 26 ms end, not the 112 ms end. The question shapes come from
 [content moderation with a local LLM](content-moderation-with-a-local-llm.md), which covers
 turning rules into questions in more depth.
 
@@ -162,7 +161,7 @@ wrong deletion is cheap, and never on messages that suggest someone is at risk.
 - Message content intent, affected fields and exceptions, approval for verified apps:
   [Discord developer documentation, Gateway](https://docs.discord.com/developers/events/gateway),
   fetched 2026-09-29.
-- Latency (54 ms short, 220 ms long, about 1.1 ms per prompt token), `JEV_API_KEY`, port 8017:
+- Latency (26 ms short, 112 ms long, read from scratch), `JEV_API_KEY`, port 8017:
   the [jev README](https://github.com/feder-cr/jev) and our reference-laptop measurements.
 - Accuracy by kind of question: our 999-question test set, `jevos-q4_k_m`.
 - The bot design and pseudocode are an untested sketch.

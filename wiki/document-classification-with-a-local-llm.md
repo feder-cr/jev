@@ -55,10 +55,9 @@ pitfalls of a plain argmax, is on
 
 The first page, almost always. Three reasons.
 
-- **Speed.** On our reference laptop the cost is about 1.1 ms per prompt token: a request of
-  about 190 tokens took 220 ms. By that rate, a first page of 400 to 600 tokens would take
-  roughly half a second to two thirds of a second (an estimate, not a measurement); a whole
-  report would take several times longer, and the numbers behind that are on
+- **Speed.** On our reference laptop the cost grows with the text: a request of about 190
+  tokens read from scratch took 112 ms. A first page of 400 to 600 tokens takes longer, and a
+  whole report longer still; the numbers behind that are on
   [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 - **Limit.** jevos reads at most 8,192 tokens per request. Many documents are longer.
 - **Signal.** Type is a property of the whole document that is visible at the start. A contract
@@ -133,8 +132,8 @@ perhaps a sample of the last page. The request limit is 8,192 tokens.
 **What about documents that match no type?** Use a threshold: when no type is high enough, the
 label is "other".
 
-**Is it fast enough for a backlog?** By the measured rate of about 1.1 ms per token, a first page
-of a few hundred tokens should take under a second on a laptop CPU, so a backlog is a batch job.
+**Is it fast enough for a backlog?** A request of about 190 tokens took 112 ms on a laptop CPU.
+Time a few of your own first pages; a backlog is a batch job.
 
 **See also:** [product categorization with yes/no questions](product-categorization-with-yes-no-questions.md),
 [jevos vs bart-large-mnli for zero-shot classification](jevos-vs-bart-large-mnli.md) and
@@ -142,7 +141,7 @@ of a few hundred tokens should take under a second on a laptop CPU, so a backlog
 
 ## Sources
 
-- Our measurements: context, latency per token and the reference laptop from the
+- Our measurements: context, latency and the reference laptop from the
   [jev README](https://github.com/feder-cr/jev); accuracy on stated facts from our 999-question
   test set on `jevos-q4_k_m`. No document classification measurement exists; none is claimed.
 - No external facts are stated on this page.

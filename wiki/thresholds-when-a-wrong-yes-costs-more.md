@@ -82,9 +82,9 @@ Three consequences for an asymmetric threshold:
 
 **A wrong yes costs more.** Auto-approving a refund, suspending an account, sending an email to
 a customer, deleting a record. Take the README refund example: for an empty box delivered five
-days ago, with a 30-day policy in the question, `refund` came back at 0.78. With a four-to-one
-cost ratio the threshold is 0.8, so this case would not be approved automatically, even though
-the model leans yes. It is a candidate for a quick human look, which is where
+days ago, with a 30-day policy in the question, `refund` came back at 0.93. With a four-to-one
+cost ratio the threshold is 0.8, so this case is approved automatically; one at 0.78 would not
+be, even though the model leans yes. That one is a candidate for a quick human look, which is where
 [refund request triage](refund-request-triage-with-a-local-llm.md) picks it up.
 
 **A wrong no costs more.** Missing an urgent ticket, failing to flag a message for a moderator,
@@ -138,7 +138,7 @@ automating it.
 ## Sources
 
 - Our measurements: 152 wrong yeses vs 91 wrong noes and mean P(yes) by kind of question on the
-  999-question set, `jevos-q4_k_m`. The refund value 0.78 is the README example of the
+  999-question set, `jevos-q4_k_m`. The refund value 0.93 is the README example of the
   [jev repository](https://github.com/feder-cr/jev).
 - The cost-ratio table is arithmetic from the formula, not a measurement.
 - Elkan (2001), [The Foundations of Cost-Sensitive Learning](https://cseweb.ucsd.edu/~elkan/rescale.pdf),

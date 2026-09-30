@@ -39,12 +39,12 @@ In a typical dense language model, each pass reads essentially all of the weight
 to a few billion parameters, quantized to around 4 or 5 bits each, fits in a file of well under
 a gigabyte to a few gigabytes, and a laptop's memory system can move that quickly.
 
-llama.cpp, the runtime jevos uses, supports integer quantization from 1.5 to 8 bits "for faster
-inference and reduced memory use", in its own words. Its quantization README lists Q4_K_M at
-about 4.9 bits per weight and Q8_0 at about 8.5 for the model it uses as an example. For
-jevos the two released files are 619 MB for `q4_k_m` and 943 MB for `q8_0`, and on our
-reference CPU the larger one is about 1.7 times slower. The trade-off, including what we have
-not measured yet, is on [Q4_K_M vs Q8_0: speed and size](q4-k-m-vs-q8-0-speed-and-size.md), and
+llama.cpp, the usual runtime for GGUF files, supports integer quantization from 1.5 to 8 bits
+"for faster inference and reduced memory use", in its own words. Its quantization README lists
+Q4_K_M at about 4.9 bits per weight and Q8_0 at about 8.5 for the model it uses as an example.
+For jevos the two released GGUF files are 619 MB for `q4_k_m` and 943 MB for `q8_0`; jev itself
+runs the model with 8-bit (INT8) weights through OpenVINO. The GGUF trade-off, including what we
+have not measured yet, is on [Q4_K_M vs Q8_0: speed and size](q4-k-m-vs-q8-0-speed-and-size.md), and
 what the names mean is on [GGUF quantization types explained](gguf-quantization-types-explained.md).
 
 Quantization is not free: the llama.cpp documentation says it "may introduce some accuracy
@@ -68,8 +68,8 @@ generates stays in the phase that CPUs handle best. The two phases are explained
 Once the model and the machine are fixed, the work is set by tokens.
 
 - **Input tokens.** The reading step grows with the prompt. On our reference laptop jevos took
-  54 ms for a request of about 30 tokens and 220 ms for one of about 190, roughly 1.1 ms per
-  prompt token. The detail, and how to trim the input, is on
+  26 ms for a request of about 30 tokens and 112 ms for one of about 190, reading each text from
+  scratch. The detail, and how to trim the input, is on
   [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 - **Output tokens.** Each one is a full pass. A chat model answering "Yes, this is a billing
   problem." pays for several of them; jevos pays for none, because `output_tokens` is always 0.
@@ -80,8 +80,8 @@ the question needs two fields costs time on every request; the practical side is
 
 ## Threads: more is not always better
 
-The jev README sets the default at 4 threads and says to set `--threads` "to your core count,
-fewer if other heavy apps are running". Our measurements used 16 threads on a 16-thread laptop.
+`jev serve` uses all logical CPUs by default; set `--threads` lower if other heavy apps are
+running. Our measurements used 16 threads on a 16-thread laptop.
 
 Two cautions, both general and not measured by us. Memory-bound work stops scaling once the
 memory system is saturated, so threads beyond that point add contention rather than speed. And
@@ -91,14 +91,15 @@ work on slower cores. If speed matters, try a few values on your own machine; mo
 
 ## What we measured, and what it does not tell you
 
-| Request | Tokens | jevos, q4_k_m |
-|---|---|---|
-| short | about 30 | 54 ms |
-| long | about 190 | 220 ms |
-| one text, three questions | 95 | about 165 ms (103 ms for one question alone) |
+| Request | Tokens | jevos, text read from scratch | jevos, same text asked again |
+|---|---|---|---|
+| short | about 30 | 26 ms | 25 ms |
+| long | about 190 | 112 ms | 22 ms |
+| one text, three questions | 95 | about 66 ms (49 ms for one question alone) | 39 ms (24 ms for one) |
 
-Reference machine: Intel Core Ultra 7 255H, 16 threads, no GPU in use, about 1.2 GB of extra
-memory with the model loaded.
+Reference machine: Intel Core Ultra 7 255H, 16 threads, no GPU in use, about 1 GB of extra
+memory with the model loaded. jev keeps texts it has read, so a request on a text it has seen
+reads only the question.
 
 Being straight about the limit: this is one laptop. A desktop with more memory bandwidth, an
 older CPU, or a server shared with other work will give different numbers. The factors above
@@ -110,7 +111,7 @@ tell you which direction they move, not by how much.
 long prompt, or generating a long answer. Generation is often the biggest single cost.
 
 **Does quantization make a model faster on a CPU?** Usually, because there are fewer bytes to
-move. On our CPU, jevos `q8_0` is about 1.7 times slower than `q4_k_m`.
+move. jev itself runs jevos with 8-bit weights.
 
 **Do more CPU cores help?** Up to a point. Past the memory bandwidth limit, extra threads add
 little, and on hybrid CPUs the slower cores can pull the average down.
@@ -127,7 +128,7 @@ a probability, keep the input short, and ask several questions about one text in
 
 ## Sources
 
-- jevos latency, file sizes, the q8_0 slowdown, memory and the thread guidance: our own
+- jevos latency, file sizes, memory and the thread guidance: our own
   measurements and the [jev README](https://github.com/feder-cr/jev).
 - Prompt phase and token phase characteristics: Patel et al.,
   [Splitwise](https://arxiv.org/abs/2311.18677), fetched 2026-09-29.

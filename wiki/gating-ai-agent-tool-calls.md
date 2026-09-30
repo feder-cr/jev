@@ -11,7 +11,7 @@ nav_order: 4
 action runs: a small model reads the user's request and the proposed call, and answers
 questions such as "Is this action what the user asked for?" with a probability.** Code then
 runs the call, asks the user to confirm, or blocks it, depending on how high the probability is
-and how much damage the tool can do. On a laptop CPU the check adds 50 to 220 ms, which is
+and how much damage the tool can do. On a laptop CPU the check adds 25 to 110 ms, which is
 small next to the tool call itself.
 
 The gate is worth having because the model that chose the action is the model least likely to
@@ -115,8 +115,8 @@ with the user as the reviewer. Size it so confirmations are rare enough that use
 ## What it costs
 
 A gate request with the user's message and a small tool call is a short request: on our
-reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), about 54 ms for 30 tokens and
-about 220 ms for 190 tokens. Three questions on one state took about 165 ms against 103 ms for
+reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), about 26 ms for 30 tokens and
+about 112 ms for 190 tokens. Three questions on one state took about 66 ms against 49 ms for
 one, because the state is read once. Gate only the tools that change something, and the cost per
 agent run is a few of those calls.
 

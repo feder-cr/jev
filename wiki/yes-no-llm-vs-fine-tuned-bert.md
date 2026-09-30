@@ -43,7 +43,7 @@ A yes/no model needs a question. For jevos, that is a request:
 ```
 
 The README's answer to that request is `"noul": 0.9`. No dataset, no training, no GPU: the model
-runs on a CPU with about 1.2 GB of memory. What it does need is a question worded well, which is
+runs on a CPU with about 1 GB of memory. What it does need is a question worded well, which is
 its own skill; see [how to write yes/no questions an LLM answers well](how-to-write-yes-no-questions-for-an-llm.md).
 
 ## Where the trained classifier wins
@@ -126,7 +126,7 @@ full public dataset. If you have only a handful per class, look at
 
 **Can I add a label without retraining?** With yes/no questions, yes: add a question.
 
-**Is a yes/no model slower?** Usually per prediction, yes. jevos took 54 to 220 ms per request on
+**Is a yes/no model slower?** Usually per prediction, yes. jevos took 26 to 112 ms per request on
 a laptop CPU; a small encoder is typically cheaper.
 
 **Can I use both?** Yes. Start with questions, collect human decisions from the review band, and

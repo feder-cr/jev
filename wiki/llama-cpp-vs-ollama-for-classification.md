@@ -14,7 +14,7 @@ Ollama's README credits llama.cpp as its supported backend, so the difference is
 engine than the layer on top: flags and a pinned release on one side, `ollama pull`, a model
 store and automatic loading and unloading on the other.
 
-Conflict of interest: we build jevos and `jev serve`, which drive llama.cpp directly for
+Conflict of interest: we build jevos and `jev serve`, a dedicated decision server for
 exactly this job. We build neither llama.cpp nor Ollama, and both are good at what they are for.
 
 The point that decides most choices is not speed but the contract. A classifier needs the same
@@ -103,8 +103,8 @@ unload**: a classifier that runs every few minutes will pay a model load on some
   explicit threads and devices, and parallel slots under load.
 - **A dedicated decision server** fits if the whole job is yes/no answers. jevos returns P(yes)
   per question with `output_tokens` always 0, reads the shared text once for several questions
-  (three questions take about 165 ms against 103 ms for one on the reference laptop), and
-  reports the model hash and llama.cpp release in `/health`. It is English only and answers
+  (three questions take about 66 ms against 49 ms for one on the reference laptop), and
+  reports the served model in `/health`. It is English only and answers
   yes/no questions only; a comparison at the product level is on
   [jevos vs Ollama for yes/no decisions](jevos-vs-ollama-for-yes-no-decisions.md).
 
@@ -131,8 +131,8 @@ text, lose the confidence, and pay for decoding.
 
 ## Sources
 
-- Our own facts: jevos outputs one probability per question with zero output tokens; the 165 ms
-  and 103 ms timings on the reference laptop; `/health` contents. From the
+- Our own facts: jevos outputs one probability per question with zero output tokens; the 66 ms
+  and 49 ms timings on the reference laptop; `/health` contents. From the
   [jev README](https://github.com/feder-cr/jev) and source code.
 - [llama.cpp repository](https://github.com/ggml-org/llama.cpp) and
   [llama-server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md),
@@ -146,5 +146,5 @@ text, lose the confidence, and pay for decoding.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), a decision server that runs on the
-same official llama.cpp release binaries anyone can download.*
+*From the notes of [jev](https://github.com/feder-cr/jev), a decision server whose model also
+ships as GGUF files that either of them can load.*

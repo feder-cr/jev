@@ -122,7 +122,7 @@ five minutes are worth the most, and sizing it is covered on
 Lead messages contain names, companies, budgets and plans that the writer shared with you, not
 with a model provider. A local model reads them where they already are, costs nothing per lead,
 and a message of this length is answered in a fraction of a second on our reference laptop
-(54 ms for a short request, 220 ms for about 190 tokens). Seven questions share one reading of
+(26 ms for a short request, 112 ms for about 190 tokens). Seven questions share one reading of
 the message.
 
 What local does not fix: jevos reads English only, it has not been measured on sales leads, and
@@ -150,7 +150,7 @@ and [intent detection with a local LLM](intent-detection-with-a-local-llm.md).
 
 ## Sources
 
-- The 2,000-question policy comparison (jevos 0.811, Jev 0.927) and latency 54 and 220 ms: the
+- The 2,000-question policy comparison (jevos 0.810, Jev 0.927) and latency 26 and 112 ms: the
   [jev README](https://github.com/feder-cr/jev). That the gap is largest on additive point
   scores is our own breakdown of the same comparison.
 - Not stated 0.847, mean P(yes) 0.23 on its no-answers, number 0.654, arithmetic 0.584, error

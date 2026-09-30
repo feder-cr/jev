@@ -1,16 +1,16 @@
 ---
 title: "Edge AI decisions on a CPU"
-description: "Yes/no decisions on branch servers and small machines near the data: the CPU-only, 1.2 GB profile, what we have not measured, how to test a device."
+description: "Yes/no decisions on branch servers and small machines near the data: the CPU-only profile, what we have not measured, how to test a device."
 parent: "Local and private AI"
 nav_order: 6
 ---
 
 # Edge AI decisions on a CPU
 
-**A yes/no model that runs on the CPU in about 1.2 GB of memory can make decisions on machines
-at the edge, a branch server, a shop-floor PC, a kiosk, a laptop in the field, without a GPU or
-a connection to a data centre.** jevos is a 619 MB file driven by a prebuilt llama.cpp runtime,
-and the source pins runtime packages for x64 and arm64 on Linux and Windows and for macOS. What
+**A yes/no model that runs on the CPU only can make decisions on machines at the edge, a branch
+server, a shop-floor PC, a kiosk, a laptop in the field, without a GPU or a connection to a data
+centre.** jev is one binary with OpenVINO's libraries and a model folder of 8-bit weights,
+released for Windows x64, Linux x64 and macOS on Apple silicon. What
 we have not done is time it on any of those small machines: every latency figure we publish
 comes from one laptop. So the profile tells you what could fit; only a test on your device
 tells you what does.
@@ -36,27 +36,29 @@ has to happen anyway. That is also the reason the offline setup on
 
 These are properties of the release, true on any machine that runs it:
 
-- **Model file:** `jevos-v2-q4_k_m.gguf`, 619 MB on disk; `jevos-v2-q8_0.gguf`, 943 MB.
-- **Memory:** about 1.2 GB more once the model is loaded.
-- **Compute:** CPU only, with `--device cpu`. `--threads` defaults to 4.
+- **Files:** the `jev` folder from `jev-windows-x64.zip`, `jev-linux-x64.tar.gz` (glibc 2.35+,
+  for example Ubuntu 22.04+) or `jev-macos-arm64.tar.gz`, with `jevos-v2-openvino-int8.zip`
+  unpacked into it as `jev/model`. No Python and no other runtime to install.
+- **Compute:** CPU only, x86-64 with AVX2 or Apple silicon; fastest on CPUs with AVX-VNNI or
+  AVX-512 VNNI. `--threads` defaults to all logical CPUs.
 - **Context:** up to 8,192 tokens per request.
 - **Output:** one probability per question, no generated text, so there is no generation step
   whose length depends on the answer.
 - **Network:** none after the download; the server listens on `127.0.0.1:8017` by default.
 
-A device that cannot spare about 1.2 GB of memory for the model, on top of what else it runs,
-is out before any timing. The runtime list in the source has no Android or iOS package, so
-phones and tablets are out of scope for this setup.
+A device whose CPU is neither x86-64 with AVX2 nor Apple silicon is out before any timing. The
+release has no Android, iOS or Linux arm64 build, so phones, tablets and ARM boards are out of
+scope for this setup.
 
 ## What we have and have not measured
 
-Measured, on an Intel Core Ultra 7 255H laptop with 16 threads, no GPU, `q4_k_m`:
+Measured, on an Intel Core Ultra 7 255H laptop with 16 threads, no GPU:
 
-- 54 ms for a request of about 30 tokens, 220 ms for about 190 tokens: roughly 1.1 ms per
-  prompt token;
-- three questions on one text in about 165 ms, against 103 ms for one alone;
-- `q8_0` about 1.7 times slower than `q4_k_m`, and `q4_0` and `iq4_nl` about as fast as
-  `q4_k_m`.
+- 26 ms for a request of about 30 tokens, 112 ms for about 190 tokens, with the text read from
+  scratch; 22 ms for the long one when the same text is asked about again;
+- three questions on one text in about 66 ms, against 49 ms for one alone;
+- with several clients at once, 8.7 requests per second for one client (median 110 ms) and
+  10.1 per second for eight (median 780 ms).
 
 Not measured: any ARM board, any mini PC, any older or low-power x64 processor, any server CPU.
 We cannot tell you whether a given small device answers in 100 ms or in two seconds, and we
@@ -64,22 +66,20 @@ would rather say so than extrapolate from a laptop with 16 threads.
 
 ## How do you test a device before committing to it?
 
-1. Install the runtime and model on the actual device, not a similar one.
+1. Unpack the binary and the model on the actual device, not a similar one.
 2. Collect a few dozen real inputs at their real length. Latency grows with the number of
    tokens, as explained on
    [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md),
    so short test strings flatter the result.
-3. Start the server with `--threads` at the device's core count, then try fewer; the README's
-   advice is to go lower when other heavy programs share the machine, and on an edge box
-   something always does.
+3. Start the server with the default `--threads` (all logical CPUs), then try fewer; go lower
+   when other heavy programs share the machine, and on an edge box something always does.
 4. Warm up, then record the median and the 90th percentile over many single requests, using the
    `Server-Timing` header for the model's share. The method is on
    [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md).
 5. Repeat while the device does its normal job. An idle benchmark on a machine that is never
    idle is the wrong number.
 
-If `q4_k_m` is too slow, a bigger file will not help: `q8_0` is slower. Shortening the input
-usually helps more than anything else you control.
+If it is too slow, shortening the input usually helps more than anything else you control.
 
 ## Shaping requests for a small machine
 
@@ -109,24 +109,24 @@ An edge deployment has to decide what happens when the model cannot answer in ti
 
 When the decision needs more than the small model gives. It reads English only, answers yes/no
 only, and on 2,000 questions about business policies none of the models was tuned on it was
-right 0.811 of the time against 0.927 for the hosted Jev. If a site can reach a data centre,
+right 0.810 of the time against 0.927 for the hosted Jev. If a site can reach a data centre,
 answering locally and sending only the doubtful cases upstream is often the better shape; see
 [a model cascade: small model first](model-cascade-small-model-first.md).
 
 ## Short answers to the questions that lead here
 
-**Can an LLM run on an edge device?** A small one can, if the device can spare about 1.2 GB of
-memory and has a CPU the prebuilt runtime supports. Whether it is fast enough is a measurement
-you make on that device.
+**Can an LLM run on an edge device?** A small one can, if the device has a CPU jev supports:
+x86-64 with AVX2, or Apple silicon. Whether it is fast enough is a measurement you make on that
+device.
 
-**Does jevos run on a Raspberry Pi?** We have not tested it on one, or on any ARM board. The
-source includes Linux arm64 runtime packages; the rest is untested.
+**Does jevos run on a Raspberry Pi?** Not with jev: the release has no Linux arm64 build, and
+we have not tested any ARM board.
 
-**Do edge decisions need a GPU?** Not with jevos: it is built for `--device cpu`.
+**Do edge decisions need a GPU?** Not with jevos: jev runs on the CPU only.
 
-**Which quantization should an edge device use?** Start with `q4_k_m`. `q8_0` is larger and
-about 1.7 times slower on the reference laptop, and the two builds' accuracy has not been
-compared on the same set.
+**Which quantization should an edge device use?** jev runs the model with 8-bit (INT8) weights,
+so there is none to choose. The `q4_k_m` and `q8_0` GGUF files in the release are for llama.cpp
+and other tools.
 
 **What if the device loses its connection?** Nothing changes for the model; it needs no
 network after the download.
@@ -137,9 +137,9 @@ network after the download.
 
 ## Sources
 
-- File sizes, memory, context, options and endpoints: the [jev README](https://github.com/feder-cr/jev).
-- Runtime platforms: the pinned package list in `src/jev/runtime/llama_release.py`.
-- Latency, quantization speed and accuracy figures: our measurements on an Intel Core Ultra 7
+- Release files, CPU requirements, context, options and endpoints: the [jev README](https://github.com/feder-cr/jev).
+- Platforms: the archives of the [jevos-v2 release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
+- Latency, throughput and accuracy figures: our measurements on an Intel Core Ultra 7
   255H laptop; no other hardware has been measured.
 
 ---

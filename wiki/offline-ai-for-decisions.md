@@ -7,7 +7,7 @@ nav_order: 5
 
 # Offline AI for decisions: no network needed
 
-**Once the model file, the llama.cpp runtime and the Python dependencies are on the machine,
+**Once the `jev` folder, with its binary, OpenVINO's libraries and the model, is on the machine,
 jevos needs no network to answer: `jev serve` and `jev decide` read local files and talk to
 nobody.** The one-time download can happen on a connected machine, the files can be carried
 into an air-gapped network, and each one can be checked against a published sha256 before it
@@ -22,24 +22,22 @@ an isolated network, how to verify the files, and what being offline does not gi
 
 ## What needs the network, and when?
 
-Three downloads, all before the first decision:
+Two downloads, both before the first decision, both from the
+[release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2):
 
 | What | How | Size or note |
 |---|---|---|
-| Python dependencies | `uv sync` in a clone of the repo | resolved from the project's lock file |
-| llama.cpp runtime | `uv run jev download --only runtime` | official prebuilt package, unpacked under `runtimes/` |
-| Model file | from the [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2) | `jevos-v2-q4_k_m.gguf`, 619 MB |
+| jev binary | `jev-linux-x64.tar.gz`, `jev-windows-x64.zip` or `jev-macos-arm64.tar.gz` | a `jev/` folder with the binary, OpenVINO's libraries and the licenses |
+| Model | `jevos-v2-openvino-int8.zip` | unpacked into the `jev` folder as `jev/model` |
 
-The runtime step picks the package for the platform it runs on, from a llama.cpp release pinned
-in the source, and checks each archive against a sha256 written in the code before unpacking
-it. Nothing is compiled, which matters offline: there is no compiler toolchain to carry over.
+Both are prebuilt archives. Nothing is compiled and nothing is installed, which matters
+offline: there is no Python environment, package manager or compiler toolchain to carry over.
 
 ## What runs with no network at all?
 
-Everything that makes a decision. `jev serve` loads the model file you name with `--gguf` and
-the runtime already under `runtimes/`; if either is missing it stops with an error telling you
-to run `jev download`, rather than fetching anything. `jev decide` does the same for a single
-request file. The server listens on `127.0.0.1:8017` by default, so the calls that follow go
+Everything that makes a decision. `jev serve` loads the model from the `model` folder beside
+the binary, or from the folder you name with `--model-dir`, and fetches nothing. `jev decide`
+does the same for a single request file. The server listens on `127.0.0.1:8017` by default, so the calls that follow go
 over the loopback interface and never touch a network card.
 
 The model answers from the text you send and nothing else. It has no lookup, no retrieval and
@@ -48,24 +46,23 @@ The whole mechanism is on [ask a local LLM a yes/no question](ask-a-local-llm-ye
 
 ## Moving it into an air-gapped network
 
-The pattern is to build the complete directory on a connected machine of the same operating
-system and processor architecture, then carry it across.
+The pattern is to download the release files on a connected machine, verify them, then carry
+them across.
 
-1. On the connected machine, clone the repo, run `uv sync`, then
-   `uv run jev download --only runtime`. The runtime package is chosen for that machine's
-   platform, which is why the two machines should match.
-2. Download `jevos-v2-q4_k_m.gguf` and `SHA256SUMS.txt` from the release into the same directory.
-3. Verify the model file there (next section), then copy the project directory, including the
-   environment `uv sync` created and the `runtimes/` folder, onto the transfer medium.
-4. On the isolated machine, verify the model file again after the copy, then start the server.
-5. Test the whole sequence once with the network disabled before you depend on it. Tooling that
-   tries to reach a package index on start-up is easier to find in a rehearsal than in an
-   incident.
+1. On the connected machine, download the archive for the isolated machine's platform
+   (`jev-linux-x64.tar.gz`, `jev-windows-x64.zip` or `jev-macos-arm64.tar.gz`). Each archive is
+   built for one operating system and processor architecture.
+2. Download `jevos-v2-openvino-int8.zip` and `SHA256SUMS.txt` from the release into the same
+   directory.
+3. Verify the files there (next section), then copy them onto the transfer medium.
+4. On the isolated machine, verify the files again after the copy, unpack the archive, unzip
+   the model into the `jev` folder, then start the server.
+5. Test the whole sequence once with the network disabled before you depend on it. A wrong
+   archive or a missing file is easier to find in a rehearsal than in an incident.
 
-If your security process requires building the runtime yourself, the source accepts a
-`JEV_LLAMA_DIR` environment variable pointing at a llama.cpp build of the same pinned commit;
-the trade-offs of prebuilt against self-built are on
-[using llama.cpp prebuilt binaries instead of building](llama-cpp-prebuilt-binaries.md).
+If your security process requires building the binary yourself, the repository builds it with
+`python scripts/build.py` (CMake, Ninja and a C++17 compiler; on Windows from a Visual Studio
+developer prompt), and `python tests/check.py` checks the result.
 
 ## How do you verify the files?
 
@@ -78,20 +75,20 @@ sha256sum --check --ignore-missing SHA256SUMS.txt
 ```
 
 `--check` reads the hashes from the file and checks each listed file; `--ignore-missing` skips
-release files you did not download, such as the other quantization.
+release files you did not download, such as the GGUF files.
 
 On Windows, PowerShell's `Get-FileHash` computes SHA256 by default:
 
 ```powershell
-Get-FileHash .\jevos-v2-q4_k_m.gguf
+Get-FileHash .\jevos-v2-openvino-int8.zip
 ```
 
 Compare the `Hash` it prints with the line for that file in `SHA256SUMS.txt`. The sums file
 writes hashes in lower case and the Microsoft examples show upper case; the letters differ, the
 hash does not.
 
-Then check what the server actually loaded. `GET /health` reports the sha256 of the model file,
-the llama.cpp release and a fingerprint of the whole setup. Writing that fingerprint into every
+Then check what the server actually loaded. `GET /health` reports the SHA-256 of each model file
+and a fingerprint of them all. Writing that fingerprint into every
 decision log ties each answer to a verified file, as described on
 [logging LLM decisions for audit](logging-llm-decisions-for-audit.md).
 
@@ -106,26 +103,26 @@ decision log ties each answer to a verified file, as described on
   uncertain middle goes to a person, or waits. If you plan an escalation path like the one on
   [a model cascade: small model first](model-cascade-small-model-first.md), it needs a
   connected side.
-- **More capability.** The model is the same one: English only, yes/no only, 0.811 on 2,000
+- **More capability.** The model is the same one: English only, yes/no only, 0.810 on 2,000
   questions about unseen business policies against 0.927 for the hosted Jev. Offline changes
   where it runs, not what it knows.
 
 ## Short answers to the questions that lead here
 
 **Can an LLM run completely offline?** Yes, once its files are on the machine. jevos needs the
-network only to download the dependencies, the runtime and the model.
+network only to download the binary and the model.
 
 **Does jevos phone home?** The serve and decide commands read local files and answer on
-`127.0.0.1`; the downloads happen only when you run `jev download` or fetch the release.
+`127.0.0.1`; the only downloads are the release files you fetch yourself.
 
 **How do I check the model file is genuine?** Compare its sha256 with `SHA256SUMS.txt` from
-the release, using `sha256sum --check` or `Get-FileHash`, then confirm the hash `/health`
+the release, using `sha256sum --check` or `Get-FileHash`, then confirm the hashes `/health`
 reports.
 
 **Can I copy the setup between machines?** Between machines of the same operating system and
-architecture, yes: the runtime package is platform-specific.
+architecture, yes: each release archive is built for one platform.
 
-**Does it need a GPU offline?** No. It is built for `--device cpu`.
+**Does it need a GPU offline?** No. It runs on the CPU only.
 
 **See also:** [self-hosted AI for decisions](self-hosted-ai-for-decisions.md),
 [edge AI decisions on a CPU](edge-ai-decisions-on-a-cpu.md) and
@@ -133,11 +130,10 @@ architecture, yes: the runtime package is platform-specific.
 
 ## Sources
 
-- Commands, endpoints and file sizes: the [jev README](https://github.com/feder-cr/jev). The
-  format of `SHA256SUMS.txt` is read from the file on the jevos release.
-- Pinned runtime, sha256 checks, `runtimes/`, `JEV_LLAMA_DIR`, and the error on a missing model
-  file: read from `src/jev/runtime/llama_release.py`, `src/jev/loader.py` and
-  `src/jev/engine/backend.py`.
+- Commands, endpoints and the build from source: the [jev README](https://github.com/feder-cr/jev).
+  The format of `SHA256SUMS.txt` is read from the file on the jevos release.
+- Release archives and what they contain: the
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
 - `sha256sum` options: [sha256sum(1) on man7.org](https://man7.org/linux/man-pages/man1/sha256sum.1.html),
   fetched 2026-09-29.
 - `Get-FileHash` and its SHA256 default: [Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash),

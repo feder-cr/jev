@@ -1,6 +1,6 @@
 ---
 title: "Many questions about one text: why the extra ones are cheap"
-description: "Questions in one request share the text, which is read once: three questions took 165 ms against 103 ms for one. Why, and how to group them."
+description: "Questions in one request share the text, which is read once: three questions took 66 ms against 49 ms for one. Why, and how to group them."
 parent: "Speed"
 nav_order: 7
 ---
@@ -9,8 +9,8 @@ nav_order: 7
 
 **When several questions are about the same text, sending them in one request makes each extra
 question cost a fraction of the first, because the text is read once and shared.** In the jev
-README's refund example, three questions about one 95-token record take about 165 ms together,
-against 103 ms for one of them alone. Sent as three separate requests, each one would pay for
+README's refund example, three questions about one 95-token record take about 66 ms together,
+against 49 ms for one of them alone. Sent as three separate requests, each one would pay for
 reading the whole record again.
 
 The saving comes from a general property of language models, not a trick of one server: the
@@ -25,11 +25,12 @@ them anyway, and what it does to the cost of a pipeline.
 
 | Request | Questions | Input tokens | Time |
 |---|---|---|---|
-| refund record, one question | 1 | not published | 103 ms |
-| same record, three questions | 3 | 95 | about 165 ms |
+| refund record, one question | 1 | 68 | 49 ms |
+| same record, three questions | 3 | 95 | about 66 ms |
 
-Measured with `jevos-q4_k_m` on an Intel Core Ultra 7 255H with 16 threads. The two extra
-questions added about 62 ms between them, roughly 31 ms each, against 103 ms for the first.
+Measured with jevos-v2 on an Intel Core Ultra 7 255H with 16 threads, with the record read from
+scratch. The two extra questions added about 17 ms between them, roughly 8.5 ms each, against
+49 ms for the first.
 That per-question figure is arithmetic on these two measurements, not a measurement of its
 own: it will be different for longer questions, and we have not published timings for larger
 groups.
@@ -46,7 +47,9 @@ re-processed", and vLLM's automatic prefix caching reuses cached blocks when a r
 jev gives you the benefit inside one request. The README states it directly: questions in the
 same request share the state, which is read once. What each question adds is its own words,
 not another copy of the text. The longer the state is relative to the questions, the bigger
-the saving, which is why grouping pays most on long records.
+the saving, which is why grouping pays most on long records. States asked about again are also
+kept (up to 16 states or 8,192 tokens), so a later request on the same text reads only its
+questions: the same two requests took 24 ms and 39 ms when the record had been read before.
 
 ## How to group questions in one request
 
@@ -111,7 +114,7 @@ many questions it carries.
 ## Short answers to the questions that lead here
 
 **Is it faster to ask several questions in one LLM call?** For questions about the same text,
-yes. Three questions took about 165 ms together against 103 ms for one alone.
+yes. Three questions took about 66 ms together against 49 ms for one alone.
 
 **Does the model answer each question independently?** Each question gets its own probability
 under its own name. They share the text, not the answer.
@@ -131,9 +134,9 @@ and [ask a local LLM a yes/no question](ask-a-local-llm-yes-no-questions.md).
 
 ## Sources
 
-- The 165 ms and 103 ms timings, the 95 input tokens, the shared state read once, and the
-  context size: our measurements and the [jev README](https://github.com/feder-cr/jev). The
-  31 ms per extra question is derived from those two figures.
+- The 66 ms and 49 ms timings, the 68 and 95 input tokens, the shared state read once, the kept
+  states and the context size: our measurements and the [jev README](https://github.com/feder-cr/jev).
+  The 8.5 ms per extra question is derived from those two figures.
 - Prefix reuse in serving systems:
   [llama.cpp server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md)
   and [vLLM automatic prefix caching](https://docs.vllm.ai/en/latest/design/prefix_caching.html),

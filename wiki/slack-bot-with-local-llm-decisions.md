@@ -76,7 +76,7 @@ that takes `event` and `say`, `say(text=..., channel=...)`, and `SocketModeHandl
 Skipping events that carry a `subtype` matters: Slack's docs list `bot_message` among the message
 subtypes, and a bot that reacts to its own posts in the triage channel loops. Both questions go
 in one request because the text is read once; on the reference laptop three questions on one
-text take about 165 ms against 103 ms for one.
+text take about 66 ms against 49 ms for one.
 
 ## Fast enough for Slack's clock
 
@@ -85,9 +85,10 @@ three times, with `x-slack-retry-num` and `x-slack-retry-reason` headers. In Soc
 acknowledges each envelope by its `envelope_id`. Either way the rule is the same: do not let slow
 work sit between receiving an event and acknowledging it.
 
-A local decision is not the slow part. On an Intel Core Ultra 7 255H it takes 54 ms for a short
-message and 220 ms for a 190-token one. Two things can still make it slow: a burst of messages,
-because the server answers one decision at a time, and very long messages. If your workspace is
+A local decision is not the slow part. On an Intel Core Ultra 7 255H it takes 26 ms for a short
+message and 112 ms for a 191-token one. Two things can still make it slow: a burst of messages,
+because the server tops out at about 10 requests per second on that laptop even though small
+requests arriving together are read in one model call, and very long messages. If your workspace is
 busy, put decisions on a small work queue in the bot so the event handler returns at once.
 
 ## Which questions, and what to do with the answers
@@ -137,7 +138,7 @@ Mode it needs no public endpoint either.
 **Do I need a public URL?** Not with Socket Mode, which uses an outbound WebSocket and an
 app-level token.
 
-**Is it fast enough for Slack's 3-second limit?** One decision takes 54 to 220 ms on the
+**Is it fast enough for Slack's 3-second limit?** One decision takes 26 to 112 ms on the
 reference laptop. Queue work if message volume is high.
 
 **Which scope reads channel messages?** For public channels, the `message.channels` event and
@@ -151,8 +152,8 @@ the `channels:history` scope.
 
 ## Sources
 
-- Endpoint, request shape and the one-at-a-time engine: `src/jev/api/app.py` and
-  `src/jev/engine/engine.py` of [jev](https://github.com/feder-cr/jev). Latencies: the README.
+- Endpoint and request shape: [jev](https://github.com/feder-cr/jev). Latencies and
+  throughput: the README.
   Tone accuracy: our 999-question test set.
 - [Slack Events API](https://docs.slack.dev/apis/events-api/) and
   [Using Socket Mode](https://docs.slack.dev/apis/events-api/using-socket-mode), fetched

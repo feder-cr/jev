@@ -10,8 +10,8 @@ nav_order: 8
 **For a small model reading short inputs one request at a time, a modern CPU is usually enough,
 and it is the hardware you already have.** A GPU pays off when there is a lot of parallel
 arithmetic to do: many requests batched together, long documents, or long generated answers.
-jevos is built and measured for the first case, `--device cpu` on a laptop, and we have not
-published GPU numbers.
+jev is built and measured for the first case: it runs on the CPU only, measured on a laptop,
+and has no GPU path.
 
 The question is less "which is faster" than "which is idle". A GPU that finished a 50 ms job in
 10 ms (illustrative numbers, not a measurement) would save 40 ms per request, which matters if you have thousands of requests per second and
@@ -26,7 +26,7 @@ not about speed, how jev picks a device, and when to switch.
 1. **How many decisions per second at peak?** A handful per second with no queue is a CPU job.
    Sustained high concurrency is where batching on a GPU earns its cost.
 2. **How long are the inputs?** Tens to a few hundred tokens read quickly on a CPU; on our
-   laptop jevos took 54 ms at about 30 tokens and 220 ms at about 190. Thousands of tokens per
+   laptop jevos took 26 ms at about 30 tokens and 112 ms at about 190. Thousands of tokens per
    request multiply that.
 3. **Does the model generate?** A decision model with zero output tokens avoids the long
    sequential phase entirely. A chat model writing paragraphs spends most of its time there.
@@ -56,10 +56,9 @@ of milliseconds, those parts are a larger share than they look.
 
 - **Availability.** Every server and laptop has a CPU. GPUs in a data centre are a separate
   budget line; on a laptop, the integrated one may or may not be supported by your runtime.
-- **Memory.** jevos needs about 1.2 GB with the model loaded. On a CPU that comes from system
-  memory, which most machines have spare; on a GPU it has to fit in the card's memory next to
-  whatever else runs there.
-- **Deployment.** A CPU-only service is one binary and one model file on any machine; a GPU
+- **Memory.** On a CPU the loaded model lives in system memory, which most machines have spare;
+  on a GPU it has to fit in the card's memory next to whatever else runs there.
+- **Deployment.** A CPU-only service is one binary and one model folder on any machine; a GPU
   service adds drivers and a matching runtime build. llama.cpp publishes builds for many
   backends (CUDA, HIP, Metal, Vulkan, SYCL and others, per its README), which helps, but it is
   still one more thing to match.
@@ -71,16 +70,15 @@ For many teams the deciding argument is that the CPU servers already exist; that
 
 ## How jev picks a device
 
-The server takes `--device`, and the default is `auto`. In the jev source, `auto` prefers a
-discrete GPU, then an integrated one, then the CPU, and `cpu` stays on the CPU whatever is
-installed. `uv run jev devices` shows which compute backends the installed llama.cpp runtime can
-use.
+It does not pick one: jev runs on the CPU only. It runs jevos-v2 with 8-bit (INT8) weights
+through OpenVINO, on any x86-64 CPU with AVX2 and on Apple silicon, and it is fastest on CPUs
+with AVX-VNNI or AVX-512 VNNI. There is no device option and no GPU build.
 
-Every jevos number we publish was taken with `--device cpu` on an Intel Core Ultra 7 255H with
-16 threads and no GPU in use, the configuration the README quickstart uses. If you run
-on a GPU, measure it yourself: we make no claim about the speed you will see, and the
-[CPU-only guide for llama.cpp](llama-cpp-cpu-only.md) covers the flags that matter when you
-stay on the CPU.
+Every jevos number we publish was taken on an Intel Core Ultra 7 255H with 16 threads, the
+configuration of the README's benchmark. The release also ships the model as GGUF files for
+llama.cpp and other tools; if you run those on a GPU, measure it yourself: we make no claim
+about the speed you will see, and the [CPU-only guide for llama.cpp](llama-cpp-cpu-only.md)
+covers the flags that matter when you stay on the CPU.
 
 ## When to reach for a GPU
 
@@ -106,11 +104,11 @@ laptop CPU with no GPU in use. See
 **Is a GPU always faster?** Per unit of work it usually is. For one short request the difference
 can be small next to everything else in the request, and the GPU has its own costs.
 
-**Can jevos use a GPU?** `--device auto` picks a GPU if the runtime sees one. We have only
-published CPU measurements.
+**Can jevos use a GPU?** jev runs on the CPU only. The GGUF files in the release can be run
+elsewhere, for example in llama.cpp; we have only published CPU measurements.
 
-**What about an integrated GPU?** `auto` considers it after a discrete one. Whether it beats the
-CPU cores on your laptop is something to measure, not assume.
+**What about an integrated GPU?** jev does not use it. If you run the GGUF files on one, whether
+it beats the CPU cores on your laptop is something to measure, not assume.
 
 **When is the CPU the wrong choice?** High sustained concurrency, very long inputs, generation,
 or a model too large to run well in system memory.
@@ -121,9 +119,8 @@ or a model too large to run well in system memory.
 
 ## Sources
 
-- jevos latency, memory, and the reference machine: our measurements and the
-  [jev README](https://github.com/feder-cr/jev). Device selection and `jev devices`: the jev
-  source (`src/jev/runtime/llama_cpp.py`, `src/jev/cli.py`).
+- jevos latency, the reference machine and the CPU requirements: our measurements and the
+  [jev README](https://github.com/feder-cr/jev).
 - The two inference phases and batching the token phase: Patel et al.,
   [Splitwise](https://arxiv.org/abs/2311.18677), fetched 2026-09-29.
 - Batching for throughput: Kwon et al.,
@@ -134,5 +131,5 @@ or a model too large to run well in system memory.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which ships with `--device cpu` in
-its quickstart because that is the only setting we have measured.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which runs on the CPU only, the one
+setting all of its numbers were measured on.*

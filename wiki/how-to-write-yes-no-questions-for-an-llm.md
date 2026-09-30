@@ -95,9 +95,9 @@ to put in front of any question the text might not answer.
 
 This is the README's example, and it shows four of the rules at once: the rule is inside
 `refund`, the delivery is already a duration, each question asks one thing, and each names the
-customer. The README's run answers 0.78, 0.73 and 0.1. The state is read once for all three
-questions, so asking three small questions instead of one compound one costs about 165 ms
-against 103 ms for a single question on the reference laptop.
+customer. The README's run answers 0.93, 0.83 and 0.04. The state is read once for all three
+questions, so asking three small questions instead of one compound one costs about 66 ms
+against 49 ms for a single question on the reference laptop.
 
 ## How do I know a phrasing is good?
 
@@ -116,7 +116,7 @@ Some limits are not about wording:
 - **Language.** jevos reads English only. The options for other languages are on
   [using an English-only LLM with other languages](using-an-english-only-model-with-other-languages.md).
 - **Rules the model has never seen.** Even a well written rule question is the harder case: on
-  2,000 questions from three unseen business policies, jevos was right 0.811 of the time. Put a
+  2,000 questions from three unseen business policies, jevos was right 0.810 of the time. Put a
   review band around decisions that cost money.
 
 ## Short answers to the questions that lead here
@@ -145,10 +145,10 @@ and [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md
 
 - Accuracy by kind of question: our 999-question test set, written after the model was
   finished, run on `jevos-q4_k_m`.
-- The refund request, its answers, and the 165 ms against 103 ms timing: the
+- The refund request, its answers, and the 66 ms against 49 ms timing: the
   [jev README](https://github.com/feder-cr/jev), reference laptop with an Intel Core Ultra 7
   255H, 16 threads.
-- The 0.811 on 2,000 policy questions: the jev README.
+- The 0.810 on 2,000 policy questions: the jev README.
 
 ---
 

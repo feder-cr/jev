@@ -41,7 +41,7 @@ def p_yes(text: str, question: str) -> float:
 
 This is all the integration needs. If you have several questions about the same text, send them
 in one request with one key each: the text is read once, and on the reference laptop three
-questions take about 165 ms together against 103 ms for one alone. Timeouts, retries and error
+questions take about 66 ms together against 49 ms for one alone. Timeouts, retries and error
 handling for this call are on [a Python client for local LLM decisions](python-client-for-local-llm-decisions.md).
 
 ## The tool wrapper
@@ -125,7 +125,7 @@ reads the result as text. In your own code, use the float from the plain functio
 **Is the tool deterministic?** The call and your threshold are. Whether an agent calls the tool
 is up to the chat model, which is why fixed checks belong in code.
 
-**How fast is one call?** About 54 ms for a short request and 220 ms for 190 tokens on an Intel
+**How fast is one call?** About 26 ms for a short request and 112 ms for 190 tokens on an Intel
 Core Ultra 7 255H with 16 threads.
 
 **See also:** [AI agent guardrails with yes/no questions](ai-agent-guardrails-with-yes-no-questions.md),
@@ -134,8 +134,8 @@ Core Ultra 7 255H with 16 threads.
 
 ## Sources
 
-- Request shape and endpoint: the [jev README](https://github.com/feder-cr/jev) and
-  `src/jev/api/app.py`. Latencies: the README. Accuracy by kind: our 999-question test set,
+- Request shape and endpoint: the [jev README](https://github.com/feder-cr/jev). Latencies: the
+  README. Accuracy by kind: our 999-question test set,
   `jevos-q4_k_m`.
 - [LangChain tools](https://docs.langchain.com/oss/python/langchain/tools): the `@tool` decorator,
   docstrings as descriptions, type hints as schema, and `create_agent(model, tools=[...])`,

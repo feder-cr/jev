@@ -1,6 +1,6 @@
 ---
 title: "An LLM on a laptop: what it can do in real time"
-description: "On an Intel Core Ultra 7 255H laptop, jevos answers yes/no questions in 54 to 220 ms. What that allows in real time, and what we did not measure."
+description: "On an Intel Core Ultra 7 255H laptop, jevos answers yes/no questions in 25 to 110 ms. What that allows in real time, and what we did not measure."
 parent: "Local and private AI"
 nav_order: 10
 ---
@@ -8,13 +8,12 @@ nav_order: 10
 # An LLM on a laptop: what it can do in real time
 
 **On a laptop with an Intel Core Ultra 7 255H, 16 threads and no GPU, jevos answers a yes/no
-question about a short text in 54 ms and about a 190-token text in 220 ms, fast enough to sit
-inside a user action, a chat message or a game loop.** It adds about 1.2 GB of memory once
-loaded, runs through llama.cpp on the CPU, and generates no text, so the time does not depend
-on the length of an answer. Real time here means one decision per event, a few per second: not
+question about a short text in 26 ms and about a 191-token text in 112 ms, fast enough to sit
+inside a user action, a chat message or a game loop.** It runs on the CPU with 8-bit weights
+through OpenVINO, and generates no text, so the time does not depend on the length of an answer. Real time here means one decision per event, a few per second: not
 a stream of tokens, and not a video frame rate.
 
-The useful way to read those numbers is as a budget. At 54 to 220 ms, the model fits inside
+The useful way to read those numbers is as a budget. At 25 to 110 ms, the model fits inside
 anything a person waits for, but a design that asks it dozens of questions per keystroke, or
 feeds it long documents in a tight loop, will not feel instant.
 
@@ -24,22 +23,23 @@ we have not measured.
 
 ## The measured numbers
 
-All on the same machine, `jevos-q4_k_m`, `--device cpu --threads 16`:
+All on the same machine, `jev serve --threads 16`, through the HTTP API, median of 10 after 3
+warm-up requests:
 
-| Request | Time |
-|---|---|
-| one question, about 30 tokens | 54 ms |
-| one question, about 190 tokens | 220 ms |
-| three questions on the README's 95-token example | about 165 ms |
-| one of those questions alone | about 103 ms |
+| Request | Text read from scratch | Same text asked again |
+|---|---|---|
+| one question, 30 tokens | 26 ms | 25 ms |
+| one question, 191 tokens | 112 ms | 22 ms |
+| one question on the README's example (68 tokens) | 49 ms | 24 ms |
+| three questions on the README's example (95 tokens) | 66 ms | 39 ms |
 
-Two rules of thumb follow. Time grows with the input, at roughly 1.1 ms per prompt token, as
-explained on [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
-And extra questions about the same text are cheap, because the text is read once; the reason
-is on [many questions about one text](many-questions-about-one-text.md). The `q8_0` build is
-about 1.7 times slower on this laptop, which is why the examples use `q4_k_m`.
+Two rules of thumb follow. Time grows with the text read from scratch, as explained on
+[why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
+And extra questions about the same text are cheap, because the text is read once, and a text
+asked about again is kept, so the next question reads only the question; the reason is on
+[many questions about one text](many-questions-about-one-text.md).
 
-## What does 54 to 220 ms allow?
+## What does 25 to 110 ms allow?
 
 Measured against what people and programs wait for:
 
@@ -64,7 +64,7 @@ is on [latency budgets: where a 200 ms model fits](latency-budgets-for-llm-decis
 
 A loop that asks the model something every few steps cannot pretend the answer is instant. The
 honest design pauses the loop, or holds the last decision, until the answer comes back, and shows
-the time per decision. At 54 to 220 ms that means a few decisions per second, about slow-changing
+the time per decision. At 25 to 110 ms that means a few decisions per second, about slow-changing
 things, with the per-frame work left to code. That is the pattern for any real-time use of a
 model: the loop is built around the decision time, not the other way round, and how to split the
 work is on [gating AI agent tool calls](gating-ai-agent-tool-calls.md), which uses the same
@@ -74,11 +74,11 @@ describe, ask, act shape.
 
 The model is not alone on a laptop. Three practical points:
 
-- **Memory.** About 1.2 GB more once loaded. On a machine that is also running a browser, an
-  editor and a build, that is noticeable and usually affordable.
-- **Threads.** `--threads` defaults to 4. The README's advice is to set it to your core count,
-  fewer if other heavy applications are running. On a laptop with other work going on, giving
-  the model every thread can slow both the model and the rest.
+- **Memory.** The model stays in memory for as long as the server runs. On a machine that is
+  also running a browser, an editor and a build, check what it takes on yours.
+- **Threads.** `--threads` defaults to all logical CPUs. Set it lower if other heavy
+  applications are running. On a laptop with other work going on, giving the model every thread
+  can slow both the model and the rest.
 - **One server, loaded once.** Starting the server loads the model; the first requests after
   start-up may be slower than the rest. Start it once, warm it up with a request or two, and
   keep it running rather than launching it per decision.
@@ -103,11 +103,11 @@ other. The method is on
 
 ## Short answers to the questions that lead here
 
-**Can a laptop run an LLM in real time?** A small one, for decisions: jevos answers in 54 to
-220 ms on an Intel Core Ultra 7 255H without a GPU. Generating long text is a different job.
+**Can a laptop run an LLM in real time?** A small one, for decisions: jevos answers in 25 to
+110 ms on an Intel Core Ultra 7 255H without a GPU. Generating long text is a different job.
 
-**How much memory does it take?** About 1.2 GB more once the model is loaded, with a 619 MB
-model file.
+**How much memory does it take?** Measure it on your machine with the server running: the model
+stays loaded between requests.
 
 **Does it drain the battery?** We have not measured it. The CPU works only while a request is
 being answered, so the effect depends on how often you ask.
@@ -115,7 +115,7 @@ being answered, so the effect depends on how often you ask.
 **Will it be as fast on my laptop?** Not necessarily; ours is the only machine we have timed.
 Warm it up and measure with your own inputs.
 
-**Do I need a gaming laptop with a GPU?** No. Everything on this page ran with `--device cpu`.
+**Do I need a gaming laptop with a GPU?** No. jev runs on the CPU only; everything on this page ran without a GPU.
 
 **See also:** [run an LLM locally without a GPU](run-an-llm-locally-without-a-gpu.md),
 [edge AI decisions on a CPU](edge-ai-decisions-on-a-cpu.md) and
@@ -123,7 +123,7 @@ Warm it up and measure with your own inputs.
 
 ## Sources
 
-- Latency, the three-question timing, memory, file size and the q8_0 ratio: our measurements
+- Latency, the repeated-text and three-question timings: our measurements
   on an Intel Core Ultra 7 255H laptop, 16 threads, no GPU, reported in the
   [jev README](https://github.com/feder-cr/jev).
 - Battery, heat and thread settings on battery: not measured.

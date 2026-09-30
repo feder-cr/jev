@@ -24,18 +24,20 @@ sketches to adapt; field names are from the n8n docs as fetched on 2026-09-29.
 
 ## Start the decision server next to n8n
 
-Download `jevos-v2-q4_k_m.gguf` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v2)
-and, from a clone of the repo:
+Download `jev-linux-x64.tar.gz` (or the Windows or macOS archive) and
+`jevos-v2-openvino-int8.zip` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v2),
+then:
 
 ```bash
-uv sync
-uv run jev download --only runtime
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 8
+tar -xzf jev-linux-x64.tar.gz
+cd jev
+unzip ../jevos-v2-openvino-int8.zip     # creates model/
+./jev serve --threads 8
 ```
 
 `--threads` should match the cores you can spare. n8n on the same box also needs CPU, so leave
 it some; the README's advice is "set it to your core count, fewer if other heavy apps are
-running". The server listens on `127.0.0.1:8017` and takes about 1.2 GB of memory with the
+running". The server listens on `127.0.0.1:8017` and takes about 1 GB of memory with the
 model loaded.
 
 ## The HTTP Request node
@@ -61,10 +63,12 @@ exactly this case: paste the README's curl command and the node is filled in. Th
 ```
 
 - **Options, Timeout**: set it. The n8n docs define it as how long the node waits for response
-  headers. The server answers one decision at a time, so a burst of executions queues up.
+  headers. A burst of executions shares the CPU: small requests arriving together are read in
+  one model call, but each waits longer (on the reference laptop, 8 at once took a median of
+  780 ms each).
 
 Put all the questions you have about one text in this one node. The state is read once, and on
-the reference laptop three questions take about 165 ms together against 103 ms for one alone. A
+the reference laptop three questions take about 66 ms together against 49 ms for one alone. A
 separate HTTP Request node per question reads the text again each time. Sending `state` as a
 JSON object with readable field names, as above, is covered on
 [sending JSON as the text: designing the state](designing-the-state-as-json.md).
@@ -145,7 +149,7 @@ and [Home Assistant automations with local LLM decisions](home-assistant-local-l
 ## Sources
 
 - Server command, defaults, endpoints, `JEV_API_KEY`, `422` and `Server-Timing`: the
-  [jev README](https://github.com/feder-cr/jev) and `src/jev/cli.py`, `src/jev/api/app.py`.
+  [jev README](https://github.com/feder-cr/jev) and the jev source.
 - Latencies, memory and the 152 to 91 error split: the README and our 999-question test set.
 - [n8n HTTP Request node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
   and its [common issues](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/common-issues.md),

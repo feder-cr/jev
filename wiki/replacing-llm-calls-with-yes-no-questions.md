@@ -63,7 +63,7 @@ The same decision as a yes/no request:
 }
 ```
 
-The README's answer to this request is `"noul": 0.9`, with 27 input tokens and 0 output tokens.
+The README's answer to this request is `"noul": 0.94`, with 27 input tokens and 0 output tokens.
 Four things changed. The role line is gone, because the model is not playing a part. The format
 instruction is gone, because there is no format. The message moved into `state`. And the answer
 is a probability, so the threshold is a line of your code instead of a word the model chose.

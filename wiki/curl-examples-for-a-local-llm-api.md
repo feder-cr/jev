@@ -35,8 +35,8 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-v2-q4_k_m",
-  "answers": {"billing": {"type": "noul", "noul": 0.9}},
+  "model": "jevos-v2",
+  "answers": {"billing": {"type": "noul", "noul": 0.94}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
 ```
@@ -91,13 +91,14 @@ curl -s -D - -o /dev/null http://127.0.0.1:8017/v1/systemone \
 
 Every response to `/v1/systemone` carries `Server-Timing: inference;dur=..., total;dur=...`, in
 milliseconds: `inference` is the model's work, `total` is everything inside the engine,
-including any wait for an earlier request, because the engine answers one decision at a time.
+including any wait for other requests; small requests that arrive at the same time are read
+together in one model call.
 `%{time_total}` is curl's wall-clock time for the whole transfer, in seconds. The gap between
 the two is the HTTP layer and the connection, which on `127.0.0.1` should be small and over a
 network is not. For honest numbers, repeat the call, discard the first runs and take the median
 and p90, as described on
 [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md). On the
-reference laptop the README gives 54 ms for a 30-token request and 220 ms for 190 tokens.
+reference laptop the README gives 26 ms for a 30-token request and 112 ms for 191 tokens.
 
 ## /health and /v1/models
 
@@ -107,8 +108,7 @@ curl -s http://127.0.0.1:8017/v1/models -H "Authorization: Bearer $JEV_API_KEY"
 ```
 
 `/health` returns `{"status": "ready", ...}` once the model is loaded, with the served model's
-name and engine metadata such as the model file's sha256 and the llama.cpp release; it never
-needs a key. Before the model is loaded the port does not accept connections at all, so in a
+name and engine metadata; it never needs a key. Before the model is loaded the port does not accept connections at all, so in a
 start-up script, loop on `/health` until it answers. `/v1/models` lists the served model and
 its `jev-latest` alias. The `Authorization` header is only needed when a key is set.
 
@@ -122,8 +122,7 @@ curl -s -w '\nHTTP %{http_code}\n' http://127.0.0.1:8017/v1/systemone --json '{
   "questions": {"q": {"type": "noul", "instructions": "Is this a test?"}}}'
 ```
 
-The status is `422` and the body has the shape FastAPI uses for validation errors, with `loc`
-pointing at the field. For this request `loc` is `["body", "model"]` and the message says that
+The status is `422` and the body is a validation error, with `loc` pointing at the field. For this request `loc` is `["body", "model"]` and the message says that
 the server answers as its served model and accepts any `jev-*` alias. Other requests that get a
 `422`: a `choice` or `score` question (only `noul` is answered), an unknown or misspelt field,
 an empty state, or a text longer than the context limit.
@@ -157,7 +156,7 @@ model name, a misspelt field or a question type other than `noul`.
 
 - The Quickstart request and answer and the latencies: the [jev README](https://github.com/feder-cr/jev).
 - Endpoints, `Server-Timing` format, the 401 and 422 responses and the unknown-model message:
-  read from `src/jev/api/app.py`, `src/jev/api/translate.py` and `src/jev/api/wire.py`.
+  read from jev's server code.
 - [curl manual](https://curl.se/docs/manpage.html) (`-d`, `--json`, `--data-binary`, `-H`,
   `-D`, `-i`, `-s`, `-S`, `-w`, `--fail-with-body`), fetched 2026-09-29.
 

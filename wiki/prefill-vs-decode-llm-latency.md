@@ -32,8 +32,8 @@ Two things come out of it: the model's prediction for what follows the prompt, a
 intermediate values for every prompt token, so they never have to be computed again.
 
 Prefill cost rises with the number of input tokens. On our reference laptop, a request of about
-30 tokens took 54 ms end to end with jevos and one of about 190 tokens took 220 ms, roughly 1.1 ms
-per prompt token. What that means for long documents is on
+30 tokens read from scratch took 26 ms end to end with jevos and one of about 190 tokens took
+112 ms. What that means for long documents is on
 [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 
 ## What happens in decode
@@ -104,8 +104,7 @@ call, and with per-token pricing they are billed as well, while a decision needs
   speed separately, in tokens per second. Its quantization README, for example, gives both
   figures for each quantization of the model it uses as an example.
 - **With jevos**: every response carries a `Server-Timing` header with `inference` and `total`
-  durations, and `jev decide` on a native request (a file without `model`) returns the engine's
-  timings. Since there is no decode, the inference time is essentially prompt processing.
+  durations. Since there is no decode, the inference time is essentially prompt processing.
 
 Measure more than once and report the median; the method is on
 [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md).

@@ -19,8 +19,7 @@ network address, the key stops being optional.
 
 This page is how to turn the key on and check it, what remains reachable without it, the bind
 address, TLS through a proxy, and what the key does not protect against. The commands are
-minimal sketches to adapt; the behaviour described is read from `src/jev/cli.py` and
-`src/jev/api/app.py`.
+minimal sketches to adapt; the behaviour described is read from jev's source.
 
 ## Turning the key on
 
@@ -28,12 +27,12 @@ The variable is read once, when the server starts:
 
 ```bash
 export JEV_API_KEY="$(openssl rand -hex 32)"
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
+./jev serve
 ```
 
 ```powershell
 $env:JEV_API_KEY = "<a long random string>"
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
+.\jev.exe serve
 ```
 
 The start-up line on stderr says which mode you are in: it ends with `(Bearer auth)` when a key
@@ -48,28 +47,23 @@ curl http://127.0.0.1:8017/v1/models -H "Authorization: Bearer $JEV_API_KEY"
 ```
 
 A missing or wrong key gets `401` with `WWW-Authenticate: Bearer` and the detail "Missing or
-invalid API key". The server compares the whole header, `Bearer ` plus the key, with Python's
-`hmac.compare_digest` rather than a plain `==`. This is the same Bearer
+invalid API key". The server compares the whole header, `Bearer ` plus the key. This is the same Bearer
 scheme the hosted Jev API uses, which is why clients written for it work unchanged; how to
 switch such a client is on [an open-source alternative to Jev](open-source-alternative-to-jev.md).
 
 ## What stays reachable without the key
 
-Only `POST /v1/systemone` and `GET /v1/models` check the key. With a key set:
+Every call except `GET /health` checks the key. With a key set:
 
 | Path | Needs the key | What it exposes |
 |---|---|---|
 | `POST /v1/systemone` | yes | the decisions |
 | `GET /v1/models` | yes | served model name and the `jev-latest` alias |
-| `GET /health` | no, by design | readiness, model name, and engine metadata such as the model file's sha256, the llama.cpp release and the device |
-| `/docs`, `/redoc`, `/openapi.json` | no | FastAPI's default API documentation, which jev does not turn off |
+| `GET /health` | no, by design | readiness and the model name |
 
 `/health` stays open so that load balancers and process supervisors can check readiness without
-a secret. It tells a caller which model file and runtime you run, not what you asked or were
-answered. If even that is too much on your network, block the path at the proxy. The last row
-comes from FastAPI's defaults: its docs list Swagger UI at `/docs`, ReDoc at `/redoc` and the
-schema at `/openapi.json`, and the jev app is created without changing them. They describe the
-API; they do not answer questions.
+a secret. It tells a caller which model you run, not what you asked or were answered. If even
+that is too much on your network, block the path at the proxy.
 
 ## The bind address
 
@@ -84,7 +78,7 @@ the machines that need it with your firewall, and add TLS.
 
 ## TLS with a reverse proxy
 
-`jev serve` starts uvicorn without certificates, so it serves HTTP only. For anything that leaves
+`jev serve` has no certificate options, so it serves HTTP only. For anything that leaves
 the machine, terminate TLS in a reverse proxy and keep jev on `127.0.0.1` behind it. With Caddy,
 whose documentation says it "will serve your proxy over HTTPS automatically and by default if it
 knows the hostname", a two-line Caddyfile is enough:
@@ -106,8 +100,9 @@ Be clear about the scope:
 
 - **One key, one role.** There are no users, scopes or per-client keys. Anyone with the key can
   ask anything. Changing it means restarting the server with a new value.
-- **No rate limiting.** The engine answers one decision at a time, so a single client sending a
-  flood keeps everyone else waiting. A request is bounded (the state at 256 KB, at most 1,024
+- **No rate limiting.** The server runs one model on the CPU: small requests arriving together
+  are read in one model call, but throughput stays around 10 requests per second on the
+  reference laptop, so a single client sending a flood keeps everyone else waiting. A request is bounded (the state at 256 KB, at most 1,024
   questions, the context at 8,192 tokens by default), but the number of requests is not.
 - **Not a data policy.** The key controls who can call the server; it says nothing about who can
   read your logs or the texts your application stores. That part is on
@@ -122,7 +117,7 @@ Be clear about the scope:
 it. Clients then send `Authorization: Bearer <key>`.
 
 **Why does /health work without the key?** On purpose: readiness checks should not need a
-secret. It reports model and runtime metadata, not decisions.
+secret. It reports readiness and the model name, not decisions.
 
 **Does jev serve support HTTPS?** Not by itself. Put a reverse proxy with TLS in front and keep
 the server on `127.0.0.1`.
@@ -137,10 +132,9 @@ rate limits in a proxy it is a normal internal service; without them it is not.
 ## Sources
 
 - `JEV_API_KEY`, the start-up line, the 401 response, the header comparison, which routes check
-  the key, the `--host`/`--port` defaults and the plain-HTTP uvicorn start: read from
-  `src/jev/cli.py` and `src/jev/api/app.py` of [jev](https://github.com/feder-cr/jev). Request bounds: `src/jev/engine/schema.py`.
-- [FastAPI: metadata and docs URLs](https://fastapi.tiangolo.com/tutorial/metadata/), fetched
-  2026-09-29.
+  the key, the `--host`/`--port` defaults, plain HTTP and the request bounds: read from the
+  source of [jev](https://github.com/feder-cr/jev). Throughput: our measurements on an Intel
+  Core Ultra 7 255H laptop.
 - [Caddy: reverse proxy quick-start](https://caddyserver.com/docs/quick-starts/reverse-proxy),
   fetched 2026-09-29.
 

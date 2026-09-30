@@ -40,16 +40,16 @@ from an edge.
 ## What does length cost?
 
 Every token is read before any question is answered. On the reference laptop (Intel Core Ultra
-7 255H, 16 threads, `q4_k_m`) we measured 54 ms for a request of about 30 tokens and 220 ms for
-one of about 190, about 1.1 ms per prompt token over that range. We have not published
-measurements near the full context, and the cost per token of reading a long input can grow
-with length, so do not multiply 1.1 ms by 8,000 and call it a benchmark. Measure your own
+7 255H, 16 threads) we measured 26 ms for a request of about 30 tokens and 112 ms for one of
+about 190, reading each text from scratch, about 0.5 ms per prompt token over that range. We
+have not published measurements near the full context, and the cost per token of reading a long
+input can grow with length, so do not multiply 0.5 ms by 8,000 and call it a benchmark. Measure your own
 document sizes. The mechanics are on
 [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md)
 and [prefill vs decode](prefill-vs-decode-llm-latency.md).
 
 Questions are cheap next to the text. In the README example, three questions about one text
-take about 165 ms against 103 ms for one alone, because the text is read once. So the rule for
+take about 66 ms against 49 ms for one alone, because the text is read once. So the rule for
 long documents is: many questions per request, few tokens per request.
 
 ## Chunk the document
@@ -142,7 +142,7 @@ request. Across chunks, no.
 
 ## Sources
 
-- 8,192-token context, the 54 ms and 220 ms latencies, the three-question timing, and Laya's
+- 8,192-token context, the 26 ms and 112 ms latencies, the three-question timing, and Laya's
   512-token context: the [jev README](https://github.com/feder-cr/jev) and our measurements on
   the reference laptop.
 - Nelson F. Liu et al., "Lost in the Middle: How Language Models Use Long Contexts", 2023,

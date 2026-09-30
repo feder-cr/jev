@@ -43,15 +43,15 @@ which lacked versioning, a way to name the architecture, or both.
 A classifier in production is usually a small service that must be reproducible and boring.
 Three properties of GGUF help directly.
 
-**One artifact to verify.** The jevos release is two GGUF files, `jevos-v2-q4_k_m.gguf` (619 MB)
-and `jevos-v2-q8_0.gguf` (943 MB), plus a `SHA256SUMS.txt`. Checking one file against one line of
+**One artifact to verify.** The jevos release includes the model as two GGUF files, for
+llama.cpp, Ollama, LM Studio and other tools: `jevos-v2-q4_k_m.gguf` (619 MB) and
+`jevos-v2-q8_0.gguf` (943 MB), plus a `SHA256SUMS.txt`. Checking one file against one line of
 that list tells you the whole model arrived intact, which is what makes
 [offline and air-gapped use](offline-ai-for-decisions.md) practical.
 
-**One artifact to identify.** `jev serve` hashes the GGUF once at startup and reports the
-sha256 in `GET /health`, next to the llama.cpp release and a fingerprint of the setup. If you
-[log decisions for audit](logging-llm-decisions-for-audit.md), that hash is the field that says
-which model produced a probability.
+**One artifact to identify.** One sha256 covers the weights, the tokenizer and the template
+together. If you run a GGUF and [log decisions for audit](logging-llm-decisions-for-audit.md),
+that hash is the field that says which model produced a probability.
 
 **Fast, cheap loading.** Because tensors sit at aligned offsets, a runtime can memory-map the
 file instead of parsing and copying it. llama.cpp's default load mode maps the model unless the
@@ -74,8 +74,9 @@ You do not need to write a parser to see them. The Hugging Face Hub has a viewer
 GGUF file's metadata and tensor list on the model page, and the `@huggingface/gguf` JavaScript
 package reads the header of a remotely hosted file without downloading the weights.
 
-jev reads what it needs from the file itself: the tokenizer and the prompt template come from
-the GGUF, and it refuses a file that carries no template instead of guessing one.
+jev itself does not read GGUF files: it runs the same model with 8-bit (INT8) weights through
+OpenVINO, from the `model` folder beside the binary. Its tokenizer is llama.cpp's, compiled in,
+so its token ids match the GGUF files.
 
 ## Where GGUF files come from and what reads them
 
@@ -112,8 +113,8 @@ Being straight about the limit: GGUF is a container, not a certificate.
 **Is GGUF only for llama.cpp?** It is llama.cpp's native format, and the Hugging Face docs
 list other local tools that use it, including Ollama and LM Studio. Transformers can load it too, usually by dequantizing it.
 
-**Can I use my own GGUF with jev?** `--gguf` accepts any GGUF file path, but jevos answers are
-only described for the two release files; another model will not have been measured.
+**Can I use my own GGUF with jev?** No. jev does not read GGUF files. To run a GGUF, your own
+or the two jevos release files, use llama.cpp, Ollama or LM Studio directly.
 
 **How do I check a downloaded GGUF is intact?** Compare its sha256 with the published list. For
 jevos that is `SHA256SUMS.txt` on the release page.
@@ -131,8 +132,8 @@ says nothing about the model's own version, which lives in `general.version` if 
 ## Sources
 
 - Our own facts: the release file names, sizes and `SHA256SUMS.txt`, from the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); the startup hash and
-  `/health` fields and the template check, from the jev source code.
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); the INT8 model and
+  the llama.cpp tokenizer, from the jev source code.
 - [GGUF specification, ggml repository](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md),
   fetched 2026-09-29: layout, goals, metadata keys, naming convention, predecessor formats.
 - [Hugging Face Hub docs: GGUF](https://huggingface.co/docs/hub/gguf), fetched 2026-09-29:
@@ -145,5 +146,6 @@ says nothing about the model's own version, which lives in `general.version` if 
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which ships its model as two GGUF
-files and a text file with their hashes.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which ships its model as an OpenVINO
+build for its own binary and, for other tools, as two GGUF files and a text file with their
+hashes.*

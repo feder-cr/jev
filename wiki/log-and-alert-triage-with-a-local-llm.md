@@ -99,8 +99,7 @@ never let it suppress an alert that your metric rules consider critical. The mea
 ## Can it keep up with an alert stream?
 
 On our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU) a short request of about
-30 tokens took 54 ms and a longer one of about 190 tokens 220 ms, roughly 1.1 ms per prompt
-token. Several questions on one alert cost much less than several requests, because the alert
+30 tokens took 26 ms and a longer one of about 190 tokens 112 ms. Several questions on one alert cost much less than several requests, because the alert
 is read once.
 
 That is comfortable for alerts, which arrive in tens or hundreds per hour after deduplication.
@@ -136,7 +135,7 @@ questions need.
 **Should the model decide whether a metric crossed a threshold?** No. Compare numbers in code;
 number and date questions were among the weakest on our test set.
 
-**Is it fast enough for real-time alerts?** On a laptop CPU a short request took 54 ms. That fits
+**Is it fast enough for real-time alerts?** On a laptop CPU a short request took 26 ms. That fits
 an alert stream, not a raw log stream.
 
 **Is this a security tool?** No. It helps sort operational alerts. Security detection needs

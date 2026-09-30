@@ -80,7 +80,7 @@ place to hold the intermediate total.
 
 Large models asked to reason step by step get around this by writing the steps as text and
 reading them back. That is exactly the generation jevos does not do, and it is the reason it
-answers in 50 to 220 ms on a CPU instead of seconds. The trade is deliberate, and it means the
+answers in 25 to 110 ms on a CPU instead of seconds. The trade is deliberate, and it means the
 arithmetic has to happen somewhere else. The same reading-versus-computing split is the thread
 of [small language models explained](small-language-models-explained.md).
 

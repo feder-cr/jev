@@ -8,8 +8,8 @@ nav_order: 9
 # jev serve vs llama.cpp server for classification
 
 **llama.cpp's `llama-server` is a general server for completions, chat, embeddings and reranking;
-`jev serve` runs one yes/no model through llama.cpp behind one decision endpoint, `POST
-/v1/systemone`, that returns P(yes) per question.** Both are local, both use llama.cpp, and
+`jev serve` runs one yes/no model on the CPU behind one decision endpoint, `POST
+/v1/systemone`, that returns P(yes) per question.** Both are local, and
 llama-server gives you every building block a decision service needs. What it does not give you is
 the service: the prompt, the reading of a yes/no probability from token alternatives, several
 questions sharing one text, and a stable request and answer format. If you want those built,
@@ -19,9 +19,9 @@ foundation to build on.
 Conflict of interest, in one line: we build jev; the llama-server facts are from its README in
 the llama.cpp repository, fetched 2026-09-29.
 
-The two are not rivals in the usual sense. jev uses official prebuilt llama.cpp binaries, fetched
-by `uv run jev download --only runtime` and driven through ctypes, so the question is how much of
-the layer above llama.cpp you want to own.
+The two are not rivals in the usual sense. jev compiles in llama.cpp's tokenizer, and the jevos-v2
+release also ships the model as GGUF files that llama-server can load, so the question is how much
+of the layer above the model you want to own.
 
 This page is what llama-server provides, the gap to a decision endpoint, a sketch of filling it
 yourself, the extras `jev serve` adds, and when llama-server is the better choice.
@@ -87,23 +87,22 @@ there, step 2 above is your code. The general reason this route still costs a de
 
 ## What jev serve adds
 
-`jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16` gives you, on 127.0.0.1:8017:
+`jev serve --threads 16` gives you, on 127.0.0.1:8017:
 
 - **One endpoint, one answer shape.** `state` (text or any JSON) plus named questions in; each
   question back as `{"type": "noul", "noul": ...}`, with `output_tokens` always 0.
 - **Shared reading of the text.** Questions in one request share the state, which is read once:
-  three questions took about 165 ms against 103 ms for one on our reference laptop.
+  three questions took about 66 ms against 49 ms for one on our reference laptop.
 - **A wire format someone else defined.** It is TypeSafe Jev's, so clients written for Jev's SDK
   work unchanged for yes/no questions, as described on
   [an open-source alternative to Jev](open-source-alternative-to-jev.md).
-- **Provenance.** `GET /health` reports the model file's sha256, the llama.cpp release and the
-  device; every response carries a `Server-Timing` header.
+- **Provenance.** `GET /health` reports the served model; every response carries a
+  `Server-Timing` header.
 - **A model built for yes/no questions**, not a general chat model prompted into answering
   them, with calibration measured on held-out questions (0.009 on 6,397 natural yes/no
   questions).
-- **Server-free batch use.** `jev decide` answers a request file with no server, and a request
-  without `model` returns the engine's full output, including probabilities, prompt hashes and
-  timings.
+- **Server-free batch use.** `jev decide` answers a request file, the same body as
+  `POST /v1/systemone`, with no server, and prints the answers as indented JSON.
 
 What it does not add: generation, chat, embeddings, other models, or `choice` and `score`
 questions, which are refused with a `422` for now.
@@ -112,8 +111,9 @@ questions, which are refused with a `422` for now.
 
 - You want a different or larger model, or several.
 - You need generation, embeddings or reranking from the same process.
-- You need parallel slots for many concurrent users; jev's documented numbers are single-request
-  latency, not capacity, a distinction made on
+- You need parallel slots for many concurrent users; jev reads small requests arriving together
+  in one model call and reached 10.1 requests/s with 8 clients on our reference laptop (median
+  780 ms), a capacity figure, not a latency one, a distinction made on
   [throughput vs latency for a decision server](throughput-vs-latency-for-a-decision-server.md).
 - You want to own every line of the prompt and the probability logic.
 
@@ -122,14 +122,14 @@ questions, which are refused with a `422` for now.
 **Can llama.cpp server do classification?** Yes, with your own prompt and code that reads token
 probabilities from `n_probs`. It gives the parts, not the classifier.
 
-**Does jev serve use llama-server?** No. It drives official prebuilt llama.cpp binaries through
-ctypes and exposes its own endpoint.
+**Does jev serve use llama-server?** No. It is one native binary that runs jevos-v2 with 8-bit
+weights through OpenVINO, uses llama.cpp only as its tokenizer, and exposes its own endpoint.
 
 **How do I get a yes/no probability from llama-server?** Generate one token with `n_probs` set,
 then add up the probabilities of the tokens that mean yes and those that mean no, and normalise.
 
-**Which one is faster?** We have not measured llama-server with a comparable setup. jevos took 54
-and 220 ms on our two requests on an Intel Core Ultra 7 255H.
+**Which one is faster?** We have not measured llama-server with a comparable setup. jevos took 26
+and 112 ms on our short and long requests, read from scratch, on an Intel Core Ultra 7 255H.
 
 **Can I run both?** Yes; they default to different ports, 8080 and 8017.
 
@@ -150,4 +150,4 @@ and 220 ms on our two requests on an Intel Core Ultra 7 255H.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which stands on llama.cpp and says so.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which borrows llama.cpp's tokenizer and says so.*

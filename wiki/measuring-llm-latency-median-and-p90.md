@@ -39,8 +39,10 @@ waits for in steady state. `/health` tells you the model is loaded; the warm-up 
 the rest.
 
 The opposite mistake is also common: a benchmark that only ever sends one identical request can
-look faster than real traffic if anything is reused between calls. Vary the inputs across a
-realistic set, or at least say that you did not.
+look faster than real traffic if anything is reused between calls. jev keeps states asked about
+again, so on jev it does: our long request (about 190 tokens) takes 112 ms with its text read from
+scratch and 22 ms asked again. Vary the inputs across a realistic set, start the server with
+`--state-cache 0` to time reading from scratch, or at least say which one you measured.
 
 ## Why median and p90, not the mean?
 
@@ -116,14 +118,14 @@ call, or an indexing job in the background.
 
 When comparing systems, run them in turn on the same idle machine, with the same requests, and
 say so. Our three-way comparison used the same two requests on the same laptop for all three:
-jevos at 54 and 220 ms, Laya at 104 and 449 ms, and the hosted Jev at 344 and 345 ms.
+jevos at 26 and 112 ms, Laya at 104 and 449 ms, and the hosted Jev at 344 and 345 ms.
 
 ## What to report
 
-- **Hardware and settings**: CPU model, thread count, device. Ours: Intel Core Ultra 7 255H,
-  16 threads, `--device cpu`.
-- **The model file**: name and quantization. `GET /health` reports the model file's sha256, the
-  llama.cpp release and a fingerprint; paste them into the report.
+- **Hardware and settings**: CPU model, thread count, server options. Ours: Intel Core Ultra 7
+  255H, 16 threads, `--state-cache 0` for text read from scratch.
+- **The model file**: name and quantization. `GET /health` reports the SHA-256 of each model file and
+  a fingerprint; paste them into the report.
 - **Requests**: their token counts, or better the files themselves.
 - **Statistics**: number of runs, median, p90, and whether times are server-side or wall clock.
 - **What was not measured.** Concurrency, other machines, other request sizes.

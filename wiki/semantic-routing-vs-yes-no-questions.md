@@ -46,7 +46,7 @@ the route from the probabilities.
 - **Many routes.** Comparing one vector against hundreds of stored ones is cheap and does not
   grow much with the number of routes. A yes/no request grows with every question you add, even
   though extra questions on the same text cost less than the first (on our reference laptop, three
-  questions took about 165 ms against 103 ms for one).
+  questions took about 66 ms against 49 ms for one).
 - **Routes defined by examples, not by rules.** If you have real messages for each intent and no
   clean way to describe the intent in a sentence, examples are the natural thing to write.
 - **Languages.** An embedding router is as multilingual as its encoder. jevos reads English only;
@@ -96,7 +96,7 @@ is on [an LLM router with yes/no questions](llm-router-with-yes-no-questions.md)
 - **We did not benchmark the two on the same set.** Nothing on this page is a measured
   comparison of routing accuracy. The only jevos numbers here are latency on our reference laptop
   and accuracy by kind of question on our own test set.
-- **A yes/no router is not free at scale.** At 54 ms for a short request on a laptop CPU, a single
+- **A yes/no router is not free at scale.** At 26 ms for a short request on a laptop CPU, a single
   server answers a limited number of messages per second. For very high volume, similarity first
   is the cheaper design.
 - **Similarity cut-offs and probability thresholds both need tuning.** Neither is right out of
@@ -135,7 +135,7 @@ and [LLM decisions vs keyword rules and regex](llm-decisions-vs-keyword-rules.md
 
 - Semantic Router: the [aurelio-labs/semantic-router README](https://github.com/aurelio-labs/semantic-router)
   on GitHub, for `Route` objects, utterances, encoders and the `None` result, fetched 2026-09-29.
-- Our measurements: the three-question timing and the 54 ms short-request latency from the
+- Our measurements: the three-question timing and the 26 ms short-request latency from the
   [jev README](https://github.com/feder-cr/jev); the 0.858 on negation from our 999-question set.
 
 ---

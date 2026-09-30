@@ -8,7 +8,7 @@ nav_order: 3
 # On-premise LLM for business decisions
 
 **An on-premise LLM for business decisions can run on the CPU servers already in your data
-centre: jevos needs no GPU, a 619 MB model file, and about 1.2 GB of memory once loaded.** It
+centre: jevos needs no GPU, one folder with the binary and an 8-bit model, and about 1 GB of memory once loaded.** It
 answers yes/no questions about a text or a JSON record with a probability, so it slots in
 wherever a system needs to read free text before a rule acts: a claim description, a ticket, a
 supplier email. The hardware question is small. The governance question, who owns the questions,
@@ -26,23 +26,23 @@ defensible.
 
 | Resource | What jevos needs | Where the figure comes from |
 |---|---|---|
-| Accelerator | none; built for `--device cpu` | README |
-| Memory | about 1.2 GB more with the model loaded | README |
-| Disk | 619 MB (`q4_k_m`) or 943 MB (`q8_0`) | release files |
+| Accelerator | none; CPU only (x86-64 with AVX2, or Apple silicon) | README |
+| Memory | about 1 GB with the model loaded, up to 1.4 GB with its cache of recent texts full | README |
+| Disk | the `jev` folder: binary, OpenVINO's libraries and the INT8 model | release files |
 | Context | up to 8,192 tokens per request | README |
 | Network | one port, `127.0.0.1:8017` by default | README |
-| Runtime | official prebuilt llama.cpp, no compiler | `jev download --only runtime` |
+| Runtime | one prebuilt binary; no Python, no compiler | release files |
 
-The source pins prebuilt runtime packages for Linux and Windows on x64 and arm64, and for
-macOS on Intel and Apple silicon, so a typical server image does not need a build toolchain. Which of
+The release has prebuilt archives for Linux on x64 (glibc 2.35+, such as Ubuntu 22.04+),
+Windows on x64 and macOS on Apple silicon, so a typical server image does not need a build toolchain. Which of
 those platforms we have timed is a separate question, answered next.
 
 ## Will it be fast enough on our servers?
 
 We do not know, and neither does anyone who has not run it there. Every latency figure we
 publish comes from one machine, a laptop with an Intel Core Ultra 7 255H, 16 threads, no GPU,
-running `q4_k_m`: 54 ms for a request of about 30 tokens, 220 ms for about 190 tokens, roughly
-1.1 ms per prompt token. Server CPUs differ in cores, clock, cache and memory bandwidth, and
+with the text read from scratch: 26 ms for a request of about 30 tokens, 112 ms for about 190
+tokens. Server CPUs differ in cores, clock, cache and memory bandwidth, and
 have other workloads on them. The number that matters is yours, measured like this:
 
 1. Take a sample of real inputs, at their real length.
@@ -56,7 +56,7 @@ have other workloads on them. The number that matters is yours, measured like th
 
 Two effects you can predict without measuring: long inputs cost more than short ones, and
 several questions about the same text cost much less than separate requests, because the text
-is read once. On the reference laptop, three questions took about 165 ms against 103 ms for one.
+is read once. On the reference laptop, three questions took about 66 ms against 49 ms for one.
 
 ## How does it fit next to systems we already run?
 
@@ -87,7 +87,7 @@ three places, and each needs an owner:
   [thresholds when a wrong yes costs more](thresholds-when-a-wrong-yes-costs-more.md).
 - **The rule.** Anything that is really a policy ("refund if reported within 30 days") should
   be computed in code from facts the model reads, not left to the model. On 2,000 yes/no
-  questions about business policies none of the models was tuned on, jevos was right 0.811 of
+  questions about business policies none of the models was tuned on, jevos was right 0.810 of
   the time; the hosted Jev, 0.927. That is a good first reader, not a final judge. The pattern
   is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
@@ -95,25 +95,27 @@ three places, and each needs an owner:
 
 The model is a file, so it can be controlled like one.
 
-- **Identify it by hash.** `/health` reports the sha256 of the loaded file, the llama.cpp
-  release, the device and a fingerprint of them together. Record the fingerprint in every
+- **Identify it by hash.** `/health` reports the SHA-256 of each loaded model file and a
+  fingerprint. Record the fingerprint in every
   decision log; [logging LLM decisions for audit](logging-llm-decisions-for-audit.md) lists the
   rest.
 - **Verify before deploying.** Check new files against `SHA256SUMS.txt` from the release.
 - **Test before switching.** Keep a set of your own labelled cases, split by kind of question,
   and run old and new models on it before any change. A hundred real cases is a start; see
   [building a yes/no test set](building-a-yes-no-test-set.md).
-- **Treat the quantization as a model change.** `q8_0` is about 1.7 times slower than
-  `q4_k_m` on the reference laptop, and the accuracy of the two builds has not been compared on
-  the same test set. Do not swap one for the other without measuring on yours.
+- **Treat the weights as a model change.** jev runs 8-bit (INT8) weights. The GGUF files in
+  the release are the same model for other tools, and on 215 parity cases jev's answers are
+  within 0.056 of the `q8_0` GGUF's. Do not swap one runtime for another without measuring on
+  yours.
 
 ## Short answers to the questions that lead here
 
 **Can an LLM run on premise without a GPU?** A small one can. jevos runs on the CPU through
-llama.cpp and needs about 1.2 GB of memory with the model loaded.
+OpenVINO and needs about 1 GB of memory with the model loaded.
 
-**How many requests per second will our server handle?** Unmeasured on any server. Time your
-own hardware with your own inputs; our figures are single-request latency on one laptop.
+**How many requests per second will our server handle?** Unmeasured on any server. On the
+reference laptop, one client got 8.7 requests per second and eight clients 10.1; time your own
+hardware with your own inputs.
 
 **Does on-premise mean compliant?** No. It keeps the text inside your network; access control,
 retention and the rules on automated decisions still apply.
@@ -122,7 +124,7 @@ retention and the rules on automated decisions still apply.
 tagging. Anything with real consequences should combine the model's reading, a rule in code, and
 a person for the uncertain middle.
 
-**Does it need internet access?** Only to download the runtime and the model once; see
+**Does it need internet access?** Only to download the binary and the model once; see
 [offline AI for decisions](offline-ai-for-decisions.md).
 
 **See also:** [self-hosted AI for decisions](self-hosted-ai-for-decisions.md),
@@ -132,9 +134,9 @@ a person for the uncertain middle.
 ## Sources
 
 - Requirements, options, endpoints and the wire format: the [jev README](https://github.com/feder-cr/jev).
-- Pinned runtime platforms: read from `src/jev/runtime/llama_release.py`.
-- Latency, the q8_0 speed ratio and the 2,000-question comparison: our measurements on an Intel
-  Core Ultra 7 255H laptop.
+- Release platforms: the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
+- Latency, requests per second, the 215 parity cases and the 2,000-question comparison: our
+  measurements on an Intel Core Ultra 7 255H laptop.
 
 ---
 

@@ -65,8 +65,8 @@ than one, because the section is read once.
 
 ## Long contracts: split, ask, combine
 
-A request holds at most 8,192 tokens, and on our reference laptop latency grows by about 1.1 ms
-per prompt token. A long agreement with schedules will not fit, and even when it fits, one
+A request holds at most 8,192 tokens, and on our reference laptop latency grows with the text:
+about 26 ms for 30 tokens, 112 ms for 191 tokens read from scratch. A long agreement with schedules will not fit, and even when it fits, one
 question about a hundred pages is worse than the same question about each section.
 
 Split on the contract's own structure (numbered sections or clauses), ask every clause question
@@ -146,7 +146,7 @@ own storage and access rules still apply.
 
 ## Sources
 
-- Our measurements: context and latency per token from the
+- Our measurements: context and latency from the
   [jev README](https://github.com/feder-cr/jev); accuracy by kind of question from our
   999-question test set on `jevos-q4_k_m`. No contract measurement exists; none is claimed.
 - OWASP GenAI Security Project,

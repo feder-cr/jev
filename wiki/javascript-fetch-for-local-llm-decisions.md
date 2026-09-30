@@ -53,7 +53,7 @@ async function decide(state, questions, ms = 10000) {
 `decide("I was charged twice for the same order.", { billing: "Is this a billing problem?" })`
 is the README's Quickstart request (the README shows `0.9` for it). Put every question about one
 text in the same call: the state is read once, so on the reference laptop three questions take
-about 165 ms together against 103 ms for one alone. The request shape is described in full on
+about 66 ms together against 49 ms for one alone. The request shape is described in full on
 [ask a local LLM a yes/no question and get P(yes)](ask-a-local-llm-yes-no-questions.md).
 
 ## Errors that fetch will not throw for you
@@ -66,9 +66,9 @@ the like. So the code checks the status itself. What each case means here:
   `jev serve` opens its port only once the model is loaded. Poll `GET /health` until it returns
   `{"status": "ready", ...}`.
 - **`TimeoutError`.** The signal from `AbortSignal.timeout` aborts with a `TimeoutError`
-  `DOMException`, which MDN distinguishes from the `AbortError` of a user abort. The server
-  answers one decision at a time, so a timeout under load usually means the queue is long, not
-  that the model hangs.
+  `DOMException`, which MDN distinguishes from the `AbortError` of a user abort. Requests share
+  one model (small ones arriving together are read in one model call), so a timeout under load
+  usually means the queue is long, not that the model hangs.
 - **`422`.** The body is `{"detail": [{"loc": [...], "msg": "...", "type": "..."}]}`. Common
   causes: a `choice` or `score` question (only `noul` is answered), a model name that is not
   `jev-*` or the served model, a misspelt field (unknown fields are rejected), or a text over the
@@ -82,8 +82,8 @@ Do not retry a `422` or a `401`; the same request fails the same way.
 A POST with `Content-Type: application/json` is not a "simple" request in the CORS sense, and a
 request with an `Authorization` header is not either. MDN's guide lists both as triggers for a
 preflight `OPTIONS` request, after which the server must answer with
-`Access-Control-Allow-Origin` and the allowed headers. The jev server's FastAPI app adds no CORS
-middleware, so none of those headers are sent, and per MDN the browser then blocks access to the
+`Access-Control-Allow-Origin` and the allowed headers. The jev server adds no CORS
+headers, so none of those headers are sent, and per MDN the browser then blocks access to the
 response and reports a CORS error that "for security reasons" JavaScript cannot inspect.
 
 For your own front end, two designs work:
@@ -136,9 +136,8 @@ be visible to every visitor.
 
 ## Sources
 
-- Request and response fields, 422 and 401 behaviour, the absence of CORS middleware, the
-  one-at-a-time engine: read from `src/jev/api/app.py`,
-  `src/jev/api/wire.py`, `src/jev/engine/engine.py` of
+- Request and response fields, 422 and 401 behaviour, the absence of CORS headers, the shared
+  model call for small requests: read from the source of
   [jev](https://github.com/feder-cr/jev).
 - Latencies and the billing example: the [jev README](https://github.com/feder-cr/jev).
 - [Node.js globals: fetch and AbortSignal.timeout](https://nodejs.org/api/globals.html), fetched

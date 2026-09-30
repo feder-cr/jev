@@ -1,0 +1,50 @@
+# ci.yml - build `jev` and run its checks (tests/check.py) on Windows, Linux and macOS, on every push and
+# pull request. The model comes from the release (MODEL_RELEASE): the OpenVINO model folder, zipped as model/.
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+env:
+  MODEL_RELEASE: jevos-v2
+  MODEL_ASSET: jevos-v2-openvino-int8.zip
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build tools and test dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build
+        run: python scripts/build.py
+
+      - name: Model
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$MODEL_RELEASE" --repo "${{ github.repository }}" --pattern "$MODEL_ASSET" --dir .
+          python -c "import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall('dist/jev')" "$MODEL_ASSET"
+
+      - name: Checks
+        run: python tests/check.py

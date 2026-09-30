@@ -8,8 +8,8 @@ nav_order: 12
 # Throughput vs latency for a decision server
 
 **Latency is how long one decision takes; throughput is how many decisions a server completes
-per second, and one does not tell you the other.** Our published jevos figures, 54 ms for a
-short request and 220 ms for a long one on a laptop CPU, are latency: one request at a time, on
+per second, and one does not tell you the other.** Our published jevos figures, 26 ms for a
+short request and 112 ms for a long one on a laptop CPU, are latency: one request at a time, on
 an idle machine. They say nothing about what happens when a hundred requests arrive together,
 which depends on how the server schedules work, how long the queue gets, and how many copies of
 it you run.
@@ -21,7 +21,8 @@ changing.
 
 This page is the two definitions, the one law that connects them, how jev serve handles
 concurrent requests, the kinds of batching, and how to measure capacity for your own traffic.
-No new jevos measurements appear here, because we have not published a concurrency benchmark.
+The one concurrency measurement of jevos here is from one laptop: a starting point for yours,
+not a capacity figure.
 
 ## Two numbers, two questions
 
@@ -53,25 +54,34 @@ short. Past that, more traffic means more waiting, not more throughput.
 
 ## How jev serve handles concurrent requests
 
-In the jev source, the engine runs the model work of one request at a time: a request that
-arrives while another is being answered waits for it. The time it waits is inside the `total`
-duration of the `Server-Timing` header, while `inference` is only the model's work. So under
-load, a growing gap between `total` and `inference` is the queue, visible per response.
+jev serve reads small requests that arrive at the same time together, in one model call, up to
+`--batch-tokens` (384 tokens by default). Past that, requests wait for the model. The time a
+request waits is inside the `total` duration of the `Server-Timing` header, while `inference`
+is only the model's work. So under load, a growing gap between `total` and `inference` is the
+queue, visible per response.
 
-With requests running one after another, a rough ceiling for one process is one divided by the
-time per request. Applied to our laptop figures, that would be around 18 short requests or 4 to
-5 long ones per second. That is arithmetic on single-request latency, not a measured capacity:
-real traffic mixes sizes, and your CPU is not ours.
+We measured it with one-question requests from our 999-question set, on the reference laptop
+(Intel Core Ultra 7 255H, 16 threads):
+
+| Concurrent clients | Requests per second | Median latency |
+|---|---|---|
+| 1 | 8.7 | 110 ms |
+| 4 | 9.8 | 390 ms |
+| 8 | 10.1 | 780 ms |
+
+Throughput barely moves past one client while latency grows with the queue, which is Little's
+law on a server that is already busy. That is one laptop and one kind of request: real traffic
+mixes sizes, and your CPU is not ours.
 
 To go beyond one process's ceiling, the options are the usual ones: more processes on a machine
 with cores to spare, more machines behind a load balancer, or a different serving stack. We measured
-about 1.2 GB of extra memory with the model loaded in one process; until you have checked how
+about 1 GB of extra memory with the model loaded in one process; until you have checked how
 several processes share memory on your system, plan that much for each.
 
 ## Three kinds of batching
 
 **Questions in one request.** Several questions about the same text share its reading. Three
-questions took about 165 ms together against 103 ms for one alone. This is the batching you
+questions took about 66 ms together against 49 ms for one alone. This is the batching you
 control from the client, and it raises decisions per second without any server change; see
 [many questions about one text](many-questions-about-one-text.md).
 
@@ -80,8 +90,8 @@ together. The vLLM paper opens with "high throughput serving of large language m
 requires batching sufficiently many requests at a time", and the llama.cpp server lists
 "continuous batching" and parallel slots among its features. This raises throughput, usually at
 some cost to each request's latency, and it is where GPUs shine; see
-[CPU or GPU for a small LLM](cpu-or-gpu-for-a-small-llm.md). jev serve does not do this; it
-answers requests in turn.
+[CPU or GPU for a small LLM](cpu-or-gpu-for-a-small-llm.md). jev serve does a small form of
+this: small requests that arrive at the same time are read together in one model call.
 
 **Batching over files.** For offline work, the unit is a file of requests and the measure is how
 long the job takes. `jev decide` answers request files without a server; the workflow is on
@@ -117,12 +127,13 @@ throughput is how many requests a system completes per second under load.
 **Does low latency mean high throughput?** Not by itself. It sets a ceiling when requests are
 served one at a time; batching and more copies raise throughput beyond it.
 
-**How many requests per second can jevos handle?** We have not published a concurrency
-measurement. One after another, one process's ceiling is roughly one divided by your request's
-time; measure with your traffic.
+**How many requests per second can jevos handle?** On our laptop, one process answered about 9
+to 10 one-question requests per second, with the median latency growing from 110 ms at one
+client to 780 ms at eight. Measure with your traffic.
 
-**Does jev serve process requests in parallel?** No. The engine answers one request at a time and
-the others wait; the wait is included in the `total` duration of `Server-Timing`.
+**Does jev serve process requests in parallel?** Partly. Small requests that arrive together are
+read in one model call; the others wait, and the wait is included in the `total` duration of
+`Server-Timing`.
 
 **How do I increase throughput?** Group questions per text, trim inputs, and run more processes
 or machines once one is saturated.
@@ -133,10 +144,10 @@ or machines once one is saturated.
 
 ## Sources
 
-- Single-request latencies, the three-question timing, memory, and the `Server-Timing` header:
-  our measurements and the [jev README](https://github.com/feder-cr/jev). One request at a time
-  and queue time counted in `total`: the jev source (`src/jev/engine/engine.py`,
-  `src/jev/api/app.py`).
+- Single-request latencies, the three-question timing, the concurrent-client measurement,
+  memory, and the `Server-Timing` header: our measurements and the
+  [jev README](https://github.com/feder-cr/jev). Requests read together and queue time counted
+  in `total`: the jev source.
 - Little's law: [Little's law, Wikipedia](https://en.wikipedia.org/wiki/Little%27s_law), fetched
   2026-09-29.
 - Requests per second definition:
@@ -145,10 +156,9 @@ or machines once one is saturated.
 - Batching for throughput: Kwon et al., [PagedAttention](https://arxiv.org/abs/2309.06180), and
   the [llama.cpp server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md),
   both fetched 2026-09-29.
-- The traffic in the Little's law example and the per-process ceilings are illustrative
-  arithmetic, not measurements.
+- The traffic in the Little's law example is illustrative arithmetic, not a measurement.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), whose server answers one request at a
-time and says so in its timing header, which is where capacity planning should start.*
+*From the notes of [jev](https://github.com/feder-cr/jev), whose server says in its timing
+header how long each request waited, which is where capacity planning should start.*

@@ -33,7 +33,7 @@ advice is on [one condition per question](one-condition-per-question.md), and ne
 particular on [negation in yes/no questions](negation-in-yes-no-questions.md).
 
 Splitting costs little in time. Questions in the same request share the state, which is read
-once: the README's three-question example takes about 165 ms against 103 ms for one question
+once: the README's three-question example takes about 66 ms against 49 ms for one question
 alone, on the reference laptop.
 
 ## The three rules, with and without independence
@@ -53,16 +53,16 @@ pessimistic, reached under the same kind of dependence.
 ## A worked example on the README request
 
 The README refund example asks three questions about one message ("The box arrived empty. This
-is the second time!") and returns `refund` 0.78, `upset` 0.73 and `wrong_item` 0.1. Combining
+is the second time!") and returns `refund` 0.93, `upset` 0.83 and `wrong_item` 0.04. Combining
 those published numbers:
 
-- **NOT wrong_item**: 1 - 0.1 = 0.9.
-- **refund AND upset**: product 0.57; bounds 0.51 to 0.73.
-- **refund AND NOT wrong_item**: product 0.70; bounds 0.68 to 0.78.
-- **refund OR upset**: independent 0.94; bounds 0.78 to 1.
+- **NOT wrong_item**: 1 - 0.04 = 0.96.
+- **refund AND upset**: product 0.77; bounds 0.76 to 0.83.
+- **refund AND NOT wrong_item**: product 0.89; bounds 0.89 to 0.93.
+- **refund OR upset**: independent 0.99; bounds 0.93 to 1.
 
-The arithmetic is ours; the three inputs are the README's. Notice how wide the AND interval is
-for refund and upset: 0.51 to 0.73. Whether you report 0.57 or 0.73 depends entirely on an
+The arithmetic is ours; the three inputs are the README's. The AND interval for refund and
+upset runs from 0.76 to 0.83. Whether you report 0.77 or 0.83 depends entirely on an
 assumption about independence, and for two questions about one angry customer, the assumption
 is doubtful.
 
@@ -138,7 +138,7 @@ which is read once.
 
 ## Sources
 
-- The inputs 0.78, 0.73 and 0.1, and the 165 ms vs 103 ms timing, are from the README of the
+- The inputs 0.93, 0.83 and 0.04, and the 66 ms vs 49 ms timing, are from the README of the
   [jev repository](https://github.com/feder-cr/jev); the combinations are arithmetic.
 - Our measurement: 0.858 on negation and 0.954 on stated facts, 999-question set,
   `jevos-q4_k_m`.

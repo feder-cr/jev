@@ -8,10 +8,11 @@ nav_order: 7
 # Running llama.cpp CPU only
 
 **To run llama.cpp on the CPU only, either install a CPU build or tell it to offload nothing
-(`--device none` or `-ngl 0` on llama.cpp's tools, `--device cpu` on jev), then set the thread
+(`--device none` or `-ngl 0` on llama.cpp's tools), then set the thread
 count to roughly your number of physical cores and measure from there.** llama.cpp's own docs
-recommend physical rather than logical cores for `--threads`. jev's README says to set
-`--threads` to your core count, fewer if other heavy apps are running; its default is 4.
+recommend physical rather than logical cores for `--threads`. jev runs on the CPU only, so it has
+nothing to switch off; its `--threads` defaults to all logical CPUs, and fewer is better if other
+heavy apps are running.
 
 The part that is not obvious is that "use every core" is a starting point, not an answer. On
 processors that mix fast and slow cores, and on machines doing other work, the best thread
@@ -26,19 +27,17 @@ enough.
 There are two independent levers, and it helps to know both.
 
 **Which runtime you install.** llama.cpp releases have CPU-only archives for each platform. A
-CPU build has no GPU backend to pick, so nothing can be offloaded by accident. With jev,
-`uv run jev download --only runtime --runtime cpu` installs that package; the default `auto`
-may install a CUDA or Vulkan build instead.
+CPU build has no GPU backend to pick, so nothing can be offloaded by accident.
 
 **Which devices you ask for at run time.** A GPU build can still run entirely on the CPU:
 
 - `llama-server` and the other tools take `--device none`, documented as "none = don't
   offload", or `-ngl 0` to keep no layers in VRAM. `--list-devices` shows what is available.
-- `jev serve --device cpu` passes llama.cpp an empty device list and keeps no weights on a
-  GPU, even when a GPU runtime is installed. `uv run jev devices` shows what the runtime sees.
+- jev has no device option: it runs its 8-bit OpenVINO model on the CPU only and does not load
+  llama.cpp's runtime, so there is no GPU to keep it off.
 
 ```bash
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
+./jev serve --threads 16
 ```
 
 ## How the thread options work
@@ -55,8 +54,8 @@ batch processing than during generation", and recommend physical cores for `--th
 
 For a decision model the second one is the one that matters. jevos generates no tokens, so all
 of its time is prompt processing, the phase explained on
-[prefill vs decode](prefill-vs-decode-llm-latency.md). jev's `--threads` sets both values to the
-same number, so there is only one knob to tune.
+[prefill vs decode](prefill-vs-decode-llm-latency.md). jev has a single `--threads` setting, so
+there is only one knob to tune.
 
 ## Why hybrid cores make "all threads" a guess
 
@@ -93,26 +92,26 @@ alternative `mlock` pins the model in RAM so it cannot be swapped out; the docs 
 improve performance but trades away some of the advantages of memory-mapping by requiring more
 RAM to run and potentially slowing down load times."
 
-For jevos the numbers are small: the q4_k_m file is 619 MB and memory use grows by about 1.2 GB
-with the model loaded, with a context of up to 8,192 tokens. That fits alongside normal
-work on most machines, which is what makes CPU-only practical for it.
+For the jevos GGUF files the numbers are small: the q4_k_m file is 619 MB and memory use grows by
+about 1.2 GB with it loaded in llama.cpp, with a context of up to 8,192 tokens. That fits
+alongside normal work on most machines, which is what makes CPU-only practical for it.
 
 ## What CPU only gives and what it costs
 
-With the settings above, jevos on the reference laptop answers a short request (about 30 tokens)
-in 54 ms and a long one (about 190 tokens) in 220 ms, about 1.1 ms per prompt token. Cost grows
-with the length of the text, so the CPU is comfortable for messages, tickets and records, and
-slower for long documents.
+On the CPU, jev on the reference laptop answers a short request (about 30 tokens) in 26 ms and a
+long one (about 190 tokens) in 112 ms, each read from scratch. Cost grows with the length of the
+text, so the CPU is comfortable for messages, tickets and records, and slower for long
+documents.
 
 Being straight about the limit: a CPU is the wrong tool when you process long documents at
-volume or need high throughput from one box. Then a GPU build of the same llama.cpp release is
-the right kind of tool, and the trade-off is on [CPU or GPU for a small
-LLM](cpu-or-gpu-for-a-small-llm.md).
+volume or need high throughput from one box. Then a GPU build of llama.cpp running the jevos
+GGUF files is the right kind of tool (jev itself has no GPU path), and the trade-off is on
+[CPU or GPU for a small LLM](cpu-or-gpu-for-a-small-llm.md).
 
 ## Short answers to the questions that lead here
 
 **How do I force llama.cpp to use only the CPU?** Use a CPU build, or pass `--device none` or
-`-ngl 0` to llama.cpp's tools. With jev, pass `--device cpu`.
+`-ngl 0` to llama.cpp's tools. jev runs on the CPU only, with nothing to set.
 
 **How many threads should llama.cpp use?** Start at the number of physical cores, as llama.cpp's
 docs recommend, then measure lower values. Fewer if other heavy programs are running.
@@ -133,9 +132,8 @@ cores holding up each step, or other programs using the same cores.
 ## Sources
 
 - Our own measurements and facts: latency, tokens, memory and context of jevos on the reference
-  laptop with 16 threads, and the `--threads` guidance, from the
-  [jev README](https://github.com/feder-cr/jev); how `--device cpu` and `--threads` are applied,
-  from `llama_cpp.py` and `llama_release.py`.
+  laptop with 16 threads, and the `--threads` guidance and default, from the
+  [jev README](https://github.com/feder-cr/jev).
 - [llama-server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md),
   fetched 2026-09-29: `--threads`, `--threads-batch`, `--device`, `-ngl`, `--list-devices`,
   `--cpu-mask`, `--cpu-strict`, `--prio`, `--poll`.

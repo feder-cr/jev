@@ -11,7 +11,7 @@ nav_order: 1
 jevos server and read `noul`, the probability that the answer is yes.** The model does one
 forward pass over your text and returns that probability directly: no tokens are generated, so
 there is no "Yes." or "I think so" to parse, and no answer that comes back in the wrong format.
-On a laptop CPU a short request takes about 54 ms and a 190-token one about 220 ms.
+On a laptop CPU a short request takes about 26 ms and a 191-token one about 112 ms.
 
 A chat model can be pushed into the same job by asking it to answer with one word and reading
 the word, or its log-probabilities. That works, and it is slower, needs a larger model, and
@@ -22,19 +22,21 @@ Python and from the command line, and what to do with the number once you have i
 
 ## Start the server
 
-Download `jevos-v2-q4_k_m.gguf` (619 MB) from the
-[release](https://github.com/feder-cr/jev/releases/tag/jevos-v2), then from a clone of the repo:
+Download the archive for your platform (`jev-linux-x64.tar.gz`, `jev-macos-arm64.tar.gz` or
+`jev-windows-x64.zip`) and the model, `jevos-v2-openvino-int8.zip`, from the
+[release](https://github.com/feder-cr/jev/releases/tag/jevos-v2), then:
 
 ```bash
-uv sync
-uv run jev download --only runtime        # llama.cpp for this machine
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
+tar -xzf jev-linux-x64.tar.gz
+cd jev
+unzip ../jevos-v2-openvino-int8.zip     # creates model/
+./jev serve
 ```
 
-`jev download --only runtime` fetches the official prebuilt llama.cpp for your platform, so
-there is nothing to compile. `--threads` should match your core count, or be lower if other
-heavy programs share the machine. The server listens on `127.0.0.1:8017` and uses about 1.2 GB
-of memory with the model loaded.
+On Windows, unzip `jev-windows-x64.zip` and run `jev.exe serve` (`.\jev.exe serve` in
+PowerShell). There is no Python, no download step and nothing to compile; `jev` runs on the CPU
+only. `--threads` defaults to all logical CPUs; set it lower if other heavy programs share the
+machine. The server listens on `127.0.0.1:8017`.
 
 ## One question
 
@@ -47,8 +49,8 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-v2-q4_k_m",
-  "answers": {"billing": {"type": "noul", "noul": 0.9}},
+  "model": "jevos-v2",
+  "answers": {"billing": {"type": "noul", "noul": 0.94}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
 ```
@@ -69,7 +71,7 @@ flattening a ticket, an order or a log line into a sentence before asking about 
 ## Several questions about the same text
 
 Questions in one request share the `state`, and the text is read once. On the README's
-example, three questions take about 165 ms together, against 103 ms for one of them alone, so
+example, three questions take about 66 ms together, against 49 ms for one of them alone, so
 the second and third cost a fraction of the first:
 
 ```json
@@ -93,11 +95,11 @@ the second and third cost a fraction of the first:
 
 ```json
 {
-  "model": "jevos-v2-q4_k_m",
+  "model": "jevos-v2",
   "answers": {
-    "refund": {"type": "noul", "noul": 0.78},
-    "upset": {"type": "noul", "noul": 0.73},
-    "wrong_item": {"type": "noul", "noul": 0.1}
+    "refund": {"type": "noul", "noul": 0.93},
+    "upset": {"type": "noul", "noul": 0.83},
+    "wrong_item": {"type": "noul", "noul": 0.04}
   },
   "usage": {"input_tokens": 95, "output_tokens": 0}
 }
@@ -131,7 +133,7 @@ against this server for yes/no questions. `choice` and `score` questions are ref
 request, and the answer comes back in the same shape:
 
 ```bash
-uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu request.json
+./jev decide request.json
 ```
 
 `--output answer.json` writes the answer to a new file instead of printing it, and never
@@ -175,11 +177,11 @@ except `/health` needs `Authorization: Bearer <key>`, as the hosted API does.
 **Can a local LLM return a probability instead of text?** Yes. jevos returns P(yes) for each
 question and generates no text at all.
 
-**How fast is it on a CPU?** About 54 ms for a 30-token request and 220 ms for 190 tokens on an
+**How fast is it on a CPU?** About 26 ms for a 30-token request and 112 ms for 191 tokens on an
 Intel Core Ultra 7 255H with 16 threads. Extra questions on the same text cost less than the
 first.
 
-**Do I need a GPU?** No. The server is built for the CPU; `--device cpu` keeps it there.
+**Do I need a GPU?** No. The server runs on the CPU only.
 
 **Can I send JSON instead of text?** Yes. `state` accepts a string, an object or an array.
 
@@ -198,7 +200,7 @@ or wait for `choice` support, which is on the roadmap.
   [jev README](https://github.com/feder-cr/jev); the Quickstart request was re-run on
   2026-09-29 and returned 0.899 for the billing question.
 - Calibration error: our held-out split, 6,397 natural yes/no questions, `jevos-q8_0`.
-- The `JEV_API_KEY` behaviour is read from `src/jev/cli.py` and `src/jev/api/app.py`.
+- The `JEV_API_KEY` behaviour is read from jev's server code.
 - TypeSafe's Jev wire format: [docs.typesafe.ai](https://docs.typesafe.ai).
 
 ---

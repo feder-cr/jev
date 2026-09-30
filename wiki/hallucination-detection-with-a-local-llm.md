@@ -126,7 +126,7 @@ does not support or contradicts, such as a wrong day in a meeting summary.
 ask the model about items that may be paraphrased.
 
 **Can I run hallucination checks on every output?** With a local model, yes: a request of about
-190 tokens takes about 220 ms on our reference laptop, and no text leaves the machine.
+190 tokens takes about 112 ms on our reference laptop, and no text leaves the machine.
 
 **What should I use for open-domain fact checking?** Retrieval followed by a grounded check, or a
 large model with search, with a person for high-stakes claims.

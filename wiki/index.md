@@ -1,6 +1,6 @@
 ---
 title: "jevos: yes/no decisions from a local LLM on the CPU"
-description: "jevos is a 1B local LLM that answers yes/no questions about a text with one probability, on a laptop CPU in 50 to 220 ms. Guides, measurements and limits."
+description: "jevos is a 1B local LLM that answers yes/no questions about a text with one probability, on a laptop CPU in 25 to 110 ms. Guides, measurements and limits."
 nav_order: 0
 ---
 
@@ -8,8 +8,8 @@ nav_order: 0
 
 **jevos is a small local LLM that answers one kind of question: a yes/no question about a
 text.** You send the text and the question, and it sends back P(yes), the probability that the
-answer is yes. It runs on a laptop CPU through llama.cpp, in 54 ms for a short request and
-220 ms for a 190-token one, and it generates no text, so there is nothing to parse.
+answer is yes. It runs on a laptop CPU, in 26 ms for a short request and
+112 ms for a 190-token one, and it generates no text, so there is nothing to parse.
 
 That narrow job is the point. A router, a filter, a policy check, a judge in an evaluation
 loop: most decisions an application asks a language model for are yes/no questions with a
@@ -57,13 +57,14 @@ model, including where it is wrong, and how it compares with the alternatives.
 - [Agents and routing](agents-and-routing.md): routers, cascades, tool gating and guardrails.
 - [Integrations](integrations.md): Python, JavaScript, curl, n8n, Slack, CI and more.
 - [Local and private AI](local-and-private-ai.md): self-hosted, offline and on-premise decisions.
-- [llama.cpp and GGUF](llama-cpp-and-gguf.md): the runtime and the file format underneath.
+- [llama.cpp and GGUF](llama-cpp-and-gguf.md): the runtime and the file format of the release's
+  GGUF builds, and the tokenizer jev takes from llama.cpp.
 
 ## What it is not
 
 jevos answers yes/no questions in English, and only those. Multiple choice and scores are on
 the roadmap and are refused today with a `422`. On rules it has never seen it is right about
-four times in five (0.811 on 2,000 such questions), which is good for a first pass and not good
+four times in five (0.810 on 2,000 such questions), which is good for a first pass and not good
 enough to be the last word on a refund, and the measurement pages say exactly where it fails.
 
 ---

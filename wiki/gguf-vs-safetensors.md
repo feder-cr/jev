@@ -100,8 +100,9 @@ is better.
   tokenizer and template cannot drift away from the weights.
 - **You run a GPU serving stack built on PyTorch.** safetensors is the native input there.
 
-jevos ships only GGUF: `jevos-v2-q4_k_m.gguf` (619 MB) and `jevos-v2-q8_0.gguf` (943 MB), because the
-product is a CPU decision server on llama.cpp. There is no safetensors release to download.
+jevos ships as GGUF, `jevos-v2-q4_k_m.gguf` (619 MB) and `jevos-v2-q8_0.gguf` (943 MB), for
+llama.cpp and the tools around it, and as `jevos-v2-openvino-int8.zip`, the 8-bit OpenVINO model
+that the jev decision server runs on the CPU. There is no safetensors release to download.
 
 ## Short answers to the questions that lead here
 
@@ -117,8 +118,8 @@ is converted first, with the `convert_hf_to_gguf.py` script from the same reposi
 **Can I get a safetensors file back from a GGUF?** Transformers can load a GGUF and dequantize
 it, and you can save the result. It keeps the quantization rounding.
 
-**Does jevos come as safetensors?** No. The release has the two GGUF files and a
-`SHA256SUMS.txt`.
+**Does jevos come as safetensors?** No. The release has the two GGUF files, the OpenVINO model
+that jev runs, and a `SHA256SUMS.txt`.
 
 **See also:** [what is GGUF](what-is-gguf.md),
 [llama.cpp vs Ollama for a classification service](llama-cpp-vs-ollama-for-classification.md)
@@ -141,5 +142,5 @@ and [self-hosted AI for decisions](self-hosted-ai-for-decisions.md).
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), where the only model file anyone
-needs is a GGUF and its hash.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which runs an 8-bit OpenVINO model
+and ships GGUF files for every other tool.*

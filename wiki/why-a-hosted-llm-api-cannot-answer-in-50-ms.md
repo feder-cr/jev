@@ -12,7 +12,7 @@ and back before the answer exists, and on a fresh connection it crosses more tha
 Light in fibre covers about 200 km per millisecond, a new HTTPS connection needs round trips for
 TCP and TLS before the request is even sent, and the provider may queue the request behind
 others. From our laptop in Europe, the hosted Jev API took 344 ms on a short request and 345 ms
-on a long one, while the same requests ran locally in 54 and 220 ms.
+on a long one, while the same requests ran locally in 26 and 112 ms.
 
 The flatness is the tell. When a request with six times more text takes the same time, the
 model is not what you are waiting for. That also means a hosted API can be the right choice for
@@ -56,7 +56,7 @@ an ocean away does not.
 
 | Same two requests | short (about 30 tokens) | long (about 190 tokens) |
 |---|---|---|
-| jevos on the laptop | 54 ms | 220 ms |
+| jevos on the laptop, text read from scratch | 26 ms | 112 ms |
 | Jev, hosted, from Europe, network included | 344 ms | 345 ms |
 
 Locally, going from 30 to 190 tokens quadrupled the time, because the model reads every token.
@@ -88,9 +88,9 @@ nearest region is far, no client-side change fits it.
 ## When hosted is still the right call
 
 - **Accuracy matters more than milliseconds.** On 2,000 policy questions none of them was tuned
-  on, Jev was right 0.927 of the time against 0.811 for jevos. The comparison is on
+  on, Jev was right 0.927 of the time against 0.810 for jevos. The comparison is on
   [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
-- **The texts are long.** Local latency grows about 1.1 ms per token on our laptop; a hosted
+- **The texts are long.** Local latency grows with every token read on our laptop; a hosted
   model's fixed cost matters less the more work each request carries.
 - **You need choice or score questions today**, or languages other than English.
 - **The latency budget is seconds, not milliseconds.** A nightly job or a webhook with a

@@ -124,7 +124,7 @@ is on [human in the loop AI with a review band](human-in-the-loop-ai-with-a-revi
 - **English only.**
 
 Urgency is checked on every incoming message, which makes per-call cost and latency matter. On
-our reference laptop a short message takes about 54 ms, and four questions on one message share
+our reference laptop a short message takes about 26 ms, and four questions on one message share
 a single reading of it, so the check fits before a ticket is even shown in a queue. Pairing it
 with [support ticket routing with yes/no questions](support-ticket-routing-with-yes-no-questions.md)
 means one request answers both where the ticket goes and how fast.

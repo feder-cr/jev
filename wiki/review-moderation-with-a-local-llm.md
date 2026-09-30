@@ -116,8 +116,8 @@ Reviews are public once published, so privacy is less of a reason here than for 
 reasons are cost and control. Screening every review costs nothing per token, a backlog can be
 re-checked in a batch with `jev decide` whenever you change a rule, and the same questions run
 the same way next month because the model is a file you pinned. Several rules on one review
-share one reading of the text: on the README example, three questions take about 165 ms
-together against 103 ms for one.
+share one reading of the text: on the README example, three questions take about 66 ms
+together against 49 ms for one.
 
 If your reviews are mostly in several languages, or you need standard safety categories, a
 larger or dedicated model is the better tool.
@@ -144,7 +144,7 @@ details, and use a pattern match to find and mask them exactly.
 
 - Accuracy by kind of question (fact 0.954, tone 0.938, not stated 0.847): our 999-question test
   set, `jevos-q4_k_m`.
-- Three questions in about 165 ms against 103 ms for one, and `jev decide`: the
+- Three questions in about 66 ms against 49 ms for one, and `jev decide`: the
   [jev README](https://github.com/feder-cr/jev).
 - The decision table thresholds are placeholders, not measured values.
 

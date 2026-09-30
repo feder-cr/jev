@@ -97,9 +97,9 @@ decided wrong, they show which condition caused it, which is the whole point of 
 ## What does splitting cost?
 
 Less than you would think. Questions in the same request share the `state`, and the text is
-read once. On the reference laptop (Intel Core Ultra 7 255H, 16 threads, `q4_k_m`), the
-README's three questions about one text take about 165 ms together, against 103 ms for one of
-them alone. Three conditions for about 1.6 times the price of one is a trade worth making for
+read once. On the reference laptop (Intel Core Ultra 7 255H, 16 threads), the
+README's three questions about one text take about 66 ms together, against 49 ms for one of
+them alone. Three conditions for about 1.3 times the price of one is a trade worth making for
 any decision you will need to explain. Why the extra questions are cheap is on
 [many questions about one text](many-questions-about-one-text.md).
 
@@ -126,7 +126,7 @@ thing you care about. Otherwise ask them separately.
 the product assumes independence. For OR, the maximum. Keep the parts in your logs.
 
 **Does asking more questions make the request slow?** Less than linearly. On the README
-example, three questions take about 165 ms against 103 ms for one, because the text is read
+example, three questions take about 66 ms against 49 ms for one, because the text is read
 once.
 
 **See also:** [how to write yes/no questions an LLM answers well](how-to-write-yes-no-questions-for-an-llm.md),
@@ -136,7 +136,7 @@ once.
 ## Sources
 
 - Accuracy on rule, fact and arithmetic questions: our 999-question test set, `jevos-q4_k_m`.
-- The 165 ms and 103 ms timings: the [jev README](https://github.com/feder-cr/jev).
+- The 66 ms and 49 ms timings: the [jev README](https://github.com/feder-cr/jev).
 - Definition and examples of double-barreled questions:
   [Double-barreled question on Wikipedia](https://en.wikipedia.org/wiki/Double-barreled_question),
   fetched 2026-09-29.

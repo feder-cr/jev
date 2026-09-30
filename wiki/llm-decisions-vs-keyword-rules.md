@@ -99,8 +99,8 @@ question, is on [phishing email screening with a local LLM](phishing-email-scree
 
 | | regex / keywords | yes/no model (jevos) |
 |---|---|---|
-| Cost per text | negligible | 54 ms (about 30 tokens) to 220 ms (about 190) on our laptop CPU |
-| Memory | negligible | about 1.2 GB with the model loaded |
+| Cost per text | negligible | 26 ms (about 30 tokens) to 112 ms (about 190) on our laptop CPU |
+| Memory | negligible | about 1 GB with the model loaded |
 | Handles paraphrase | only what you listed | yes, 0.893 in our test |
 | Handles negation | badly, by special cases | 0.858 in our test |
 | Exact on syntax | yes | no, and not needed |
@@ -108,7 +108,7 @@ question, is on [phishing email screening with a local LLM](phishing-email-scree
 | Changing a rule | edit a pattern | edit a question |
 
 Several questions on the same text cost much less than separate calls, because the text is read
-once: three questions took about 165 ms against 103 ms for one. So the model is affordable for
+once: three questions took about 66 ms against 49 ms for one. So the model is affordable for
 most message streams on a CPU, but not free, and nothing beats a regex on price.
 
 ## A note on regex that can hurt you
@@ -134,8 +134,8 @@ model to answer meaning questions, code to combine.
 **How does a yes/no model handle negation?** Better than keyword rules: 0.858 on negation questions
 in our test. Positive phrasing of the question still helps.
 
-**Is a model fast enough to replace keyword rules?** For most message streams on a CPU, yes: 54 to
-220 ms per request in our measurement. It will never be as cheap as a regex.
+**Is a model fast enough to replace keyword rules?** For most message streams on a CPU, yes: 26 to
+112 ms per request in our measurement. It will never be as cheap as a regex.
 
 **See also:** [negation in yes/no questions](negation-in-yes-no-questions.md),
 [checking text for personal data with yes/no questions](pii-check-with-yes-no-questions.md) and

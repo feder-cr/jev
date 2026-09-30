@@ -1,0 +1,8 @@
+# Building `jev` (OpenVINO's C++ SDK and runtime ship with its wheel; CMake and Ninja as wheels too) and
+# running its tests.
+openvino==2026.4.0
+cmake==4.4.3
+ninja==1.13.2
+numpy==2.4.6
+requests==2.34.2
+tokenizers==0.22.2
