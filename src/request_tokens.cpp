@@ -25,15 +25,27 @@ RequestTokens tokenize_request(const Vocab& vocab, const std::string& state_text
         for (size_t i = 0; i < tokens.size(); ++i) work(i);
     }
     RequestTokens out;
-    out.prefix = std::move(tokens.back());
+    Tokens state = std::move(tokens.back());
     tokens.pop_back();
-    if (!out.prefix.empty()) out.prefix.pop_back();
+    if (!state.empty()) state.pop_back();
     for (auto& t : tokens) {
         size_t k = 0;
-        while (k < out.prefix.size() && k < t.size() && out.prefix[k] == t[k]) ++k;
-        out.prefix.resize(k);
+        while (k < state.size() && k < t.size() && state[k] == t[k]) ++k;
+        state.resize(k);
     }
-    for (auto& t : tokens) if (t.size() <= out.prefix.size()) out.prefix.clear();
+    for (auto& t : tokens) if (t.size() <= state.size()) state.clear();
+    out.state = state.size();
+    out.prefix = std::move(state);
+    if (tokens.size() > 1 && out.state > 0) {
+        // what all the prompts share past the state, up to one token short of the shortest prompt
+        size_t common = tokens[0].size() - 1;
+        for (auto& t : tokens) {
+            size_t k = out.state, m = std::min(common, t.size() - 1);
+            while (k < m && t[k] == tokens[0][k]) ++k;
+            common = k;
+        }
+        out.prefix.assign(tokens[0].begin(), tokens[0].begin() + common);
+    }
     out.prompts = std::move(tokens);
     return out;
 }
