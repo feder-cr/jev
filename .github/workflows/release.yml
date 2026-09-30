@@ -69,3 +69,19 @@ jobs:
           rm -rf dist/jev/model
           python -c "import shutil, sys; print(shutil.make_archive(sys.argv[1], sys.argv[2], 'dist', 'jev'))" "jev-${{ matrix.name }}" "${{ matrix.format }}"
           gh release upload "$TAG" --repo "${{ github.repository }}" --clobber jev-${{ matrix.name }}.*
+
+  sums:
+    # SHA256SUMS.txt over every asset of the release, the archives above included (sha256sum's format)
+    needs: archive
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Hash the assets and attach SHA256SUMS.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir assets && cd assets
+          gh release download "$TAG" --repo "${{ github.repository }}"
+          rm -f SHA256SUMS.txt
+          sha256sum --binary * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          gh release upload "$TAG" --repo "${{ github.repository }}" --clobber SHA256SUMS.txt
