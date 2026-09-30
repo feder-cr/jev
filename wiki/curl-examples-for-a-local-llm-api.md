@@ -124,7 +124,7 @@ curl -s -w '\nHTTP %{http_code}\n' http://127.0.0.1:8017/v1/systemone --json '{
 
 The status is `422` and the body is a validation error, with `loc` pointing at the field. For this request `loc` is `["body", "model"]` and the message says that
 the server answers as its served model and accepts any `jev-*` alias. Other requests that get a
-`422`: a `score` question (only `noul` and `choice` are answered), an unknown or misspelt field,
+`422`: an unknown or misspelt field, a `choice` with one option or a `score` with one level,
 an empty state, or a text longer than the context limit.
 
 In scripts, `--fail-with-body` makes curl return error 22 on HTTP 400 and above while still

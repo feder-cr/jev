@@ -12,6 +12,7 @@
 #include "choice.hpp"
 #include "prompt.hpp"
 #include "request_tokens.hpp"
+#include "score.hpp"
 #include "text.hpp"
 #include "wire.hpp"
 
@@ -32,15 +33,11 @@ std::string Api::systemone(const Value& body, Timing& tm) const {
     for (auto& [qid, q] : body.get("questions")->dict) qs.push_back(to_native(qid, q));
     check_native(state, qs, errs);
     if (!errs.empty()) throw unprocessable(std::move(errs));
-    std::string others;
-    for (auto& q : qs) if (q.kind == "score") others += (others.empty() ? "" : ", ") + q.id;
-    if (!others.empty())
-        throw unprocessable(app_err({S("body")}, "Binary model: yes/no (noul) and choice questions are answered; not " + others));
-
     auto v1 = Clock::now();
     tm.validate = ms(v0, v1);
     // The model answers yes/no questions: a noul question is one, a choice one per option and phrasing
-    // (choice_instructions), each asked against all the other options.
+    // (choice_instructions), each asked against all the other options, a score one per level above the
+    // lowest and phrasing (score_instructions).
     struct Prompt {
         size_t question;
         std::string instructions;
@@ -53,8 +50,12 @@ std::string Api::systemone(const Value& body, Timing& tm) const {
         }
         std::vector<std::string> described;
         for (auto& [field, text] : qs[k].texts) described.push_back(text);
-        for (auto& phrasing : CHOICE_PHRASINGS)
-            for (size_t i = 0; i < described.size(); ++i) prompts.push_back({k, choice_instructions(qs[k].instructions, described, i, phrasing)});
+        if (qs[k].kind == "choice")
+            for (auto& phrasing : CHOICE_PHRASINGS)
+                for (size_t i = 0; i < described.size(); ++i) prompts.push_back({k, choice_instructions(qs[k].instructions, described, i, phrasing)});
+        else
+            for (auto& phrasing : SCORE_PHRASINGS)
+                for (size_t i = 1; i < described.size(); ++i) prompts.push_back({k, score_instructions(qs[k].instructions, described, i, phrasing)});
     }
     // Tokens on the request's own thread (the vocabulary is read-only): a request tokenizes while
     // another one runs.
@@ -100,6 +101,16 @@ std::string Api::systemone(const Value& body, Timing& tm) const {
         pyjson::quote(out, qs[k].id);
         if (qs[k].kind == "boolean") {
             out += ":{\"type\":\"noul\",\"noul\":" + pyjson::float_repr(answered[k][0]) + "}";
+            continue;
+        }
+        if (qs[k].kind == "score") {
+            const std::vector<std::string>& legend = qs[k].legend;
+            ScoreAnswer a = rate(answered[k], legend.size());
+            out += ":{\"type\":\"score\",\"score\":" + pyjson::float_repr(a.score) + ",\"legend\":{";
+            for (size_t i = 0; i < legend.size(); ++i) out += (i ? ",\"" : "\"") + std::to_string(i) + "\":" + legend[i];
+            out += "},\"probabilities\":{";
+            for (size_t i = 0; i < legend.size(); ++i) out += (i ? ",\"" : "\"") + std::to_string(i) + "\":" + pyjson::float_repr(a.probabilities[i]);
+            out += "},\"confidence\":" + pyjson::float_repr(a.confidence) + "}";
             continue;
         }
         const std::vector<std::string>& options = qs[k].options;

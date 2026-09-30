@@ -39,3 +39,12 @@ inline std::string choice_instructions(const std::string& instructions, const st
     for (auto& o : options) out += "\n- " + o;
     return out + "\n" + phrasing + "\nCandidate: " + options[i];
 }
+
+// A score asked as yes/no questions, one per level above the lowest (datagen/binary_templates.py): the
+// instructions, the scale, a phrasing, then the level k asked about, "is it at this level or higher?".
+inline std::string score_instructions(const std::string& instructions, const std::vector<std::string>& levels, size_t k,
+                                      const std::string& phrasing) {
+    std::string out = instructions + "\nScale from lowest to highest: ";
+    for (size_t i = 0; i < levels.size(); ++i) out += (i ? " < " : "") + levels[i];
+    return out + "\n" + phrasing + "\nLevel: " + levels[k];
+}

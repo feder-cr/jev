@@ -10,9 +10,9 @@ nav_order: 2
 **jevos is an open-source (MIT) local server that speaks TypeSafe Jev's wire format, so yes/no
 questions written for Jev move over by pointing the client at `http://127.0.0.1:8017` instead of
 TypeSafe's API.** The request body, the `jev-latest` model name and the shape of the answers stay
-the same, for `choice` questions too. Two things do not: `score` questions are refused with a
-`422`, and on a yes/no question Jev's optional `criteria` field is accepted but not read, so the
-rule has to live in `instructions`. Whether the switch is worth it depends on how a local 1B model does on your questions, not on the
+the same, for `choice` and `score` questions too. Two things do not: `score` answers are early
+(54% on held-out score questions, 82% within one level), and on a yes/no question Jev's optional
+`criteria` field is accepted but not read, so the rule has to live in `instructions`. Whether the switch is worth it depends on how a local 1B model does on your questions, not on the
 code.
 
 Conflict of interest, in one line: we build jevos, and we are not affiliated with TypeSafe AI,
@@ -83,7 +83,7 @@ The same steps are covered from the other direction, starting from nothing, on
 |---|---|
 | `noul` questions | answered |
 | `choice` questions | answered, 2 to 26 options |
-| `score` questions | refused with `422` (on the roadmap) |
+| `score` questions | answered, 2 to 10 levels (early) |
 | `criteria` on a `noul` | accepted, not read |
 | unknown fields | rejected with `422` |
 | languages other than English | not supported |
@@ -159,7 +159,7 @@ and 345 ms for the hosted API, network included.
 
 ## Sources
 
-- Wire format compatibility, the `jev-*` aliases, the `choice` answer, the `422` for `score`, the
+- Wire format compatibility, the `jev-*` aliases, the `choice` and `score` answers, the
   `criteria` behaviour, `/health`, `/v1/models`, `Server-Timing` and `JEV_API_KEY`: the
   [jev README](https://github.com/feder-cr/jev) and the jev source.
 - Latency (26/112 ms against 344/345 ms) and accuracy (0.927 against 0.810): our own

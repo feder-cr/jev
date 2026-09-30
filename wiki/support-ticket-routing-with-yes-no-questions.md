@@ -67,8 +67,8 @@ def route(ticket, questions, url="http://127.0.0.1:8017/v1/systemone"):
 
 Three operational choices are built in:
 
-- **Fail to a human queue.** A timeout, a restart or a `422` (for instance a question sent as
-  `score`, which jevos refuses) must never drop a ticket. The general queue is staffed; the
+- **Fail to a human queue.** A timeout, a restart or a `422` (for instance a request that fails
+  validation) must never drop a ticket. The general queue is staffed; the
   router is an optimisation.
 - **Return the probabilities.** Store `p` on the ticket. Agents can see why it landed where it
   did, and you can replay a new threshold over old tickets without calling the model again.
@@ -155,7 +155,7 @@ blocked; the target comes from your plan rules in code.
 
 ## Sources
 
-- The `422` for `score` questions, the request format and `jev decide`: the
+- The request format, its `422` errors and `jev decide`: the
   [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind of question: our 999-question test set, written after training, run on
   `jevos-q4_k_m`.

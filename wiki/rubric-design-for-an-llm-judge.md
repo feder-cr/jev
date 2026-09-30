@@ -113,8 +113,8 @@ Doing the AND of several gates in code, instead of one compound question, is cov
   A small judge reads the text; it does not know medicine. Use a large model or an expert.
 - **Style preferences you cannot state.** If you cannot write two example outputs, one passing
   and one failing, the criterion is not ready.
-- **Scores from 1 to 10.** jevos refuses `score` questions with a 422 today, and even with judges
-  that accept them, a scale mixes several properties. If you need levels, write them as threshold
+- **Scores from 1 to 10.** jevos answers `score` questions with 2 to 10 levels, early (54% on
+  held-out score questions), and with any judge a scale mixes several properties. If you need levels, write them as threshold
   questions; see [scores as yes/no thresholds](scores-as-yes-no-threshold-questions.md).
 
 ## Test the rubric before trusting it
@@ -156,7 +156,7 @@ rewrite the criteria that people or the judge disagree on.
 
 - Accuracy on negation, stated-fact and arithmetic questions: our 999-question test set, run on
   `jevos-q4_k_m`.
-- The `criteria` field, `instructions`, and the 422 for `score` questions: the
+- The `criteria` field, `instructions`, and the `score` answers and their accuracy: the
   [jev README](https://github.com/feder-cr/jev).
 
 ---

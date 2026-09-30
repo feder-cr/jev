@@ -13,9 +13,9 @@ boundary answered yes.** A scale with n levels needs n minus 1 questions. Each b
 clear answer, where "Is the urgency medium?" can be wrong in two directions, and the answers
 come back as probabilities you can threshold, compare and log.
 
-This is also how jevos does scores today. The wire format it speaks has a `score` question
-type, and jevos refuses it with a `422` (scores are on the roadmap, marked "Soon", to be
-answered the way `choice` is: one yes/no question per level). Boundary questions are not a workaround, though. They are the same idea statisticians
+This is also how jevos answers the `score` question type of the wire format it speaks: one yes/no
+question per level above the lowest ("is it at this level or higher?"), the answers made
+non-increasing where they are not, and their differences the probability of each level. Boundary questions are not a workaround, though. They are the same idea statisticians
 use for ordered outcomes, and they often make a better score than asking for a number.
 
 This page is the idea behind boundary questions, the request, how to read a level and an
@@ -133,8 +133,9 @@ the expected level, and it sorts a queue well.
 **What if P(at least high) is larger than P(at least medium)?** Enforce the order with a running
 minimum, log the inversion, and consider a review band for those cases.
 
-**Does jevos support the `score` question type?** Not yet. It returns a `422`; scores are on the
-roadmap.
+**Does jevos support the `score` question type?** Yes, early: on 2,350 held-out score questions
+the most probable level is right 54% of the time and within one level 82%; on rubrics 69%, on
+points to add up barely better than always the most common level.
 
 **See also:** [zero-shot text classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md),
 [urgency detection in customer messages](urgency-detection-in-customer-messages.md) and
@@ -142,7 +143,7 @@ roadmap.
 
 ## Sources
 
-- The `422` for `score` questions and the roadmap status: the
+- How jevos answers `score` questions, and their accuracy on 2,350 held-out questions: the
   [jev README](https://github.com/feder-cr/jev).
 - The 2,000-question comparison (accuracies in the jev README) and where the gap to Jev was
   largest: our own measurement on those questions.

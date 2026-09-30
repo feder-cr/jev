@@ -124,8 +124,8 @@ if answer["answers"]["billing"]["noul"] > 0.5:
 ```
 
 The wire format is the one TypeSafe's Jev uses, so code already written against Jev's SDK works
-against this server for yes/no and `choice` questions. `score` questions are refused with a
-`422` rather than answered badly.
+against this server for yes/no, `choice` and `score` questions. Scores are early: one yes/no question
+per level, right 54% of the time on 2,350 held-out score questions and within one level 82%, weak on points to add up.
 
 ## From the command line, without a server
 

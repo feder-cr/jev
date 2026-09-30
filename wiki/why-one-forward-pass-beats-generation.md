@@ -103,7 +103,8 @@ A single forward pass answers one thing: how likely is yes. Anything else needs 
 - **Explanations.** If a reviewer needs to read why, you need a model that writes.
 - **Extraction.** Pulling a date, an amount or a name out of a text is generation, or regex.
 - **Open answers.** Summaries, replies, translations.
-- **Score questions**, for now. jevos refuses them with a `422`; they are on the roadmap.
+- **Scores that need arithmetic.** jevos answers `score` questions, early, and is weakest where the
+  level is a sum of points.
 
 A common pattern is to keep the generator for the one step that needs words and move every
 "is it X?" in the pipeline to a decision model. How to find those steps in an existing app is on
@@ -133,7 +134,7 @@ answer is yes. How far to trust it depends on calibration on data like yours.
 
 ## Sources
 
-- `output_tokens: 0`, the billing example and its answer, and the 422 for score: the
+- `output_tokens: 0`, the billing example and its answer, and the `score` answers: the
   [jev README](https://github.com/feder-cr/jev).
 - Error counts (152 and 91) and the 999-question set; calibration error 0.009 on the held-out
   split: our own measurements. Hosted latency from Europe: our measurement of Jev, network
