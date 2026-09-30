@@ -33,9 +33,9 @@ unit is the nat; base 2 would give bits.
 | 0.01 | 1 to 99 | -4.60 |
 | 0.10 | 1 to 9 | -2.20 |
 | 0.50 | 1 to 1 | 0 |
-| 0.73 | 2.7 to 1 | 0.99 |
-| 0.78 | 3.5 to 1 | 1.27 |
+| 0.83 | 4.9 to 1 | 1.59 |
 | 0.90 | 9 to 1 | 2.20 |
+| 0.93 | 13.3 to 1 | 2.59 |
 | 0.95 | 19 to 1 | 2.94 |
 | 0.99 | 99 to 1 | 4.60 |
 | 0.999 | 999 to 1 | 6.91 |
@@ -138,7 +138,7 @@ to a logit yourself with the formula above.
 ## Sources
 
 - All tables on this page are arithmetic, and the three-phrasing and shift examples are
-  illustrative. The values 0.73 and 0.78 in the first table are the README's `upset` and
+  illustrative. The values 0.83 and 0.93 in the first table are the README's `upset` and
   `refund` examples in the [jev repository](https://github.com/feder-cr/jev).
 - [Logit](https://en.wikipedia.org/wiki/Logit) on Wikipedia, as a secondary pointer for the
   definition, units and additivity of log-odds, fetched 2026-09-29.

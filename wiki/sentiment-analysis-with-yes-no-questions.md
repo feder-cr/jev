@@ -59,7 +59,7 @@ dislike. Asking both is what the independence of yes/no answers is good for.
 
 Each aspect question names what the aspect covers ("the delivery or the packaging") so the
 model has something concrete to check. All five questions share one reading of the review; on
-the README's example, three questions on one text took about 165 ms against 103 ms for one
+the README's example, three questions on one text took about 66 ms against 49 ms for one
 alone on our reference laptop, so aspects are cheap to add.
 
 Phrase aspect questions positively and flip in code if you need the other direction. Negated
@@ -151,7 +151,7 @@ on your own labelled texts before relying on it.
 
 - Tone 0.938 (32 questions) and negation 0.858: our 999-question test set, `jevos-q4_k_m`.
 - Calibration error 0.009: our held-out split, 6,397 natural yes/no questions, `jevos-q8_0`.
-- Three questions in about 165 ms against 103 ms: the [jev README](https://github.com/feder-cr/jev).
+- Three questions in about 66 ms against 49 ms: the [jev README](https://github.com/feder-cr/jev).
 
 ---
 

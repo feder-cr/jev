@@ -74,8 +74,9 @@ times, or alternates between two tools. For that, give the checker the last few 
 - "Did the last three results add any information not in earlier results?"
 
 Stop, or change strategy, when the first is high or the second is low. Keep the window short:
-latency grows with the text, about 1.1 ms per prompt token on our reference laptop, so three
-steps summarised in a line each cost far less than the full transcript.
+latency grows with the text (on our reference laptop, 26 ms for a 30-token request and 112 ms
+for a 191-token one read from scratch), so three steps summarised in a line each cost far less
+than the full transcript.
 
 ## Does it need the user?
 
@@ -119,7 +120,7 @@ not tested code. The order is a
 choice: asking the user comes before declaring success, so an agent that "finished" on a guess
 is caught.
 
-A check on every step costs 50 to 220 ms on our reference laptop, usually a small fraction of
+A check on every step costs 25 to 110 ms on our reference laptop, usually a small fraction of
 the step it follows.
 
 ## Where a small model should not be the judge
@@ -147,7 +148,7 @@ own question.
 **When should the agent ask the user?** When the goal depends on information that is not in
 anything the agent has seen, or on a choice the user did not make.
 
-**Is a model check on every step too slow?** On a laptop CPU it adds 50 to 220 ms per step,
+**Is a model check on every step too slow?** On a laptop CPU it adds 25 to 110 ms per step,
 which is usually small next to the step itself.
 
 **See also:** [AI agent guardrails with yes/no questions](ai-agent-guardrails-with-yes-no-questions.md),
@@ -158,7 +159,7 @@ which is usually small next to the step itself.
 
 - Anthropic, [Building effective agents](https://www.anthropic.com/research/building-effective-agents),
   on stopping conditions and pausing for human feedback, fetched 2026-09-29.
-- Our measurements: latency and per-token cost on the reference laptop from the
+- Our measurements: latency on the reference laptop from the
   [jev README](https://github.com/feder-cr/jev); accuracy on fact and "not stated" questions from
   our 999-question set.
 

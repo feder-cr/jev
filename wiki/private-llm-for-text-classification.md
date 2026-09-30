@@ -84,7 +84,8 @@ easy to pass only what the questions need:
 No name, no email address, no order number, no account ID. None of the three questions needs
 them, and the answers come back keyed by question name, so your code joins them to the customer
 record it already has. Dropping fields also saves time: latency grows with the length of the
-input, about 1.1 ms per prompt token on the reference laptop. The general method is on
+input: on the reference laptop a 30-token request read from scratch took 26 ms and a 191-token
+one 112 ms. The general method is on
 [sending JSON as the text: designing the state](designing-the-state-as-json.md).
 
 If messages routinely contain identifiers you would rather not pass at all, strip the exact
@@ -104,7 +105,7 @@ the writer's intent, 0.858 on negation. The weak spots are questions that need a
 The label design is on
 [zero-shot text classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md):
 one question per label, several labels in one request, the text read once. On the README's
-example, three questions take about 165 ms together against 103 ms for one alone.
+example, three questions take about 66 ms together against 49 ms for one alone.
 
 ## When a private small model is the wrong tool
 
@@ -114,14 +115,14 @@ example, three questions take about 165 ms together against 103 ms for one alone
   set that does not change, a classifier trained on those examples will usually be more accurate; see
   [a yes/no LLM vs a fine-tuned BERT classifier](yes-no-llm-vs-fine-tuned-bert.md). It can be
   just as private.
-- **Hard rules.** On 2,000 questions about unseen business policies, jevos was right 0.811 of
+- **Hard rules.** On 2,000 questions about unseen business policies, jevos was right 0.810 of
   the time against 0.927 for the hosted Jev. If the label is really a policy decision, compute
   the policy in code.
 
 ## Short answers to the questions that lead here
 
 **Does a local LLM send data anywhere?** The jevos server reads the text in its own process on
-your machine and sends it nowhere. Downloading the model and runtime needs the network once.
+your machine and sends it nowhere. Downloading the binary and the model needs the network once.
 
 **Is a local model private by default?** The model call is. Your logs, proxies, backups and who
 can reach the port are separate decisions.
@@ -144,7 +145,7 @@ probability that a customer is angry is information about that customer.
 - Server binding, `JEV_API_KEY`, the request format and the three-question timing: the
   [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind of question: our 999-question test set on `jevos-q4_k_m`; policy accuracy:
-  our 2,000-question comparison. Latency per token: our measurement on an Intel Core Ultra 7
+  our 2,000-question comparison. Latency by text length: our measurement on an Intel Core Ultra 7
   255H.
 
 ---

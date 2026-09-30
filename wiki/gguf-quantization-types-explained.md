@@ -87,10 +87,11 @@ measurement of your yes/no accuracy.
 
 ## The two jevos builds
 
-jevos ships two files: `jevos-v2-q4_k_m.gguf` at 619 MB and `jevos-v2-q8_0.gguf` at 943 MB. On the
-reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), q8_0 is about 1.7 times slower
-than q4_k_m; q4_0 and iq4_nl builds ran about as fast as q4_k_m. The speed and size side of that
-choice has its own page, [Q4_K_M vs Q8_0 for a small model](q4-k-m-vs-q8-0-speed-and-size.md).
+jevos ships two GGUF files: `jevos-v2-q4_k_m.gguf` at 619 MB and `jevos-v2-q8_0.gguf` at 943 MB,
+for llama.cpp, Ollama, LM Studio and other tools. jev itself reads neither: it runs the same model
+with 8-bit (INT8) weights through OpenVINO, and on 215 parity cases its answers are within 0.056
+of the q8_0 file's. The speed and size side of choosing between the two GGUF files has its own
+page, [Q4_K_M vs Q8_0 for a small model](q4-k-m-vs-q8-0-speed-and-size.md).
 
 Being straight about the limit: the accuracy of q4_k_m and q8_0 has not been measured on the
 same question set. Our published numbers come from different sets on different builds, so they
@@ -99,9 +100,8 @@ files on your own labelled cases.
 
 ## Picking a type for a decision model
 
-- **Start with Q4_K_M.** It is the type in the llama-quantize README's basic example and the
-  build the jev quickstart uses. On our reference CPU the smaller file was also the faster
-  one, for reasons explained on
+- **Start with Q4_K_M.** It is the type in the llama-quantize README's basic example. On a CPU
+  the smaller file is usually also the faster one, for reasons explained on
   [what makes a local LLM fast on a CPU](what-makes-a-local-llm-fast-on-a-cpu.md).
 - **Use Q8_0 when you want the reference.** It is closest to the original weights, costs more
   memory and time, and is the natural baseline to test a smaller build against.
@@ -134,9 +134,9 @@ higher-bit types are usually closer to the original model; measure the ones you 
 ## Sources
 
 - Our own measurements: file sizes from the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); relative speed of
-  q8_0, q4_0 and iq4_nl against q4_k_m on the reference laptop; the statement that accuracy of
-  the two builds was not compared on one set.
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); the 215 parity cases
+  comparing jev's 8-bit answers with the q8_0 file's; the statement that accuracy of the two
+  GGUF builds was not compared on one set.
 - [llama-quantize README](https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md),
   fetched 2026-09-29: bits per weight and sizes, imatrix option, the accuracy-loss sentence.
 - [Hugging Face Hub docs: GGUF quantization types](https://huggingface.co/docs/hub/gguf),

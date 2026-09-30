@@ -43,7 +43,7 @@ customer could write. This is the README's example:
 }
 ```
 
-The README's run of it answers `refund` 0.78, `upset` 0.73 and `wrong_item` 0.1, with 95 input
+The README's run of it answers `refund` 0.93, `upset` 0.83 and `wrong_item` 0.04, with 95 input
 tokens. Note `delivered` is already "5 days ago", computed from the order record, not a raw
 date the model would have to subtract. Every field that is a fact in your database should arrive
 as that fact, ready to read. More on the design of this object in
@@ -65,7 +65,7 @@ These are reading questions. On 999 yes/no questions written after training, sta
 answered right 0.954 of the time, intent 0.859 and tone 0.938, while applying a rule was 0.721
 and arithmetic 0.584. That spread is the reason for the split. All the questions go in one
 request: the text is read once, and on our reference laptop three questions on this example took
-about 165 ms against 103 ms for one.
+about 66 ms against 49 ms for one.
 
 ## Step 3: where does the policy live?
 
@@ -114,7 +114,7 @@ that is a different question, covered on
 ## Step 5: what gets logged?
 
 For every request: a hash of the state, the questions, each probability, the thresholds in force,
-the route taken, the model file hash reported by `/health`, and the timing from the
+the route taken, the model fingerprint reported by `/health`, and the timing from the
 `Server-Timing` header. When a customer disputes a decline or an auditor asks why refunds were
 approved, that record answers without re-running anything. Details on
 [logging LLM decisions for audit](logging-llm-decisions-for-audit.md).
@@ -154,7 +154,7 @@ into facts and code is more accurate on rules and easier to change when the poli
 **What does the model see?** The order facts you choose to send and the customer's message, on
 your own machine.
 
-**How fast is it?** On a laptop CPU, three questions on the README example took about 165 ms.
+**How fast is it?** On a laptop CPU, three questions on the README example took about 66 ms.
 
 **How do I know it works?** Run it in shadow mode on past requests and compare with what people
 decided.
@@ -165,7 +165,7 @@ decided.
 
 ## Sources
 
-- The request and its answers (0.78, 0.73, 0.1; 95 input tokens), the 165 ms and 103 ms timings,
+- The request and its answers (0.93, 0.83, 0.04; 95 input tokens), the 66 ms and 49 ms timings,
   and the `/health` and `Server-Timing` behaviour: the [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind of question and the 152 to 91 error split: our 999-question test set on
   `jevos-q4_k_m`. No refund dataset was measured.

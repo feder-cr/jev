@@ -82,7 +82,7 @@ help the model read the body in context, such as whether the sender is external:
 ```
 
 All questions in one request share the text, which is read once. On our reference laptop three
-questions on one short text took about 165 ms against 103 ms for one alone, so a handful of
+questions on one short text took about 66 ms against 49 ms for one alone, so a handful of
 signals per email stays well under a second on a CPU.
 
 ## A sketch of the combination
@@ -150,7 +150,7 @@ and [combining yes/no answers with AND, OR and NOT](combining-yes-no-answers-and
 
 ## Sources
 
-- Our measurements: three questions about 165 ms vs 103 ms for one, from the
+- Our measurements: three questions about 66 ms vs 49 ms for one, from the
   [jev README](https://github.com/feder-cr/jev); accuracy by kind of question from our
   999-question test set on `jevos-q4_k_m`. No phishing measurement exists; none is claimed.
 - CISA, [recognize and report phishing](https://www.cisa.gov/secure-our-world/recognize-and-report-phishing),

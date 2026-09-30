@@ -70,10 +70,10 @@ A guardrail that takes a second and costs money per call ends up on the final an
 that runs locally in tens of milliseconds can run on every input, every retrieved document and
 every step.
 
-The numbers from our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU): about 54 ms
-for a 30-token request, about 220 ms for a 190-token one, roughly 1.1 ms per prompt token. Extra
-questions on the same text are cheaper than the first: three questions took about 165 ms against
-103 ms for one. For a hosted service the network alone sets a floor; the hosted Jev took about
+The numbers from our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU): about 26 ms
+for a 30-token request, about 112 ms for a 191-token one read from scratch, and about 22 ms when
+the same text is asked about again. Extra questions on the same text are cheaper than the first:
+three questions took about 66 ms against 49 ms for one. For a hosted service the network alone sets a floor; the hosted Jev took about
 344 ms on the short request from Europe, almost all of it round trip. The reasons are on
 [why a hosted LLM API cannot answer in 50 ms](why-a-hosted-llm-api-cannot-answer-in-50-ms.md).
 
@@ -146,7 +146,7 @@ and [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md).
 
 ## Sources
 
-- Our measurements: latency, per-token cost and the three-question timing on the reference
+- Our measurements: latency, repeated-text and three-question timings on the reference
   laptop, and the hosted Jev timing, from the [jev README](https://github.com/feder-cr/jev);
   accuracy by kind of question from our 999-question set.
 - OWASP GenAI Security Project, [LLM01 Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/),

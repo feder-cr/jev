@@ -54,11 +54,12 @@ A local yes/no decision has a different cost shape:
 - **No per-token bill.** jevos is free to run, and the code is MIT.
 - **No output tokens.** Every response reports `output_tokens: 0`; the answer is a probability,
   not text.
-- **CPU time.** On our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), 54 ms for
-  a short request and 220 ms for a long one, about 1.1 ms per prompt token.
-- **Memory.** About 1.2 GB with the model loaded.
+- **CPU time.** On our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), 26 ms for
+  a short request and 112 ms for a long one read from scratch, and 22 to 25 ms when the same
+  text is asked about again.
+- **Memory.** About 1 GB with the model loaded.
 - **Shared reading.** Several questions about one text are cheaper together: three took about
-  165 ms against 103 ms for one alone. Grouping questions per text is the main lever, covered
+  66 ms against 49 ms for one alone. Grouping questions per text is the main lever, covered
   on [many questions about one text](many-questions-about-one-text.md).
 
 So the cost moves from a bill that grows with every call to a machine that you already run or
@@ -76,9 +77,9 @@ Fill this in with your own numbers; nothing below is a measurement.
   for requests of that length, spread over however many cores or servers you give it.
 
 An **illustrative** example: 200,000 decisions a day of 150 tokens each is 30 million tokens a
-day on the bill. Locally, a 150-token request falls between the 54 ms we measured at 30 tokens
-and the 220 ms at 190 tokens, around 180 ms, so the same decisions add up to about 36,000
-seconds, roughly ten hours, of one laptop answering one request at a time. Whether that is cheaper depends on your prices and your hardware, which is why
+day on the bill. Locally, a 150-token request falls between the 26 ms we measured at 30 tokens
+and the 112 ms at 191 tokens, around 90 ms, so the same decisions add up to about 18,000
+seconds, roughly five hours, of one laptop answering one request at a time. Whether that is cheaper depends on your prices and your hardware, which is why
 the formula is more useful than the example.
 
 The latency side often matters as much as the bill. A hosted call pays a network round trip on
@@ -92,7 +93,7 @@ it network. The trade-off in general is on
 - **Decisions that need reasoning or knowledge beyond the text.** A small model reads; it does
   not know your domain beyond what you put in the question.
 - **Rules with sums and dates.** On 2,000 yes/no questions from three business policies neither
-  model was tuned on, the hosted Jev was right 0.927 of the time against 0.811 for jevos, and the
+  model was tuned on, the hosted Jev was right 0.927 of the time against 0.810 for jevos, and the
   gap was largest on additive point scores. Either compute those parts in code first, or keep the
   decision on the large model.
 - **Languages other than English.** jevos reads English only.
@@ -125,10 +126,10 @@ on your own cases to a local yes/no model, and keep generation on the paid model
 **Why do output tokens matter?** Providers bill them, often at a higher rate than input. A local
 yes/no model produces none.
 
-**Is a local model free?** Free of per-token charges. It costs CPU time and about 1.2 GB of
+**Is a local model free?** Free of per-token charges. It costs CPU time and about 1 GB of
 memory.
 
-**Will accuracy drop?** On hard rule questions, yes: 0.811 for jevos against 0.927 for the hosted
+**Will accuracy drop?** On hard rule questions, yes: 0.810 for jevos against 0.927 for the hosted
 Jev on our 2,000-question comparison. On reading questions the gap is smaller. Measure yours.
 
 **What should never move?** Generation, reasoning beyond the text, non-English input, and rare
@@ -140,7 +141,7 @@ decisions where a mistake costs more than the calls ever did.
 
 ## Sources
 
-- Our measurements: latency, per-token latency, memory, the three-question timing, the hosted
+- Our measurements: latency, memory, the three-question timing, the hosted
   Jev timing and the 2,000-question accuracy comparison, from the
   [jev README](https://github.com/feder-cr/jev); accuracy by kind from our 999-question set.
 - OpenAI, [API pricing](https://developers.openai.com/api/docs/pricing), for the structure of

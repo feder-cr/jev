@@ -20,7 +20,7 @@ which builds Jev.
 
 The code change is the easy part of a migration. The part that deserves a day of work is
 checking accuracy on your own cases, because on 2,000 rule questions neither model had been
-tuned on, Jev was right 0.927 of the time and jevos 0.811. For some applications that gap is
+tuned on, Jev was right 0.927 of the time and jevos 0.810. For some applications that gap is
 irrelevant; for others it is the whole decision.
 
 This page is what stays the same, the switch step by step, what the local server refuses or
@@ -36,7 +36,7 @@ JSON object or array) and named `questions`; each yes/no question is
 
 The model name also carries over. `jev-latest` is accepted, and so is any other `jev-*` name, so a
 client pinned to a Jev version string does not need editing. The response always names the model
-that actually answered, for example `jevos-q4_k_m`, which is how you tell the two apart in logs.
+that actually answered, `jevos-v2`, which is how you tell the two apart in logs.
 
 Authentication works the same way when you want it. Start the server with the `JEV_API_KEY`
 environment variable set and every call except `/health` requires `Authorization: Bearer <key>`,
@@ -44,14 +44,16 @@ with a `401` otherwise, which is the header TypeSafe's API reference documents f
 
 ## The switch, step by step
 
-1. Download `jevos-v2-q4_k_m.gguf` (619 MB) and `SHA256SUMS.txt` from the
-   [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2) and check the hash.
-2. Fetch llama.cpp for your machine and start the server:
+1. Download the archive for your machine (`jev-linux-x64.tar.gz`, `jev-windows-x64.zip` or
+   `jev-macos-arm64.tar.gz`), `jevos-v2-openvino-int8.zip` and `SHA256SUMS.txt` from the
+   [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2) and check the hashes.
+2. Unpack the binary and the model, and start the server:
 
 ```bash
-uv sync
-uv run jev download --only runtime
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
+tar -xzf jev-linux-x64.tar.gz
+cd jev
+unzip ../jevos-v2-openvino-int8.zip     # creates model/
+./jev serve --threads 16
 ```
 
 3. Change the base URL in your client. With raw HTTP, replace
@@ -67,7 +69,7 @@ If the local server runs without `JEV_API_KEY`, it does not check the header, so
 placeholder key the SDK requires is enough.
 
 4. Wait for `GET /health` to return `{"status": "ready", ...}` before sending traffic; the model
-   loads once and then stays resident, using about 1.2 GB of memory.
+   loads once and then stays resident, using about 1 GB of memory.
 
 The same steps are covered from the other direction, starting from nothing, on
 [ask a local LLM a yes/no question](ask-a-local-llm-yes-no-questions.md).
@@ -101,8 +103,8 @@ Three checks, all cheap:
 - **The `model` field** of every response names the served model, not the alias you sent.
 - **`GET /v1/models`** lists the served model and the `jev-latest` alias; the alias entry says it
   is answered by the local model and not by TypeSafe's Jev.
-- **`GET /health`** reports the model file's sha256, the llama.cpp release and the device, so a
-  log line can prove which file made a decision.
+- **`GET /health`** reports the SHA-256 of the model's files, so a log line can prove which files made a
+  decision.
 
 Every response also carries a `Server-Timing` header with the inference time, which makes a
 before-and-after latency comparison possible without a separate benchmark harness.
@@ -111,12 +113,12 @@ before-and-after latency comparison possible without a separate benchmark harnes
 
 Keep Jev, or keep it for part of the traffic, when:
 
-- **Accuracy on hard rules matters most.** 0.927 against 0.811 on our 2,000 policy questions,
+- **Accuracy on hard rules matters most.** 0.927 against 0.810 on our 2,000 policy questions,
   with the gap largest on additive point scores, where several signals are summed and compared
   with a cut-off.
 - **You need `choice` or `score` today.**
 - **Your texts are not in English.**
-- **You do not want to operate anything.** A local server is a file, a runtime and a port, and
+- **You do not want to operate anything.** A local server is a folder and a port, and
   you own its uptime.
 
 Because the wire format is shared, the split does not have to be all or nothing. The pattern on
@@ -135,11 +137,11 @@ file on GitHub, and the same wire format, running on a CPU.
 **Why did my `criteria` stop working?** jevos accepts the field and does not read it. Put the
 definition of yes into `instructions`.
 
-**Is it faster?** From a laptop in Europe, on our two requests: 54 and 220 ms locally against 344
+**Is it faster?** From a laptop in Europe, on our two requests: 26 and 112 ms locally against 344
 and 345 ms for the hosted API, network included.
 
 **Is it as accurate?** No. On our 2,000 policy questions Jev was right 0.927 of the time and jevos
-0.811. Measure on your own cases before moving everything.
+0.810. Measure on your own cases before moving everything.
 
 **See also:** [jevos vs Jev vs Laya for yes/no decisions](jevos-vs-jev-vs-laya.md),
 [securing a local LLM server with an API key](securing-a-local-llm-server-with-an-api-key.md) and
@@ -149,8 +151,8 @@ and 345 ms for the hosted API, network included.
 
 - Wire format compatibility, the `jev-*` aliases, the `422` for `choice` and `score`, the
   `criteria` behaviour, `/health`, `/v1/models`, `Server-Timing` and `JEV_API_KEY`: the
-  [jev README](https://github.com/feder-cr/jev) and the server source in `src/jev/api`.
-- Latency (54/220 ms against 344/345 ms) and accuracy (0.927 against 0.811): our own
+  [jev README](https://github.com/feder-cr/jev) and the jev source.
+- Latency (26/112 ms against 344/345 ms) and accuracy (0.927 against 0.810): our own
   measurements, published in the README.
 - Jev's base URL, the Bearer header and the SDK's `base_url`, `TYPESAFE_BASE_URL` and
   `TYPESAFE_API_KEY`: [TypeSafe API reference](https://docs.typesafe.ai/api.md) and

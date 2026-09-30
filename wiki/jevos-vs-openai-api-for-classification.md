@@ -67,14 +67,14 @@ at the provider, and the response coming back.
 
 We have not measured OpenAI's API, so there is no OpenAI number on this page. What we have
 measured is a different hosted decision API from a laptop in Europe: TypeSafe's Jev took 344 ms
-on a short request and 345 ms on a long one, network included, while jevos took 54 ms and 220 ms
+on a short request and 345 ms on a long one, network included, while jevos took 26 ms and 112 ms
 on the same laptop. The flatness of the hosted numbers is the point: when the network dominates,
 text length barely matters. The detail is on
 [why a hosted LLM API cannot answer in 50 ms](why-a-hosted-llm-api-cannot-answer-in-50-ms.md).
 
 Batching several questions into one request is the fix both sides share. OpenAI's guide suggests
 putting sequential steps into a single prompt to avoid extra round trips; jevos reads the state
-once for every question in a request, so three questions took about 165 ms against 103 ms for one.
+once for every question in a request, so three questions took about 66 ms against 49 ms for one.
 
 ## What you pay for
 
@@ -82,7 +82,7 @@ OpenAI prices its models per million tokens, with input, cached input and output
 separate rates. A yes/no call pays for the whole prompt on every request, the text plus the
 instructions, and for the output tokens, however few.
 
-jevos has no per-token price. The cost is the machine it runs on: a CPU and about 1.2 GB of
+jevos has no per-token price. The cost is the machine it runs on: a CPU and the
 memory for the loaded model. At low volume the API is cheaper than keeping a server up; at high
 volume on short decisions the arithmetic tends to flip. Where that line falls depends on your
 volume and your prices, which is why
@@ -119,7 +119,7 @@ probabilities of the output tokens, so you can read how likely the generated "ye
 and incomplete responses, but a boolean carries no measure of doubt.
 
 **Is a local model faster than the API?** We did not measure OpenAI. Against a hosted decision
-API from Europe, jevos was faster on both of our requests: 54 and 220 ms against 344 and 345 ms.
+API from Europe, jevos was faster on both of our requests: 26 and 112 ms against 344 and 345 ms.
 
 **Is it cheaper?** There is no per-token price locally; you pay for the hardware. Whether that
 is cheaper depends on volume.

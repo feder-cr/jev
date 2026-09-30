@@ -1,6 +1,6 @@
 # jevos
 
-**Yes/no decisions on a laptop CPU in 50–220 ms.** Send a text and a yes/no question, get back
+**Yes/no decisions on a laptop CPU in 25–110 ms.** Send a text and a yes/no question, get back
 P(yes).
 
 <p align="center">
@@ -11,11 +11,16 @@ P(yes).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/jevos_bench_dark.png" />
-  <img src="assets/jevos_bench.png" alt="Latency on a short request: jevos-v2 54 ms, Jev 344 ms, Laya 104 ms. On a long request: jevos-v2 220 ms, Jev 345 ms, Laya 449 ms. Accuracy on 2,000 yes/no questions from unseen policies: jevos-v2 0.811, Jev 0.927, Laya 0.489" width="100%" />
+  <img src="assets/jevos_bench.png" alt="Latency on a short request: jevos-v2 26 ms, Jev 344 ms, Laya 104 ms. On a long request: jevos-v2 112 ms, Jev 345 ms, Laya 449 ms. Accuracy on 2,000 yes/no questions from unseen policies: jevos-v2 0.810, Jev 0.927, Laya 0.489" width="100%" />
 </picture>
 
-jevos-v2 answers 79.5% of 999 hand-written yes/no questions correctly, against 75.7% for the first
+jevos-v2 answers 80.3% of 999 hand-written yes/no questions correctly, against 75.8% for the first
 jevos, with the same size and speed.
+
+Latency is the median of 10 requests through the HTTP API, after 3 warm-up requests, on an Intel Core
+Ultra 7 255H laptop with 16 threads, each request reading its text from scratch (`--state-cache 0`).
+By default the server keeps the texts it has read, so asking about the same text again takes 22 ms for
+the long request.
 
 ## What each one does
 
@@ -30,12 +35,15 @@ jevos, with the same size and speed.
 
 ## Quickstart
 
-Download `jevos-v2-q4_k_m.gguf` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v2), then:
+From the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v2), download the archive for your
+system (`jev-windows-x64.zip`, `jev-linux-x64.tar.gz` or `jev-macos-arm64.tar.gz`) and the model,
+`jevos-v2-openvino-int8.zip`. Unpack the model into the `jev` folder, so that it sits in `jev/model`:
 
 ```bash
-uv sync
-uv run jev download --only runtime        # llama.cpp for this machine
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
+tar -xzf jev-linux-x64.tar.gz                 # Windows: unzip jev-windows-x64.zip
+cd jev
+unzip ../jevos-v2-openvino-int8.zip           # creates model/
+./jev serve                                   # Windows: jev.exe serve
 ```
 
 ```bash
@@ -47,11 +55,15 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-v2-q4_k_m",
-  "answers": {"billing": {"type": "noul", "noul": 0.9}},
+  "model": "jevos-v2",
+  "answers": {"billing": {"type": "noul", "noul": 0.94}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
 ```
+
+`jev` runs on the CPU: jevos-v2 with 8-bit weights through [OpenVINO](https://github.com/openvinotoolkit/openvino),
+in one binary with no Python and no GPU. The same release has the model as GGUF files
+(`jevos-v2-q4_k_m.gguf`, `jevos-v2-q8_0.gguf`) for llama.cpp and the tools built on it.
 
 ## API
 
@@ -67,8 +79,8 @@ yes/no questions.
 | `questions` | one or more named questions, each `{"type": "noul", "instructions": "…?"}` |
 
 Every answer is `noul`, the probability that the answer is yes (0 to 1). Questions in the same
-request share the state, which is read once: the three questions below take about 165 ms
-together, against 103 ms for one of them alone.
+request share the state, which is read once: the three questions below take about 66 ms together,
+against 49 ms for one of them alone, and 39 ms when the same state is asked about again.
 
 ```json
 {
@@ -91,11 +103,11 @@ together, against 103 ms for one of them alone.
 
 ```json
 {
-  "model": "jevos-v2-q4_k_m",
+  "model": "jevos-v2",
   "answers": {
-    "refund": {"type": "noul", "noul": 0.78},
-    "upset": {"type": "noul", "noul": 0.73},
-    "wrong_item": {"type": "noul", "noul": 0.1}
+    "refund": {"type": "noul", "noul": 0.93},
+    "upset": {"type": "noul", "noul": 0.83},
+    "wrong_item": {"type": "noul", "noul": 0.04}
   },
   "usage": {"input_tokens": 95, "output_tokens": 0}
 }
@@ -104,7 +116,8 @@ together, against 103 ms for one of them alone.
 - **Put the rule in the question.** If the decision depends on a policy, write it into
   `instructions`, as in `refund` above. Jev's optional `criteria` field is accepted but not read.
 - **Yes/no only.** `choice` and `score` questions are refused with a `422`.
-- **Timing.** Every response carries a `Server-Timing` header with the inference time.
+- **Timing.** Every response carries a `Server-Timing` header: parsing, validation, tokenization,
+  queue and inference times.
 
 ### Other endpoints
 
@@ -134,21 +147,39 @@ if answer["answers"]["billing"]["noul"] > 0.5:
 `POST /v1/systemone`, and the answer comes back in the same shape:
 
 ```bash
-uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu request.json
+./jev decide request.json
 ```
 
 `--output answer.json` writes the answer to a new file instead of printing it; an existing file is
-never overwritten. A file without `model` is read as the engine's native request and gets the
-engine's full output: probabilities, prompt hashes and timings.
+never overwritten. A request the server would refuse prints the same error body on stderr, with exit
+status 1.
 
 ## Server options
 
 | Option | Default | |
 |---|---|---|
-| `--gguf` | | path to the model file |
-| `--device` | `auto` | `cpu` to stay on the CPU |
-| `--threads` | 4 | CPU threads; set it to your core count, fewer if other heavy apps are running |
+| `--model-dir` | `model` beside the binary | the model folder |
+| `--threads` | all logical CPUs | CPU threads; fewer if other heavy apps are running |
 | `--host`, `--port` | `127.0.0.1`, `8017` | where the server listens |
+| `--state-cache`, `--state-cache-tokens` | 16, 8,192 | texts kept for later requests, how many and how many tokens in all; 0 turns it off |
+| `--batch-tokens` | 384 | small requests arriving together are read in one model call while their tokens fit |
+| `--dynamic-quantization` | 128 | activations in INT8 groups of this many values; 0 keeps them f32, slower |
+
+With `JEV_API_KEY` set, every call but `/health` needs `Authorization: Bearer <key>`. The server needs about
+1 GB of memory once the model is loaded, up to 1.4 GB with its cache of recent texts full. `/health`
+reports the SHA-256 of each model file and a fingerprint of them all (`model_files`, `fingerprint`), so a
+logged decision can be tied to the exact model that made it.
+
+## Build from source
+
+```bash
+python -m pip install -r requirements.txt     # OpenVINO's SDK, CMake, Ninja, the tests' packages
+python scripts/build.py                       # dist/jev; on Windows, from a Visual Studio developer prompt
+python tests/check.py                         # with the model in dist/jev/model
+```
+
+A C++17 compiler is the only other requirement; CMake fetches llama.cpp (the tokenizer) itself.
+`export/export_openvino.py` is how the model folder was made from the trained weights.
 
 ## Guides
 

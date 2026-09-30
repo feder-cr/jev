@@ -119,7 +119,7 @@ simpler than any model.
 
 For a contact form, a comment section or in-app chat, yes: the messages include your users'
 private words, the volume is too high to pay per token for comfortably, and a short message
-costs about 54 ms on our reference laptop with five questions read in one pass. For a large
+costs about 26 ms on our reference laptop, with all five questions sharing one reading of the text. For a large
 email provider, the question is moot: that is a different system with different data.
 
 ## Short answers to the questions that lead here

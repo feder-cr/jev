@@ -78,8 +78,8 @@ arithmetic of combining answers is on
   [human in the loop AI with a review band](human-in-the-loop-ai-with-a-review-band.md).
 
 The README example shows the kind of number involved: for "The box arrived empty. This is the
-second time!", `refund` came back at 0.78. That clears a routing threshold easily and might not
-clear a payout threshold, which is the design working as intended.
+second time!", `refund` came back at 0.93. That clears a routing threshold easily, while a payout threshold
+set at 0.95 would still hold it for a person, which is the design working as intended.
 
 A measured reason to set the payout bar high: on 999 yes/no questions written after the model
 was finished, jevos made 152 wrong yeses against 91 wrong noes. On that set its mistakes cost
@@ -137,7 +137,7 @@ production than in your test set.
 ## Sources
 
 - Our measurements: 152 wrong yeses vs 91 wrong noes, 999-question set, `jevos-q4_k_m`. The
-  refund value 0.78 is the README example of the [jev repository](https://github.com/feder-cr/jev).
+  refund value 0.93 is the README example of the [jev repository](https://github.com/feder-cr/jev).
 - The ten-case table is illustrative, invented for this page.
 - [scikit-learn precision_recall_curve](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_curve.html),
   definitions and boundary values, fetched 2026-09-29.

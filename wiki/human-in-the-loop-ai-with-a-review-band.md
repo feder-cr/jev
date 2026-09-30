@@ -75,8 +75,7 @@ The log is what makes the loop a loop. For each case, record:
 - a hash of the state (the text or JSON) and the questions asked;
 - every P(yes) returned, not only the outcome;
 - the thresholds in force and the outcome (auto yes, auto no, review);
-- the model name and the model file's sha256, which `GET /health` reports, and the
-  `llama_cpp_release` it also reports;
+- the model name and the model's fingerprint, which `GET /health` reports;
 - the inference time from the `Server-Timing` header;
 - for reviewed cases, the person's decision and when it was made.
 

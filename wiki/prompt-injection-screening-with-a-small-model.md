@@ -58,7 +58,7 @@ as websites or files, does it. A screen can sit at each entry point:
   [gating AI agent tool calls with yes/no checks](gating-ai-agent-tool-calls.md).
 
 Latency is what makes screening every entry point practical. On our reference laptop, a short
-request of about 30 tokens took 54 ms and one of about 190 tokens 220 ms, on a CPU, with nothing
+request of about 30 tokens took 26 ms and one of about 190 tokens 112 ms, on a CPU, with nothing
 sent to a third party.
 
 ## Why can it not be the security boundary?

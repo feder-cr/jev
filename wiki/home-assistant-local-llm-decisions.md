@@ -102,8 +102,7 @@ and the second one belongs to a time condition, as
 
 ## Where the server runs, and who can reach it
 
-`jev serve` listens on `127.0.0.1:8017` by default and uses about 1.2 GB of memory with the model
-loaded, CPU only. If Home Assistant runs directly on the same machine, the URL above works as it
+`jev serve` listens on `127.0.0.1:8017` by default and runs on the CPU only. If Home Assistant runs directly on the same machine, the URL above works as it
 is. If Home Assistant runs in a container or on a separate appliance, `127.0.0.1` from its point
 of view is not the machine running jevos. Then start `jev serve` with `--host` set to an address
 Home Assistant can reach, set `JEV_API_KEY`, and keep the port off the internet;
@@ -111,7 +110,7 @@ Home Assistant can reach, set `JEV_API_KEY`, and keep the port off the internet;
 has the checklist.
 
 Speed is not a concern for a home. On an Intel Core Ultra 7 255H a short request takes about
-54 ms; a small home server may well be slower, and we have not measured one, but the budget that
+26 ms; a small home server may well be slower, and we have not measured one, but the budget that
 matters is the 10-second default timeout of `rest_command`, which is a very different order of
 size.
 
@@ -146,8 +145,8 @@ conditions do exactly.
 
 ## Sources
 
-- Server defaults, memory, `JEV_API_KEY` and `422`: the [jev README](https://github.com/feder-cr/jev)
-  and `src/jev/api/app.py`. Latency: the README (Intel Core Ultra 7 255H, 16 threads). Accuracy by
+- Server defaults, `JEV_API_KEY` and `422`: the [jev README](https://github.com/feder-cr/jev).
+  Latency: the README (Intel Core Ultra 7 255H, 16 threads). Accuracy by
   kind: our 999-question test set.
 - [Home Assistant RESTful Command](https://www.home-assistant.io/integrations/rest_command/),
   fetched 2026-09-29.

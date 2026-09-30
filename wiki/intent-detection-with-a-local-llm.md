@@ -116,8 +116,8 @@ question, and route them to a person; the retention case is worked through on
 ## How big can a catalogue get?
 
 The text and all the questions share an 8,192-token context, so a few dozen intents with a
-chat message fit easily. Cost grows with the total tokens, about 1.1 ms per prompt token on our
-reference laptop, and questions are tokens too. For a catalogue of hundreds of intents, ask in
+chat message fit easily. Cost grows with the total tokens read: on our reference laptop a
+30-token request took 26 ms and a 191-token one 112 ms, and questions are tokens too. For a catalogue of hundreds of intents, ask in
 two stages: a handful of coarse questions first (orders, account, billing), then only the
 detailed intents under the winning area. The same idea, used for choosing between models, is on
 [an LLM router with yes/no questions](llm-router-with-yes-no-questions.md).
@@ -125,7 +125,7 @@ detailed intents under the winning area. The same idea, used for choosing betwee
 ## Where local matters for intents
 
 Intent detection sits inside a conversation turn, so its latency is added to every reply. On
-our reference laptop a short request takes about 54 ms, well inside a chat turn, while the
+our reference laptop a short request takes about 26 ms, well inside a chat turn, while the
 hosted Jev API measured from Europe took about 344 ms on the same short request, mostly network.
 The user's messages, which often contain order numbers and addresses, also stay on your server.
 
@@ -153,8 +153,8 @@ and [mainly about: questions for messages with several topics](mainly-about-ques
 ## Sources
 
 - Intent 0.859 (71 questions), negation 0.858: our 999-question test set, `jevos-q4_k_m`.
-- Latency 54 ms short, about 1.1 ms per prompt token, hosted Jev 344 ms from Europe on the same
-  request, 8,192-token context: the [jev README](https://github.com/feder-cr/jev) and our
+- Latency 26 ms short (30 tokens) and 112 ms long (191 tokens) read from scratch, hosted Jev
+  344 ms from Europe on the short request, 8,192-token context: the [jev README](https://github.com/feder-cr/jev) and our
   reference-laptop measurements.
 - Thresholds in the code are placeholders.
 

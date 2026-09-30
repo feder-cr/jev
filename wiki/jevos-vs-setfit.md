@@ -80,13 +80,13 @@ carries the missing information.
 
 A Sentence Transformer with a classification head is a light model. SetFit's zero-shot page
 reports about 0.46 ms per sentence for its example model, on its own setup. jevos is a 1B-class
-model through llama.cpp on the CPU: 54 ms for a request of about 30 tokens and 220 ms for one of
-about 190, on an Intel Core Ultra 7 255H with 16 threads, with about 1.2 GB of memory loaded.
+model with 8-bit weights on the CPU: 26 ms for a request of about 30 tokens and 112 ms for one of
+about 190, on an Intel Core Ultra 7 255H with 16 threads.
 The hardware differs, so do not divide one by the other, but the class is clear: per text, an
 embedding classifier costs far less compute.
 
 jevos narrows the gap when there are many labels on one text, because the text is read once for
-every question: three questions took about 165 ms against 103 ms for one.
+every question: three questions took about 66 ms against 49 ms for one.
 
 ## Languages
 
@@ -140,7 +140,7 @@ and [intent detection with a local LLM](intent-detection-with-a-local-llm.md).
 - Zero-shot SetFit, `get_templated_dataset()`, 59.1% vs 37.65%, 0.46 ms and 67 times: SetFit's
   [zero-shot how-to](https://huggingface.co/docs/setfit/how_to/zero_shot), their measurements,
   fetched 2026-09-29.
-- jevos latency, the three-question timing, memory, and the README refund rule: the
+- jevos latency, the three-question timing and the README refund rule: the
   [jev README](https://github.com/feder-cr/jev), our own measurements.
 
 ---

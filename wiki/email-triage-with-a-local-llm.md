@@ -24,9 +24,9 @@ answers, the band you look at yourself, why local matters for mail, and the limi
 
 ## Building the state from a raw email
 
-Latency grows with the text: on our reference laptop, about 1.1 ms per prompt token, which is
-54 ms for a short request and 220 ms for one of about 190 tokens. A long thread pasted whole
-can be thousands of tokens and still fit in the 8,192-token context, but it costs seconds and
+Latency grows with the text: on our reference laptop, a text read for the first time takes
+26 ms for a short request and 112 ms for one of about 190 tokens. A long thread pasted whole
+can be thousands of tokens and still fit in the 8,192-token context, but it costs far more and
 buries the new message. Before calling the model:
 
 - Keep the sender, the subject and the new part of the body. Drop quoted replies below the
@@ -141,7 +141,7 @@ and [phishing email screening with a local LLM](phishing-email-screening-with-a-
 
 ## Sources
 
-- Latency per prompt token, 54 and 220 ms, 8,192-token context, default bind to 127.0.0.1: the
+- Latency, 26 and 112 ms, 8,192-token context, default bind to 127.0.0.1: the
   [jev README](https://github.com/feder-cr/jev) and our reference-laptop measurements.
 - Error direction and accuracy by kind of question: our 999-question test set, `jevos-q4_k_m`.
 - Folder rules and thresholds in the code are illustrative.

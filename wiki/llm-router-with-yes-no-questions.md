@@ -11,7 +11,7 @@ nav_order: 1
 small local model, with the route chosen in code from the probabilities.** "Does the user ask
 for code?", "Does the message ask for a calculation?", "Is it only a greeting?": each comes back
 as its own P(yes), and a few lines of code turn them into "small model", "large model" or "a
-person". The router adds 50 to 220 ms on a laptop CPU and sends nothing off the machine.
+person". The router adds 25 to 110 ms on a laptop CPU and sends nothing off the machine.
 
 The non-obvious part is which questions to ask. "Does this request need a large model?" sounds
 like the right question and is the weakest one, because it asks the small model to judge the
@@ -139,7 +139,7 @@ request, usually to save cost and latency on easy requests.
 directly. Ask about observable properties of the request instead, and map those to models in
 code.
 
-**How fast is a yes/no router?** On a laptop CPU, 54 ms for a short request and 220 ms for a
+**How fast is a yes/no router?** On a laptop CPU, 26 ms for a short request and 112 ms for a
 long one, measured on an Intel Core Ultra 7 255H with 16 threads.
 
 **What if the router is down?** Send the request to the capable model. A router should fail

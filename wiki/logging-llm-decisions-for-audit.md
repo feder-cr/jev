@@ -37,10 +37,9 @@ shortened placeholders.
   "answers": {"billing": 0.9},
   "rule": "billing > 0.5",
   "action": "queue:billing",
-  "model": "jevos-v2-q4_k_m",
+  "model": "jevos-v2",
   "model_file_sha256": "e41b...",
-  "llama_cpp_release": "b....",
-  "device": "cpu",
+  "jev_release": "jevos-v2",
   "inference_ms": 50,
   "total_ms": 54
 }
@@ -58,7 +57,7 @@ The timing values in the record are placeholders too; log what the response tell
 | probabilities | the evidence; keep all of them, not only the one that drove the action |
 | rule and action | the decision itself, in the form code applied it |
 | model name and file hash | which model answered, exactly |
-| runtime release and device | the rest of what produced the numbers |
+| jev release | the rest of what produced the numbers |
 | timing | spots slow paths and lets you check latency budgets after the fact |
 | caller | which part of the system asked, so one bad caller can be found |
 
@@ -68,12 +67,11 @@ decisions just above the threshold is the first sign that it is in the wrong pla
 
 ## Pinning the model's identity
 
-`GET /health` on the jevos server reports, once the model is loaded, the model file's sha256,
-the `llama_cpp_release` in use, the device and a fingerprint. Read it at startup and attach
-those values to every record the process writes, instead of calling it per decision.
+`GET /health` on the jevos server reports, once the model is loaded, the SHA-256 of each model file
+and a fingerprint of them all. Read it at startup and attach those values to every record the process
+writes, instead of calling it per decision.
 
-Two consequences follow. Any change of model file, including a switch from `jevos-v2-q4_k_m.gguf`
-to `jevos-v2-q8_0.gguf`, shows up as a new hash in the log, so a before and after comparison is a
+Two consequences follow. Any change of model file shows up as a new hash in the log, so a before and after comparison is a
 query. And the release file can be checked against the published `SHA256SUMS.txt`, so the hash
 in your log can be tied to a specific public release file.
 
@@ -91,13 +89,12 @@ rebuild the request body: the state (or a way to fetch it again), the questions 
 name. Then run it offline against the same model file:
 
 ```bash
-uv run jev decide --gguf jevos-v2-q4_k_m.gguf --device cpu request.json --output replay.json
+./jev decide request.json --output replay.json
 ```
 
-`--output` writes to a new file and never overwrites one, which suits an audit trail. For a
-deeper record, a request file without `model` is read as the engine's native request and returns
-the engine's full output, including probabilities, prompt hashes and timings. Comparing prompt
-hashes between the original run and the replay shows whether the model saw the same prompt.
+`--output` writes to a new file and never overwrites one, which suits an audit trail. Comparing
+the replay's probabilities with the logged ones shows whether the model still answers the same
+way.
 
 Being straight about the limit: we have not published a test of bit-for-bit repeatability across
 machines or runtime releases, so treat the replay as a check to run and compare, not as a
@@ -137,16 +134,16 @@ For decisions about people, the law may require more than a log; the EU case is 
 ## Short answers to the questions that lead here
 
 **What should I log for each LLM decision?** State hash, questions, all probabilities, the rule
-and action, the model name and file hash, runtime release, and timing.
+and action, the model name and file hash, jev release, and timing.
 
 **Is the model name enough?** No. An alias such as `jev-latest` points at whatever file is
-served. Log the file's sha256 from `/health`.
+served. Log the fingerprint from `/health`.
 
 **Should I store the input text?** Store a hash and a pointer by default. Store the text only
 when you need replays and your retention rules allow it.
 
 **Can I re-run an old decision?** Yes, with `jev decide` on the same request file and model file,
-then compare the probabilities and prompt hashes.
+then compare the probabilities.
 
 **Why keep probabilities after thresholding?** They show how close each decision was, and a
 cluster near the threshold means the threshold needs a look.
@@ -165,5 +162,5 @@ cluster near the threshold means the threshold needs a look.
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), a yes/no decision model that runs on
-a laptop CPU. Its server reports the model file hash on /health, the one field most decision
+a laptop CPU. Its server reports the model's file hashes on /health, the one field most decision
 logs are missing.*

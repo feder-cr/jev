@@ -110,10 +110,11 @@ A threshold is valid for the inputs it was chosen on. Choose again when:
 - **The question changes.** Any rewording, even one that looks equivalent.
 - **The mix changes.** If yes becomes rarer, the same threshold gives more false yeses per true
   one; see [base rates](base-rates-and-yes-no-predictions.md).
-- **The model file changes.** `GET /health` reports the model file's sha256; log it with every
-  decision so you know which file a threshold was chosen on. The two release builds,
-  `jevos-q4_k_m` and `jevos-q8_0`, have not been compared on the same accuracy set, so treat a
-  switch between them as a new model and re-check.
+- **The model file changes.** `GET /health` reports the model's fingerprint, a SHA-256 over its files; log it with every
+  decision so you know which file a threshold was chosen on. jev runs the 8-bit OpenVINO model;
+  the two GGUF builds in the release, `jevos-q4_k_m` and `jevos-q8_0`, are for other tools and
+  have not been compared on the same accuracy set, so treat a switch between any of them as a
+  new model and re-check.
 
 ## Short answers to the questions that lead here
 
@@ -140,7 +141,7 @@ model file changes.
 
 - Our measurements: accuracy and mean P(yes) by kind of question, 999-question set,
   `jevos-q4_k_m`. The 0.5 rule in the README Python example, and the
-  `/health` sha256, are from the [jev repository](https://github.com/feder-cr/jev).
+  `/health` fingerprint, are from the [jev repository](https://github.com/feder-cr/jev).
 - [scikit-learn, Tuning the decision threshold](https://scikit-learn.org/stable/modules/classification_threshold.html):
   default of 0.5, never tune and train on the same data, fetched 2026-09-29.
 - Elkan (2001), [The Foundations of Cost-Sensitive Learning](https://cseweb.ucsd.edu/~elkan/rescale.pdf),

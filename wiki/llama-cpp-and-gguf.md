@@ -7,7 +7,7 @@ has_children: true
 
 # llama.cpp and GGUF
 
-jevos runs on llama.cpp from a GGUF file. These pages explain the pieces for someone deploying a classifier rather than chatting with a model.
+The jevos-v2 release ships the model as GGUF files for llama.cpp and similar tools; jev itself runs 8-bit OpenVINO weights and uses llama.cpp only as its tokenizer. These pages explain the pieces for someone deploying a classifier rather than chatting with a model.
 
 - [What is GGUF, for someone deploying a classifier](what-is-gguf.md)
 - [GGUF quantization types explained: Q4_K_M, Q8_0 and others](gguf-quantization-types-explained.md)

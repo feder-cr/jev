@@ -129,7 +129,7 @@ tell you.
 For tickets where the local answer is not confident, sending the middle band to a larger hosted
 model is a reasonable second step; the pattern is on
 [a model cascade: small model first, large model on doubt](model-cascade-small-model-first.md).
-Locally, one question costs 54 to 220 ms on our reference laptop depending on length, each
+Locally, one question costs 25 to 110 ms on our reference laptop depending on length, each
 extra question on the same ticket costs a fraction of that, and ticket text, which often contains customer data, stays on your servers.
 
 ## Short answers to the questions that lead here

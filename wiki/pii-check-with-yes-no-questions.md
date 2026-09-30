@@ -100,8 +100,8 @@ person" should be low, not 0.5.
 
 ## Long documents
 
-jevos reads up to 8,192 tokens per request, and latency grows with length: about 1.1 ms per
-prompt token on our reference laptop. A long document should be split into passages, each
+jevos reads up to 8,192 tokens per request, and latency grows with length: a 191-token text
+read from scratch took 112 ms on our reference laptop. A long document should be split into passages, each
 passage asked the same questions, and the answers combined with OR, since one passage with
 health data makes the document contain health data. The method is on
 [yes/no questions about long documents](yes-no-questions-about-long-documents.md).

@@ -10,7 +10,7 @@ nav_order: 6
 **Put in the `state` only what the questions need, name every field so it reads as English,
 and send computed values ("delivered": "5 days ago") instead of raw data the model would have
 to calculate from.** The state can be a plain string or any JSON object or array, and all of
-it is read on every request: every field costs time, and every field the model has to
+it is read the first time the model sees it: every field costs time, and every field the model has to
 interpret is a place it can go wrong. A state designed for reading is short, plain and already
 reduced to facts.
 
@@ -110,8 +110,10 @@ nested one with short keys.
 ## What size costs
 
 Every token in the state is read before any question is answered. On the reference laptop
-(Intel Core Ultra 7 255H, 16 threads, `q4_k_m`) that is about 1.1 ms per prompt token: 54 ms
-for a request of about 30 tokens, 220 ms for one of about 190. Cutting a noisy 400-token record
+(Intel Core Ultra 7 255H, 16 threads), with the text read from scratch, that is 26 ms for a
+request of about 30 tokens and 112 ms for one of about 190. A text asked about again is kept,
+so the second question on it reads only the question: 22 ms for the same 191-token request.
+Cutting a noisy 400-token record
 to the 100 tokens the questions need is the single largest speed-up available to you, larger
 than any server option. Why latency grows with length is on
 [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
@@ -131,8 +133,8 @@ match the words in your questions make the state easier to answer from.
 **Should I send raw timestamps?** No. Compute the duration in code and send it as words, such as
 "5 days ago". Date reasoning is one of the model's weakest kinds of question.
 
-**How much does a bigger state cost?** About 1.1 ms per prompt token on the reference laptop.
-Removing fields no question needs is the cheapest speed-up.
+**How much does a bigger state cost?** On the reference laptop, about 26 ms for 30 tokens and
+112 ms for 191 tokens read from scratch. Removing fields no question needs is the cheapest speed-up.
 
 **Is there a size limit?** 8,192 tokens for the state and all questions together.
 
@@ -142,7 +144,7 @@ Removing fields no question needs is the cheapest speed-up.
 
 ## Sources
 
-- The refund and billing examples and their token counts, the 54 ms and 220 ms latencies, and
+- The refund and billing examples and their token counts, the 26 ms, 112 ms and 22 ms latencies, and
   the 8,192-token context: the [jev README](https://github.com/feder-cr/jev) and our
   measurements on the reference laptop.
 - 0.598 on dates and 0.954 on stated facts: our 999-question test set, `jevos-q4_k_m`.

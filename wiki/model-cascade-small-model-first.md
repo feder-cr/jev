@@ -9,7 +9,7 @@ nav_order: 2
 
 **A model cascade asks the small model first, keeps its answer when the probability is clearly
 high or clearly low, and sends only the uncertain middle to a larger model.** With a local
-yes/no model the first stage costs 50 to 220 ms on a laptop CPU and nothing per token, so the
+yes/no model the first stage costs 25 to 110 ms on a laptop CPU and nothing per token, so the
 large model is paid only for the cases that need it. Because jevos speaks the same wire format as
 TypeSafe's hosted Jev, the escalation can be the same request body sent to a different base URL.
 
@@ -76,15 +76,15 @@ Let f be the fraction of questions that land in the middle band. Then, per reque
 - expected paid calls are f times what you paid before, since the confident ends cost nothing
   per token.
 
-With our measured numbers for a short request, 54 ms locally and 344 ms for the hosted Jev
+With our measured numbers for a short request, 26 ms locally and 344 ms for the hosted Jev
 from Europe with the network included, the arithmetic looks like this. The escalation fractions
 are **illustrative**, not measurements:
 
 | Escalated fraction f (illustrative) | Mean latency | Paid calls, relative to all-hosted |
 |---|---|---|
-| 0.1 | 54 + 34 = about 88 ms | 0.1 |
-| 0.3 | 54 + 103 = about 157 ms | 0.3 |
-| 0.6 | 54 + 206 = about 260 ms | 0.6 |
+| 0.1 | 26 + 34 = about 60 ms | 0.1 |
+| 0.3 | 26 + 103 = about 129 ms | 0.3 |
+| 0.6 | 26 + 206 = about 232 ms | 0.6 |
 
 Past a certain f the cascade is slower than asking the large model directly, because every
 escalated case pays both. The tail matters too: the slowest requests are the escalated ones,
@@ -155,7 +155,7 @@ those cluster on arithmetic and dates.
 
 ## Sources
 
-- Our measurements: 54 ms local and 344 ms hosted on the same short request, the 0.009
+- Our measurements: 26 ms local and 344 ms hosted on the same short request, the 0.009
   calibration error on the held-out split, and the error direction and mean P(yes) on the
   999-question set. Latency figures are in the [jev README](https://github.com/feder-cr/jev).
 - Wire format compatibility and the 422 on `choice` and `score`: the jev README.

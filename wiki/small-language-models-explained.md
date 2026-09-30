@@ -27,8 +27,8 @@ small-model benchmarks deserve suspicion.
 There is no official threshold. In practice people call a model small when it runs without
 specialised hardware: a few hundred million to a few billion parameters, quantized to a few
 bits per weight, in a file of hundreds of megabytes to a few gigabytes. jevos is at the small
-end of that range: its release is named `jevos-1b`, the 4-bit file is 619 MB, and it uses about
-1.2 GB of memory once loaded.
+end of that range: about 1 billion parameters, which jev runs with 8-bit (INT8) weights, and its
+4-bit GGUF file is 619 MB.
 
 Size sets the cost of every token processed. It also sets how much the model can know and how
 many steps of reasoning it can hold together, which is where the trade-off lives.
@@ -89,12 +89,12 @@ chatbot can be useful as a component.
 ## Small vs large on the same job
 
 On 2,000 yes/no questions about three business policies that none of the models was tuned on,
-with answers computed by code, the hosted Jev was right 0.927 of the time and jevos 0.811. The
+with answers computed by code, the hosted Jev was right 0.927 of the time and jevos 0.810. The
 gap was largest on additive point scores, where several signals are summed and compared with a
 cut-off: a computation again.
 
-The other side of the trade is speed and place. On the same two requests, jevos took 54 and
-220 ms on a laptop CPU; the hosted API took 344 and 345 ms from Europe, network included. The
+The other side of the trade is speed and place. On the same two requests, jevos took 26 and
+112 ms on a laptop CPU; the hosted API took 344 and 345 ms from Europe, network included. The
 full comparison is on [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md). A small model is the
 cheaper, faster, local first reader; a large one is the better judge of hard cases. The choice
 between them is laid out on [when a small model is enough](when-a-small-model-is-enough.md).

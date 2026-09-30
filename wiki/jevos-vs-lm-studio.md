@@ -48,17 +48,17 @@ request names it.
 jevos does one thing. A server started with
 
 ```bash
-uv run jev serve --gguf jevos-v2-q4_k_m.gguf --device cpu --threads 16
+./jev serve --threads 16
 ```
 
-listens on 127.0.0.1:8017, loads one model file (about 1.2 GB of memory), and answers
+listens on 127.0.0.1:8017, loads one model (the `model` folder beside the binary), and answers
 `POST /v1/systemone`: a `state`, which is a text or any JSON object, plus named yes/no questions,
 each answered with its own `noul`, the probability of yes. Nothing is generated, so
 `output_tokens` is 0 and there is no text to parse. The wire format is TypeSafe Jev's, not
 OpenAI's.
 
-On an Intel Core Ultra 7 255H with 16 threads it answered a short request in 54 ms and a long one
-in 220 ms. The idea behind answering without generating is on
+On an Intel Core Ultra 7 255H with 16 threads it answered a short request in 26 ms and a long one
+in 112 ms. The idea behind answering without generating is on
 [why one forward pass beats generating an answer](why-one-forward-pass-beats-generation.md).
 
 ## Where they overlap: serving
@@ -70,9 +70,9 @@ port returns.
 |---|---|---|
 | Returns | generated text, JSON, embeddings | P(yes) per question |
 | API shape | OpenAI-compatible, Anthropic-compatible | TypeSafe Jev's wire format |
-| Models | any downloaded model, loaded on demand | one GGUF file per process |
+| Models | any downloaded model, loaded on demand | one model per process |
 | Interface | desktop app, CLI, daemon | command line only |
-| Engines | llama.cpp, MLX on Apple Silicon | llama.cpp prebuilt binaries, CPU |
+| Engines | llama.cpp, MLX on Apple Silicon | OpenVINO, INT8 weights, CPU |
 | Auth | bearer token | `JEV_API_KEY`, bearer token |
 
 If you wanted yes/no decisions from LM Studio, you would load a general model, prompt it to
@@ -98,8 +98,8 @@ And do not measure latency on one while the other is generating; you will measur
 - **Summaries, drafts, extraction into free-form fields, other languages:** LM Studio with a
   suitable model. jevos generates no text and reads English only.
 - **A decision in a request path, where your code thresholds a number:** jevos.
-- **A decision service that must log exactly which model file answered:** jevos, whose `/health`
-  reports the file's sha256 and the llama.cpp release.
+- **A decision service that must log exactly which model answered:** jevos, whose `/health`
+  reports the served model.
 - **Arithmetic or date logic inside the decision:** neither model should do it; compute in code.
   jevos scored 0.584 on arithmetic questions in our 999-question test.
 
@@ -111,8 +111,8 @@ single-purpose yes/no decision server with no interface.
 **Can LM Studio answer yes/no questions?** Yes, with a general model prompted to answer yes or no,
 optionally with a JSON schema for the answer.
 
-**Can I run jevos inside LM Studio?** We have not tested loading the jevos file in LM Studio, and
-the jev server's endpoint and answers would not be available there.
+**Can I run jevos inside LM Studio?** The jevos-v2 release ships the model as GGUF files for tools
+such as LM Studio, but the jev server's endpoint and answers would not be available there.
 
 **Can LM Studio run without the GUI?** Its docs describe `llmster`, a headless daemon started
 with `lms daemon up`.
@@ -133,7 +133,7 @@ adjust threads.
   and [OpenAI compatibility](https://lmstudio.ai/docs/developer/openai-compat), fetched 2026-09-29.
 - `llmster`, `lms daemon up`, run on login and just-in-time loading:
   [headless mode](https://lmstudio.ai/docs/developer/core/headless), fetched 2026-09-29.
-- jevos server, endpoints, memory, latency and accuracy by kind: the
+- jevos server, endpoints, latency and accuracy by kind: the
   [jev README](https://github.com/feder-cr/jev) and our own measurements.
 
 ---

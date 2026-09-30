@@ -117,8 +117,8 @@ questions.
 
 ## How much it costs
 
-On the README's three-question example, three questions about one text take about 165 ms
-together, against 103 ms for one alone, on an Intel Core Ultra 7 255H with 16 threads. The text
+On the README's three-question example, three questions about one text take about 66 ms
+together, against 49 ms for one alone, on an Intel Core Ultra 7 255H with 16 threads. The text
 is the expensive part and it is read once; each extra label adds a fraction of that. So ten
 labels on one ticket are one request, not ten. A deep taxonomy asked level by level is on
 [product categorization with yes/no questions](product-categorization-with-yes-no-questions.md).

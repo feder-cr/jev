@@ -99,7 +99,7 @@ worded badly.
 ## What should a moderation log keep?
 
 For every post: a hash of the text, the questions as sent, each probability, the thresholds in
-force, the outcome, and the model file's hash reported by `/health`. When a moderator asks why a
+force, the outcome, and the model fingerprint reported by `/health`. When a moderator asks why a
 post was removed last Tuesday, that record answers it, and when you change a question or a
 threshold you can tell which decisions were made under which version. The full list is on
 [logging LLM decisions for audit](logging-llm-decisions-for-audit.md).
@@ -133,7 +133,7 @@ shapes are likely to work, not how well your rules will. Measure on your own pos
 
 User posts, including the ones you remove, stay on your machine. There is no extra processor
 for this step and no per-token bill that grows with your community. A short post costs about
-54 ms on our reference laptop (Intel Core Ultra 7 255H, 16 threads), and several rules on one
+26 ms on our reference laptop (Intel Core Ultra 7 255H, 16 threads), and several rules on one
 post cost much less than several calls, because the post is read once. For a small community,
 moderation can run on the same box as the forum.
 
@@ -155,7 +155,7 @@ pick a threshold per rule from them, and set the bar higher where a wrong remova
 better choice for standard hazard categories. Use yes/no questions for your community's own
 rules.
 
-**Does it need a GPU?** No. jevos runs on the CPU and adds about 1.2 GB of memory.
+**Does it need a GPU?** No. jevos runs on the CPU only.
 
 **What about posts in other languages?** jevos reads English only; translate first or use a
 multilingual model.
@@ -166,7 +166,7 @@ multilingual model.
 
 ## Sources
 
-- Short-request latency, memory, English only, `/health` fields: the
+- Short-request latency, English only, `/health` fields: the
   [jev README](https://github.com/feder-cr/jev) and our measurements on the reference laptop.
 - Error direction (152 vs 91) and accuracy by kind of question: our 999-question test set,
   written after training, run on `jevos-q4_k_m`.

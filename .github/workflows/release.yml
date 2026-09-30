@@ -1,0 +1,87 @@
+# release.yml - when a release is published, build `jev` on Windows, Linux and macOS, run the checks
+# (tests/check.py) with the release's own model asset, and attach one archive per OS to the release:
+# jev-<os>-<arch>.zip (Windows) or .tar.gz, holding jev/ with the binary, OpenVINO's libraries and the
+# licenses. Users unpack the model asset into that folder (jev/model). Linux builds on Ubuntu 22.04, so the
+# binary runs on glibc 2.35 and later.
+name: release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build and attach archives to"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+  MODEL_ASSET: jevos-v2-openvino-int8.zip
+
+jobs:
+  archive:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: windows-2022, name: windows-x64, format: zip}
+          - {os: ubuntu-22.04, name: linux-x64, format: gztar}
+          - {os: macos-14, name: macos-arm64, format: gztar}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build tools and test dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build
+        run: python scripts/build.py
+
+      - name: Model
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "$MODEL_ASSET" --dir .
+          python -c "import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall('dist/jev')" "$MODEL_ASSET"
+
+      - name: Checks
+        run: python tests/check.py
+
+      - name: Archive and attach
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rm -rf dist/jev/model
+          python -c "import shutil, sys; print(shutil.make_archive(sys.argv[1], sys.argv[2], 'dist', 'jev'))" "jev-${{ matrix.name }}" "${{ matrix.format }}"
+          gh release upload "$TAG" --repo "${{ github.repository }}" --clobber jev-${{ matrix.name }}.*
+
+  sums:
+    # SHA256SUMS.txt over every asset of the release, the archives above included (sha256sum's format)
+    needs: archive
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Hash the assets and attach SHA256SUMS.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir assets && cd assets
+          gh release download "$TAG" --repo "${{ github.repository }}"
+          rm -f SHA256SUMS.txt
+          sha256sum --binary * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          gh release upload "$TAG" --repo "${{ github.repository }}" --clobber SHA256SUMS.txt

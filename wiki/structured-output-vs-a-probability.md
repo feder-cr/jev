@@ -100,7 +100,7 @@ wiki: extract with a schema, compute in code, decide with a probability.
 3. **Decide** with yes/no questions over the resulting state, the rule written into each question.
 
 The README's refund example is step 3: a state with the item, "delivered: 5 days ago" and the
-customer's message, and three questions. It returns 0.78 for refund, 0.73 for upset and 0.1 for
+customer's message, and three questions. It returns 0.93 for refund, 0.83 for upset and 0.04 for
 wrong item, three probabilities a single boolean field could not have given.
 
 Where the decision is the only thing the call does, step 1 is not needed at all: the text goes in

@@ -70,15 +70,15 @@ distinguishing feature in the question are the rules from
 ## What does it cost per product and per catalog?
 
 All questions in one request share the product text, which is read once, and extra questions
-are cheaper than extra requests. On the README's measured example, a text of 95 tokens, one
-question took 103 ms and three took about 165 ms on our reference laptop (Intel Core Ultra 7
+are cheaper than extra requests. On the README's measured example, one question (68 tokens in
+all) took 49 ms and three (95 tokens) took about 66 ms on our reference laptop (Intel Core Ultra 7
 255H, 16 threads, no GPU). The mechanism is on
 [many questions about one text](many-questions-about-one-text.md).
 
 From those two points you can make a rough estimate, clearly not a measurement: each extra
-question on that text cost about 30 ms, so a level with eight candidates would be in the order
-of 300 ms and a three-level walk about a second per product. At that rate, 100,000 products are a
-little more than a day of sequential work on one laptop. The real figure depends on your text length and
+question on that text cost under 10 ms, so a level with eight candidates would be in the order
+of 100 ms and a three-level walk about a third of a second per product. At that rate, 100,000
+products are less than half a day of sequential work on one laptop. The real figure depends on your text length and
 branching, and should be measured on your catalog; how to do that honestly is on
 [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md).
 
@@ -142,7 +142,7 @@ not force a leaf.
 
 ## Sources
 
-- Our measurements: the 103 ms and 165 ms timings of the README example and the reference laptop
+- Our measurements: the 49 ms and 66 ms timings of the README example and the reference laptop
   from the [jev README](https://github.com/feder-cr/jev); accuracy by kind of question from our
   999-question test set on `jevos-q4_k_m`. The per-product and per-catalog figures are estimates
   derived from those two timings, not measurements.

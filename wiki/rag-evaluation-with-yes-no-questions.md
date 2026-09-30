@@ -73,7 +73,7 @@ means labels. Be straight about it in your reports.
 
 Put the query, the retrieved passages and the answer in one `state` and ask several questions at
 once. The passages are read once and each extra question costs little: in the README's
-measurement, three questions on one text take about 165 ms against 103 ms for one.
+measurement, three questions on one text take about 66 ms against 49 ms for one.
 
 ```json
 {
@@ -154,7 +154,7 @@ retrieval and generation is what makes the numbers actionable.
 **How do I measure retrieval recall?** Only with labels saying which passages are relevant for
 each query. Relevance questions give you precision and hit rate, not recall.
 
-**How fast is it?** On our reference laptop a request of about 190 tokens takes about 220 ms, and
+**How fast is it?** On our reference laptop a request of about 190 tokens read from scratch takes about 112 ms, and
 extra questions on the same state cost a fraction of that.
 
 **See also:** [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md),

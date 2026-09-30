@@ -11,15 +11,16 @@ nav_order: 8
 ready-made archives for each operating system and backend, so you can run llama.cpp without a
 compiler by downloading the archive that matches your machine.** For a service, the useful habit
 is to pin one release, record the sha256 of the archive you use, and report the release at
-runtime. jev does exactly that: it pins `b11081`, checks each archive against a hash in its
-code, and returns `llama_cpp_release` in `/health`.
+runtime. jev itself does not load llama.cpp's runtime (it runs 8-bit OpenVINO weights and
+compiles in only llama.cpp's tokenizer), but the jevos-v2 release ships the model as GGUF files,
+and those are what you would run on a prebuilt llama.cpp.
 
 Why it matters: a model's answers depend on two things, the GGUF file and the runtime that
 executes it. Most teams pin the first and let the second float. Pinning the runtime too turns
 "the model changed its answer" into a question you can actually investigate.
 
-This page is what the releases offer, how to pick an archive, why and how to pin one, how jev
-does it, and when building from source is still the better choice.
+This page is what the releases offer, how to pick an archive, why and how to pin one, a
+pattern for verifying it, and when building from source is still the better choice.
 
 ## What the releases page offers
 
@@ -48,9 +49,7 @@ Match three things: operating system, processor (x64 or arm64) and backend.
 - **Any other GPU, or unsure**: Vulkan covers AMD, Intel and NVIDIA GPUs.
 - **Apple Silicon**: the macOS arm64 archive, which uses Metal.
 
-`uv run jev download --only runtime` applies the same rules automatically: Metal on an Apple
-Silicon Mac, CUDA when an NVIDIA driver loads, otherwise Vulkan, and `--runtime cpu` (or another
-family) when you want to choose. The Windows walk-through is on
+The Windows walk-through is on
 [llama.cpp on Windows without compiling](llama-cpp-on-windows.md).
 
 ## Why pin one release
@@ -66,35 +65,34 @@ family) when you want to choose. The Windows walk-through is on
   llama.cpp release Y" is a complete answer; "model file X on whatever was installed" is not.
   What else to record is on [logging LLM decisions for audit](logging-llm-decisions-for-audit.md).
 
-## How jev pins and verifies
+## How to pin and verify
 
-The runtime module in jev is short and can serve as a pattern.
+A short pattern for a service:
 
-1. **One release, one commit.** `RELEASE = "b11081"` and the matching commit `161755f` are
-   constants. The ctypes struct layouts are transcribed from that release's headers, so the
-   pin is not optional for jev.
-2. **A hash per archive.** Every archive jev can install, per operating system, processor and
-   family, has its sha256 written in the code. A download with a different hash is deleted and
-   the install fails; nothing unverified is unpacked.
-3. **Robust download.** Interrupted transfers resume from the bytes already on disk, with up
-   to five attempts. Archives are unpacked into a staging folder and moved into place only when
-   the library is found, and archive entries that would land outside the target folder are
-   refused.
-4. **Reported at runtime.** `GET /health` includes `llama_cpp_release`, the commit, the device,
-   the sha256 of the GGUF and a fingerprint computed over these and other settings. Two servers
-   with the same fingerprint run the same model on the same runtime setup.
+1. **One release, one commit.** Keep the release tag (for example `b11081`) and its commit as
+   constants in your deployment. Code that binds to the library's structs, such as ctypes
+   bindings, is transcribed from that release's headers, so for it the pin is not optional.
+2. **A hash per archive.** Write down the sha256 of every archive you install, per operating
+   system, processor and family. A download with a different hash is deleted and the install
+   fails; nothing unverified is unpacked.
+3. **Robust download.** Resume interrupted transfers from the bytes already on disk, unpack into
+   a staging folder, move into place only when the library is found, and refuse archive entries
+   that would land outside the target folder.
+4. **Reported at runtime.** Have the service report the llama.cpp release, the commit, the
+   device and the sha256 of the GGUF, so two servers can be shown to run the same model on the
+   same runtime setup.
 
 Because the archive hashes are known in advance, the same install works in an
 [offline or air-gapped environment](offline-ai-for-decisions.md): download once, carry the
-`runtimes/` folder and the GGUF, check the hashes.
+runtime folder and the GGUF, check the hashes.
 
 ## When building from source is still the better choice
 
 Being straight about it: prebuilt archives are the right default, not the only answer.
 
-- **No archive for your platform.** jev's table covers macOS, Linux and Windows on x64 and
-  arm64 for the families it supports. Elsewhere its error message says what to do: build commit
-  `161755f` with `-DBUILD_SHARED_LIBS=ON` and point `JEV_LLAMA_DIR` at the result.
+- **No archive for your platform.** The archives cover the common operating systems and
+  processors. Elsewhere, build the commit you pinned, with `-DBUILD_SHARED_LIBS=ON` if your own
+  code loads the library.
 - **A backend the archives do not ship.** llama.cpp supports more backends than it publishes
   archives for, and can build several at once or as dynamically loaded plug-ins
   (`GGML_BACKEND_DL`).
@@ -113,22 +111,18 @@ repository on GitHub. Each tag has archives per platform and backend.
 service, the one you tested with, pinned, until you have re-tested on a newer one.
 
 **Do the CUDA binaries need the CUDA toolkit?** The releases ship the CUDA runtime as a separate
-archive; you need the NVIDIA driver. jev checks for the driver's library before choosing CUDA.
+archive; you need the NVIDIA driver.
 
-**How do I know which llama.cpp version jev is using?** `GET /health` reports
-`llama_cpp_release`, and `uv run jev devices` prints it too.
-
-**Can I use a newer llama.cpp with jev?** Not by swapping files: the bindings match `b11081`.
-A newer release needs updated bindings in jev itself.
+**Does jev use a prebuilt llama.cpp?** No. jev runs 8-bit OpenVINO weights and compiles in
+llama.cpp's tokenizer; the prebuilt archives are for running the jevos GGUF files with
+llama.cpp directly.
 
 **See also:** [llama-cpp-python vs calling llama.cpp through ctypes](llama-cpp-python-vs-ctypes.md),
 [what is GGUF](what-is-gguf.md) and [self-hosted AI for decisions](self-hosted-ai-for-decisions.md).
 
 ## Sources
 
-- Our own facts: the pinned release and commit, per-archive hashes, download, resume and
-  unpack behaviour, device choice, `JEV_LLAMA_DIR` and the build hint, from `llama_release.py`;
-  the `/health` fields, from the README and `backend.py`, in the
+- Our own facts: what jev runs, and the GGUF files in the jevos-v2 release, from the
   [jev repository](https://github.com/feder-cr/jev).
 - [llama.cpp README](https://github.com/ggml-org/llama.cpp) and
   [releases page](https://github.com/ggml-org/llama.cpp/releases), fetched 2026-09-29:
@@ -141,5 +135,5 @@ A newer release needs updated bindings in jev itself.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which treats the llama.cpp release as
-part of the model's identity, next to the GGUF hash.*
+*From the notes of [jev](https://github.com/feder-cr/jev), whose release ships the model as GGUF
+files for whichever llama.cpp release you pin.*

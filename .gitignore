@@ -21,10 +21,12 @@ logs/
 tmp/
 .cache/
 
-# Build
+# Build (scripts/build.py): the build folders and the folder that runs, with its model
 dist/
 build/
+build-*/
 out/
+/model/
 
 # Python
 __pycache__/
@@ -34,7 +36,7 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 
-# Downloaded runtime, weights and benchmark fixtures (see `jev download`, bench/README.md)
+# Downloaded weights and benchmark fixtures
 runtimes/
 models/
 bench/data/

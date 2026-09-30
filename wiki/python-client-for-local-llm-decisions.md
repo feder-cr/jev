@@ -18,7 +18,7 @@ missing.
 The README's four-line example is enough to try the model. It is not what you want in a service
 that makes thousands of calls, because `requests` has no timeout by default and opens a new
 connection per call unless you use a session. Both are cheap to fix, and on a server that
-answers in 54 to 220 ms on a laptop CPU the connection setup is not a rounding error.
+answers in 25 to 110 ms on a laptop CPU the connection setup is not a rounding error.
 
 This page is the helper, the three settings that matter (session, timeout, retries), how to
 read the errors the server returns, and what the server does when several threads call it at
@@ -54,7 +54,7 @@ Called as `decide("I was charged twice for the same order.", {"billing": "Is thi
 problem?"})`, this is the README's Quickstart request, for which the README shows `0.9`. The
 helper keeps the question names you chose, so the result is a plain dict of floats you can
 threshold. Ask every question you have about one text in one call: the text is read once and
-the extra questions cost a fraction of the first (three questions about 165 ms against 103 ms
+the extra questions cost a fraction of the first (three questions about 66 ms against 49 ms
 for one, on the reference laptop).
 
 ## Why a Session and why a timeout
@@ -69,12 +69,14 @@ larger than a multiple of 3) and the read timeout, which is the wait for the ser
 Size the read timeout from your own traffic, not from the laptop figures. Two things make a
 reply slower than one inference:
 
-- **Long texts.** On the reference CPU latency grows by about 1.1 ms per prompt token; how that
-  adds up is on [why latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
-- **Queueing.** The engine holds a lock around each decision and runs model work on a single
-  inference thread, so concurrent requests are answered one after another. Ten threads calling
-  at once do not get ten parallel answers; the last one waits for the other nine. A thread pool
-  in the client raises throughput only up to the point where the server is busy all the time.
+- **Long texts.** On the reference CPU a 191-token text read from scratch took 112 ms against
+  26 ms for a 30-token one; how that adds up is on [why latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
+- **Queueing.** Concurrent requests share one CPU. Small requests arriving together are read in
+  one model call, but throughput barely grows with the number of clients: on the reference
+  laptop, 1 client got 8.7 requests/s (median 110 ms), 4 clients 9.8/s (390 ms) and 8 clients
+  10.1/s (780 ms). Ten threads calling at once do not get ten answers in the time of one; most
+  of them wait. A thread pool in the client raises throughput only up to the point where the
+  server is busy all the time.
   The difference between the two numbers is the subject of
   [throughput vs latency for a decision server](throughput-vs-latency-for-a-decision-server.md).
 
@@ -94,8 +96,9 @@ retries = Retry(total=3, backoff_factor=0.1,
 session.mount("http://", HTTPAdapter(max_retries=retries))
 ```
 
-Retrying a decision is safe in the sense that matters: the server stores nothing about a
-request, so sending it twice changes no state. What you should not retry is a `4xx`. The
+Retrying a decision is safe in the sense that matters: beyond a cache of recent texts that only
+makes them faster to read, the server stores nothing about a request, so sending it twice
+changes no answer. What you should not retry is a `4xx`. The
 `status_forcelist` above covers the gateway errors a reverse proxy in front of the server might
 return; the server's own `422` and `401` are left alone, because the same request will fail the
 same way.
@@ -122,9 +125,8 @@ carries `WWW-Authenticate: Bearer` and appears only when the server was started 
 `jev serve` loads the model before it starts listening, so while it loads, the port refuses
 connections, and once it answers, `GET /health` returns `{"status": "ready", ...}`. `/health`
 needs no key. A worker that starts together with the server can poll it with a short timeout
-and a sleep between attempts, and begin sending decisions only after the first `ready`. The same
-endpoint reports the model file's sha256 and the llama.cpp release, which are worth logging next
-to every decision; [logging LLM decisions for audit](logging-llm-decisions-for-audit.md) covers
+and a sleep between attempts, and begin sending decisions only after the first `ready`. What the
+same endpoint reports about the loaded model is worth logging next to every decision; [logging LLM decisions for audit](logging-llm-decisions-for-audit.md) covers
 what else to keep.
 
 ## Being straight about the limits of the client
@@ -141,8 +143,9 @@ is the next step. The model reads English only.
 Jev wire format, so code written for Jev's SDK works unchanged for yes/no questions; otherwise a
 plain `requests` call is all it takes.
 
-**Should I use async?** Only if your application is already async. The server answers one
-decision at a time, so concurrency on the client side does not make one server faster.
+**Should I use async?** Only if your application is already async. Concurrent requests share
+one CPU (8 clients got 10.1 requests/s against 8.7 for one), so concurrency on the client side
+barely makes one server faster.
 
 **What timeout should I set?** A connect timeout of a few seconds and a read timeout sized from
 your longest texts and your peak concurrency, measured on your machine.
@@ -158,12 +161,11 @@ and [curl examples for a local LLM decision API](curl-examples-for-a-local-llm-a
 
 ## Sources
 
-- Endpoints, status codes, error shape, the lock and single inference thread, the 256 KB state
-  limit and the default context: read from `src/jev/api/app.py`, `src/jev/api/wire.py`,
-  `src/jev/api/translate.py`, `src/jev/engine/engine.py`, `src/jev/engine/schema.py` and
-  `src/jev/cli.py` of [jev](https://github.com/feder-cr/jev).
-- Latencies and the billing example: the [jev README](https://github.com/feder-cr/jev) (Intel
-  Core Ultra 7 255H, 16 threads). Accuracy by kind: our 999-question test set, `jevos-q4_k_m`.
+- Endpoints, status codes, error shape, the 256 KB state limit and the default context: read
+  from the source of [jev](https://github.com/feder-cr/jev).
+- Latencies, the several-client throughput and the billing example: the
+  [jev README](https://github.com/feder-cr/jev) and our measurements (Intel Core Ultra 7 255H,
+  16 threads). Accuracy by kind: our 999-question test set, `jevos-q4_k_m`.
 - Sessions, timeouts and the retry example:
   [Requests, Advanced Usage](https://requests.readthedocs.io/en/latest/user/advanced/), fetched
   2026-09-29.

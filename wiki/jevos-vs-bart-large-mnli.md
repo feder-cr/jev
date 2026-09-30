@@ -69,7 +69,7 @@ Three practical differences follow.
   within 30 days of delivery. Should this customer get a refund?" is a README example. That is a
   decision, not a topic.
 - **Shared reading.** jevos reads the text once for every question in a request; three questions
-  took about 165 ms against 103 ms for one. An NLI model scores each premise and hypothesis pair.
+  took about 66 ms against 49 ms for one. An NLI model scores each premise and hypothesis pair.
 - **Structured input.** jevos takes a JSON object as `state` as well as a string, so fields such as
   `delivered: "5 days ago"` can be sent as they are.
 
@@ -89,8 +89,8 @@ you chunk. Chunking strategy is on
 
 We have not benchmarked bart-large-mnli, so there is no head-to-head number here. What can be
 said is the class of each. The NLI method scores one premise and hypothesis pair per label, so
-its cost grows with the number of labels times the length of the text. jevos runs on a CPU through llama.cpp, one shared reading of the text plus a
-small cost per question: 54 ms for a request of about 30 tokens and 220 ms for about 190 on an
+its cost grows with the number of labels times the length of the text. jevos runs on a CPU, one shared reading of the text plus a
+small cost per question: 26 ms for a request of about 30 tokens and 112 ms for about 190 on an
 Intel Core Ultra 7 255H with 16 threads.
 
 For a third-party reference point, the SetFit documentation reports bart-large-mnli at about 31
@@ -114,7 +114,7 @@ Both are MIT: the card lists MIT for the model, and jevos' code is MIT.
 | short English texts, topic labels, Transformers already in the stack | bart-large-mnli |
 | labels that need a definition or a policy in them | jevos |
 | texts over about a thousand tokens | jevos |
-| a running llama.cpp-based service, CPU only | jevos |
+| a CPU-only service, one native binary to deploy | jevos |
 | many labels on very short texts, cost per label matters most | measure both |
 
 Whichever you pick, measure on a hundred of your own labelled cases. Zero-shot accuracy depends

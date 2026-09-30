@@ -1,6 +1,6 @@
 ---
 title: "llama-cpp-python vs calling llama.cpp through ctypes"
-description: "llama-cpp-python wraps llama.cpp and usually compiles it on install; jev loads the official prebuilt library through a small ctypes layer."
+description: "llama-cpp-python wraps llama.cpp and usually compiles it on install; a small ctypes layer of your own can load the official prebuilt library instead."
 parent: "llama.cpp and GGUF"
 nav_order: 5
 ---
@@ -8,9 +8,9 @@ nav_order: 5
 # llama-cpp-python vs calling llama.cpp through ctypes
 
 **llama-cpp-python is a full Python package around llama.cpp, with a high-level API and an
-OpenAI-compatible server, and a plain `pip install` builds llama.cpp from source; jev instead
-downloads llama.cpp's official prebuilt release and calls it through a small ctypes layer of its
-own that covers only what scoring needs.** Both end up calling the same C API from Python. The
+OpenAI-compatible server, and a plain `pip install` builds llama.cpp from source; the
+alternative is to download llama.cpp's official prebuilt release and call it through a small
+ctypes layer of your own that covers only what you need, such as scoring.** Both end up calling the same C API from Python. The
 difference is who builds the native library, how much of the API is wrapped, and who has to
 keep up when llama.cpp changes.
 
@@ -19,8 +19,8 @@ says so: "The low-level API is a direct ctypes binding to the C API provided by 
 the choice is not ctypes against something safer. It is a maintained, broad binding with a
 compile step, against a narrow binding pinned to one binary release.
 
-This page is what each approach gives you, how jev's runtime is put together, the costs of
-writing your own binding, a side-by-side table, and when to pick which.
+This page is what each approach gives you, what jev does and how a thin binding is put
+together, the costs of writing your own binding, a side-by-side table, and when to pick which.
 
 ## What llama-cpp-python gives you
 
@@ -40,21 +40,20 @@ under `vendor/llama.cpp`.
 
 ## What jev does instead
 
-jev never compiles anything. `uv run jev download --only runtime` fetches the archive for this
-machine from llama.cpp's GitHub releases for the pinned build `b11081` (commit `161755f`), plus
-the separate CUDA runtime archive for CUDA builds, checks each against a sha256 recorded in
-jev's code, and unpacks them under `runtimes/`. The archives are the same ones anyone can
-download from the releases page; jev picks the one that matches the operating system,
-the processor and the accelerator family.
+jev takes neither route: it has no Python in it at run time. It is one native binary that runs
+jevos-v2 with 8-bit (INT8) weights through OpenVINO and compiles in llama.cpp's tokenizer, so
+its token ids match the GGUF files. For Python users, the jevos-v2 release also ships the model
+as GGUF files, `jevos-v2-q4_k_m.gguf` and `jevos-v2-q8_0.gguf`, which either approach on this
+page can load; jev itself does not read GGUF files.
 
-The binding is a single Python module. Its header comment says it is "limited to what scoring
-needs: no sampling, no generation", and that struct layouts and signatures "are transcribed from
-`include/llama.h` and `ggml/include/ggml-backend.h`" of that exact release. At load time it opens
+A thin binding of your own is usually a single Python module, limited to what scoring needs: no
+sampling, no generation. Its struct layouts and signatures are transcribed from
+`include/llama.h` and `ggml/include/ggml-backend.h` of one exact release. At load time it opens
 the ggml and llama libraries in the runtime folder, looks up each function it needs and fails
 with a clear message if a symbol is missing, then loads the compute backends that the release
 ships as plug-ins next to the library.
 
-That is enough for a decision model, because jevos generates nothing: every answer is a
+That is enough for a decision model such as jevos, which generates nothing: every answer is a
 probability read from the model's forward pass, with `output_tokens` always 0. Why that is
 enough is covered on [why one forward pass beats generating an
 answer](why-one-forward-pass-beats-generation.md).
@@ -66,13 +65,12 @@ transcribed from.
 
 - **Structs by value.** llama.cpp passes parameter structs by value. If a field is added or
   reordered in a new release and the Python side is not updated, the call does not fail
-  cleanly; it can read garbage or crash. jev's module states this risk in its own header, and
-  the Python documentation warns that ctypes use can "corrupt data and objects" or "cause
+  cleanly; it can read garbage or crash. The Python documentation warns that ctypes use can "corrupt data and objects" or "cause
   crashes".
 - **API drift is real.** llama.cpp keeps a public changelog of the `libllama` API (issue 9289)
   that lists additions, parameter changes to `llama_model_params` and `llama_context_params`,
   removals and renames. Every upgrade means reading it and re-transcribing.
-- **Narrow coverage.** Only the calls jev uses are bound. There is no sampler, no chat API, no
+- **Narrow coverage.** Only the calls you use are bound. There is no sampler, no chat API, no
   embeddings. If you need those, you would be rebuilding llama-cpp-python.
 
 In exchange, the runtime is exactly one known binary, the install needs no compiler, and the
@@ -81,15 +79,15 @@ same archive can be checked by hash on every machine. This is the same reasoning
 
 ## Side by side
 
-| | llama-cpp-python | jev's ctypes layer |
+| | llama-cpp-python | your own ctypes layer |
 |---|---|---|
 | Native library | built on install, or a pre-built wheel | official llama.cpp release archive |
 | Compiler needed | yes, unless a wheel matches | no |
-| llama.cpp version | the vendored submodule of the package version | one pinned release, `b11081` |
+| llama.cpp version | the vendored submodule of the package version | one pinned release |
 | API covered | low-level plus high-level plus server | only what scoring needs |
 | Generation and sampling | yes | none |
 | Upgrading llama.cpp | upgrade the package | re-transcribe layouts, change the pin |
-| Override | build with your own flags | `JEV_LLAMA_DIR` pointing at a build of the same commit |
+| Override | build with your own flags | a build of the same commit |
 
 ## Which one should you use?
 
@@ -111,11 +109,11 @@ limits.
 **Is ctypes slower than a compiled extension?** The heavy work runs inside llama.cpp either
 way. Python only pays for crossing into the library; we have not measured that cost on its own.
 
-**Can I point jev at my own llama.cpp build?** Yes, with `JEV_LLAMA_DIR`, but it must be a build
-of the same commit, `161755f`, because the struct layouts are copied from that release.
+**Does jev use ctypes?** No. jev is one native binary with no Python at run time; it runs 8-bit
+OpenVINO weights and uses llama.cpp only as its compiled-in tokenizer.
 
-**Why not use llama-cpp-python inside jev?** It would add a compile step or a wheel constraint
-to every install, and most of what it wraps would go unused.
+**Can I load jevos with llama-cpp-python?** The jevos-v2 release ships GGUF files, the format
+llama.cpp loads; you get the model, not jev's decision endpoint.
 
 **What happens if the runtime and the binding do not match?** A missing function is reported by
 name at load. A changed struct layout may not be caught and can crash, which is why the release
@@ -127,9 +125,8 @@ is pinned.
 
 ## Sources
 
-- Our own facts: how jev downloads, verifies and binds the runtime, from `llama_release.py`,
-  `llama_cpp.py` and `cli.py` in the [jev repository](https://github.com/feder-cr/jev);
-  zero output tokens, from the README.
+- Our own facts: what jev runs and the GGUF files in its release, from the
+  [jev repository](https://github.com/feder-cr/jev); zero output tokens, from the README.
 - [llama-cpp-python README](https://github.com/abetlen/llama-cpp-python), fetched 2026-09-29:
   description, layers, install behaviour, requirements, backends, wheels, vendored submodule,
   low-level ctypes API.
@@ -142,5 +139,5 @@ is pinned.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), whose whole native dependency is an
-official llama.cpp release whose archive hashes are written in the code.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which borrows only llama.cpp's
+tokenizer and ships its model as GGUF files for anyone who wants the Python route.*
