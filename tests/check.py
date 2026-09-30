@@ -14,7 +14,8 @@
    activations (--dynamic-quantization 0), so they compute the same function and every answer must match;
 5. jev decide: a request file answered as the server answers it, errors on stderr with exit 1, and
    an --output file never written over;
-6. /health: the SHA-256 of the model folder's files and their fingerprint, as Python's hashlib computes them.
+6. /health: the SHA-256 of the model folder's files and their fingerprint, as Python's hashlib computes them;
+7. jev serve on a port another server holds: refused, with exit 1 and a reason, never a second listener.
 Exit status 1 when any step fails. The model folder is JEV_MODEL_DIR (tests/common.py).
 """
 
@@ -101,6 +102,13 @@ def check_decide(jev, url):
              refused.returncode == 1 and not refused.stdout and '"loc":["body","questions"]' in refused.stderr)
 
 
+def check_port_taken(jev, port):
+    """A second server on a port in use refuses to start, and says why."""
+    second = subprocess.run([str(jev), "serve", "--model-dir", str(MODEL_DIR), "--port", str(port), "--warmup", "0"],
+                            capture_output=True, text=True, timeout=300)
+    step("serve: a port in use is refused, exit 1", second.returncode == 1 and "cannot listen" in second.stderr)
+
+
 def check_health(url):
     health = requests.get(url + "/health").json()
     files = {n: hashlib.sha256((MODEL_DIR / n).read_bytes()).hexdigest() for n in ("model.json", "openvino_model.bin", "openvino_model.xml", "tokenizer.gguf")}
@@ -129,6 +137,7 @@ def main():
             step("parity with a verified build (zero tolerance)", parity(s.url, golden / "jev.json", "0"))
         check_decide(args.jev, s.url)
         check_health(s.url)
+        check_port_taken(args.jev, 8045)
     with Server(args.jev, "--warmup", "0", "--dynamic-quantization", "0") as s:
         step("snapshots, blocks, batching vs the plain oracle", run(sys.executable, "snapshots.py", "--target", s.url, "--model-dir", MODEL_DIR,
                                                                    "--dynamic-quantization", "0"))
