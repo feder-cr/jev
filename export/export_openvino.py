@@ -31,7 +31,8 @@ from tokenizers import Tokenizer
 
 import jevos_graph
 
-CFG = {"INFERENCE_NUM_THREADS": 16, "PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "DYNAMIC_QUANTIZATION_GROUP_SIZE": 128}
+CFG = {"INFERENCE_NUM_THREADS": 16, "PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "DYNAMIC_QUANTIZATION_GROUP_SIZE": 128,
+       "INFERENCE_PRECISION_HINT": "f32"}  # as `jev` runs it, on every CPU
 WORDS = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon".split()
 
 

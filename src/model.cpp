@@ -82,7 +82,10 @@ struct Model::Impl {
         ov::AnyMap cfg = {{"PERFORMANCE_HINT", "LATENCY"}, {"NUM_STREAMS", "1"}, {"INFERENCE_NUM_THREADS", threads},
                           // Activations quantized per 128 values instead of 32: -17% on one question, the same
                           // accuracy on the 999 set (0.758 vs 0.759; mean |dP| 0.008). 256 saves 3% more, max |dP| 0.29.
-                          {"DYNAMIC_QUANTIZATION_GROUP_SIZE", 128}};
+                          {"DYNAMIC_QUANTIZATION_GROUP_SIZE", 128},
+                          // f32 activations on every CPU. Left to OpenVINO, the precision follows the CPU: f16 on
+                          // ARM, bf16 where AVX512-BF16 or AMX exist; f16 moved a 5,000-token state's answer by 0.44.
+                          {"INFERENCE_PRECISION_HINT", "f32"}};
         compiled = core.compile_model(graph, "CPU", cfg);
         req = compiled.create_infer_request();
     }

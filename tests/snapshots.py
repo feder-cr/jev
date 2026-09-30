@@ -40,7 +40,8 @@ args = ap.parse_args()
 tok = Tokenizer.from_file(args.tokenizer or f"{args.model_dir}/tokenizer.json")
 core = ov.Core()
 cm = core.compile_model(f"{args.model_dir}/openvino_model.xml", "CPU",
-                        {"INFERENCE_NUM_THREADS": 16, "PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "DYNAMIC_QUANTIZATION_GROUP_SIZE": 128})
+                        {"INFERENCE_NUM_THREADS": 16, "PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1", "DYNAMIC_QUANTIZATION_GROUP_SIZE": 128,
+                        "INFERENCE_PRECISION_HINT": "f32"})
 req = cm.create_infer_request()
 pasts = {n: np.zeros((1, i.get_partial_shape()[1].get_length(), 0, i.get_partial_shape()[3].get_length()), np.float32)
          for i in cm.inputs for n in i.get_names() if n.startswith("past_")}
