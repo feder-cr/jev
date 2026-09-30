@@ -117,15 +117,17 @@ struct Model::Impl {
             span[r].second = blocks.size();
         }
         auto ps = run(blocks);
-        std::vector<std::pair<const Tokens*, Cells>> fresh;  // added after the loop: entries in use until then
+        std::vector<std::pair<Tokens, Cells>> fresh;  // added after the loop: entries in use until then
         size_t k = 0;
         for (size_t r = 0; r < reqs.size(); ++r) {
             for (size_t b = span[r].first; b < span[r].second; ++b)
                 for (size_t n = std::max<size_t>(1, blocks[b].pieces.size()); n; --n) out[r].push_back(ps[k++]);
             const ScoreRequest& q = *reqs[r];
-            if (!q.prefix.empty() && snaps.wants(q.prefix)) fresh.emplace_back(&q.prefix, extend(blocks[span[r].first]));
+            if (q.prefix.empty()) continue;
+            Tokens state(q.prefix.begin(), q.prefix.begin() + q.state);
+            if (snaps.wants(state)) fresh.emplace_back(std::move(state), first(extend(blocks[span[r].first]), q.state));
         }
-        for (auto& [tokens, cells] : fresh) snaps.add(*tokens, std::move(cells));
+        for (auto& [tokens, cells] : fresh) snaps.add(std::move(tokens), std::move(cells));
         return out;
     }
 
@@ -179,8 +181,26 @@ struct Model::Impl {
                 cur = &state;
             }
         }
-        // A snapshot of the state unless it is the one we started from (find refreshed that one).
-        if (cur != start && snaps.wants(prefix)) snaps.add(prefix, std::move(state));
+        // A snapshot of the state unless it is the one we started from (find refreshed that one); of the
+        // state only: the rest of the prefix is this request's questions.
+        if (cur != start) {
+            Tokens kept(prefix.begin(), prefix.begin() + q.state);
+            if (snaps.wants(kept)) snaps.add(std::move(kept), first(std::move(state), q.state));
+        }
+        return out;
+    }
+
+    // The first n of the cells.
+    Cells first(Cells cells, size_t n) {
+        if (n >= cells.count) return cells;
+        Cells out;
+        out.count = n;
+        out.kv.resize(cells.kv.size());
+        for (size_t k = 0; k < cells.kv.size(); ++k) {
+            out.kv[k].resize(kv_heads * n * head_dim);
+            for (size_t h = 0; h < kv_heads; ++h)
+                std::memcpy(out.kv[k].data() + h * n * head_dim, cells.kv[k].data() + h * cells.count * head_dim, n * head_dim * sizeof(float));
+        }
         return out;
     }
 

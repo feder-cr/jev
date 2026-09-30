@@ -81,13 +81,12 @@ std::string Api::systemone(const Value& body, Timing& tm) const {
         if (rt.prompts[i].empty() || rt.prompts[i].size() > ctx) throw too_long(qs[prompts[i].question], rt.prompts[i].size());
         jobs.push_back({qs[prompts[i].question].id, std::move(rt.prompts[i])});
     }
-    Tokens prefix = std::move(rt.prefix);
     auto t1 = Clock::now();
     tm.tokenize = ms(t0, t1);
     // usage counts the shared state once, as the Python server does (its prefix is the state's).
-    size_t compiled = 0, shared = jobs.size() > 1 ? prefix.size() : 0, count = jobs.size();
+    size_t compiled = 0, shared = jobs.size() > 1 ? rt.state : 0, count = jobs.size();
     for (auto& j : jobs) compiled += j.tokens.size();
-    auto result = scheduler.score({std::move(prefix), std::move(jobs)});
+    auto result = scheduler.score({std::move(rt.prefix), std::move(jobs), rt.state});
     auto t2 = Clock::now();
     tm.queue = result.queue_ms;
     tm.inference = result.run_ms;

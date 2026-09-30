@@ -148,16 +148,23 @@ from uniform, 0, to certain, 1):
   "model": "jevos-v2",
   "answers": {
     "team": {"type": "choice", "choice": "shipping",
-             "probabilities": {"billing": 0.02, "shipping": 0.94, "tech": 0.04}, "confidence": 0.91}
+             "probabilities": {"billing": 0.02, "shipping": 0.93, "tech": 0.05}, "confidence": 0.89}
   },
-  "usage": {"input_tokens": 245, "output_tokens": 0}
+  "usage": {"input_tokens": 233, "output_tokens": 0}
 }
 ```
 
 jevos answers yes/no questions, so a choice is asked as one yes/no question per option, each listing all
 the options ("... Among the candidates, is it this one? Candidate: shipping"), the way the model saw
-choices in training. The option's probability is its P(yes) divided by the sum over the options. The
-text is read once for all of them; each option costs about as much as one more yes/no question.
+choices in training. The option's probability is its P(yes) divided by the sum over the options.
+What the option questions have in common, the state, the instructions and the list of options, is read
+once; each option then costs only its last line. On the laptop where one yes/no question takes about
+20 ms, this three-option choice takes about 100 ms.
+
+On 2,676 held-out choice questions, the most probable option is the right one 78.8% of the time (74.2%
+on rental questions with labels from code, 81.2% agreement with Jev on workflow questions). The
+`confidence` says when to trust it: at 0.75 or more, 95% of the answers are right, on 46% of the
+questions; below 0.25, 47%.
 
 ### Other endpoints
 
