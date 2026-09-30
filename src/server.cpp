@@ -223,6 +223,23 @@ bool serve(const Api& api, const ServeOptions& o) {
         res.set_content(res.status == 404 ? R"({"detail":"Not Found"})" : R"({"detail":"Error"})", "application/json");
         return httplib::Server::HandlerResponse::Handled;
     });
+    // One server per port. httplib's default socket options (SO_REUSEPORT on Linux and macOS, SO_REUSEADDR on
+    // Windows) let a second server bind the port too, and the system then splits the requests between them.
+    // Here SO_REUSEADDR on POSIX only: a restart may take a port still in TIME_WAIT, a running server keeps it.
+    http.set_socket_options([](socket_t sock) {
+#ifndef _WIN32
+        int yes = 1;
+        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
+#else
+        (void)sock;
+#endif
+    });
+    // The port first: "listening" only once it is ours, and a clear refusal when it is not.
+    if (!http.bind_to_port(host, port)) {
+        std::fprintf(stderr, "jev: cannot listen on http://%s:%d: the port is in use or the address is not this machine's\n",
+                     host.c_str(), port);
+        return false;
+    }
     std::fprintf(stderr, "jev: listening on http://%s:%d\n", host.c_str(), port);
-    return http.listen(host, port);
+    return http.listen_after_bind();
 }
