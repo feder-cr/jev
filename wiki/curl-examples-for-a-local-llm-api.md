@@ -124,7 +124,7 @@ curl -s -w '\nHTTP %{http_code}\n' http://127.0.0.1:8017/v1/systemone --json '{
 
 The status is `422` and the body is a validation error, with `loc` pointing at the field. For this request `loc` is `["body", "model"]` and the message says that
 the server answers as its served model and accepts any `jev-*` alias. Other requests that get a
-`422`: a `choice` or `score` question (only `noul` is answered), an unknown or misspelt field,
+`422`: a `score` question (only `noul` and `choice` are answered), an unknown or misspelt field,
 an empty state, or a text longer than the context limit.
 
 In scripts, `--fail-with-body` makes curl return error 22 on HTTP 400 and above while still
@@ -143,7 +143,7 @@ header; `@` followed by a filename tells curl to read the data from that file.
 in the output before the body.
 
 **Why does the server reject my curl request with 422?** Read `loc` in the body: usually the
-model name, a misspelt field or a question type other than `noul`.
+model name, a misspelt field or a question type other than `noul` and `choice`.
 
 **Why does my request fail with 401?** The server was started with `JEV_API_KEY`; add
 `-H "Authorization: Bearer <key>"`.

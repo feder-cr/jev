@@ -134,5 +134,5 @@ P(yes) is the model's estimate for one case.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which returns one number per question
+*From the notes of [jev](https://github.com/feder-cr/jev), which returns one number per yes/no question
 and nothing else, so this page is about the only output there is.*

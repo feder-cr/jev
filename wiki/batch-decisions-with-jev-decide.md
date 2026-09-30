@@ -41,7 +41,7 @@ inputs are rejected, not truncated).
 
 ## Errors and the exit status
 
-A request the server would refuse, such as a malformed file, a `choice` question or a text over
+A request the server would refuse, such as a malformed file, a `score` question or a text over
 the context limit, is refused by `jev decide` too: it prints the server's error body, as JSON, on
 stderr and exits with status 1, so a loop can tell answers from failures by the exit status.
 
@@ -108,7 +108,7 @@ Because each run pays the model load, the shape of the batch matters more than t
 ## What jev decide is not built for
 
 `jev decide` changes how you call the model, not what it knows. It reads English only, answers
-yes/no questions only (`choice` and `score` are refused), and is weakest on questions that need
+yes/no and `choice` questions only (`score` is refused), and is weakest on questions that need
 arithmetic or dates. A batch makes errors at scale just as easily as it makes answers, so score a
 labelled sample before you trust a whole run; how to build one is on
 [building a yes/no test set for your own data](building-a-yes-no-test-set.md).

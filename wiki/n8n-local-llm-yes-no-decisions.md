@@ -96,7 +96,7 @@ what has to be read from the text.
   needs `Authorization: Bearer <key>`. In n8n, store it as a credential rather than in the node:
   Header Auth is one of the generic credential types the docs list. Details are on
   [securing a local LLM server with an API key](securing-a-local-llm-server-with-an-api-key.md).
-- **422.** A request the server cannot answer, such as a `choice` question, an unknown field or
+- **422.** A request the server cannot answer, such as a `score` question, an unknown field or
   a model name that is not `jev-*`, comes back as `422` with a `detail` list. By default the node
   "returns success only when the response returns with a 2xx code", so the execution fails,
   which is usually right. Turn on **Never Error** only if you route errors yourself.
@@ -122,7 +122,7 @@ n8n is a good home for this when the decision is one step in a workflow that alr
 a form arrives, a ticket is created, a message is routed. It is not the tool for scoring a
 hundred thousand stored records; a script or
 [batch decisions from files with jev decide](batch-decisions-with-jev-decide.md) is simpler for
-that. The model reads English only and answers yes/no questions only; a workflow step that needs
+that. The model reads English only and answers yes/no and multiple-choice questions only; a workflow step that needs
 generated text, a summary or a reply, still needs a generative model. The same HTTP call from a
 home automation hub is on [Home Assistant automations with local LLM decisions](home-assistant-local-llm-decisions.md).
 

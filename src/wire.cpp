@@ -189,7 +189,10 @@ NativeQuestion to_native(const std::string& qid, const Value& q) {
     } else if (type == "choice") {
         n.kind = "choice";
         if (n.instructions.empty()) n.instructions = "Which option fits the evidence best?";
-        for (auto& [key, detail] : crit->dict) n.texts.emplace_back("options", blank(detail) ? key : key + ": " + text_of(detail));
+        for (auto& [key, detail] : crit->dict) {
+            n.texts.emplace_back("options", blank(detail) ? key : key + ": " + text_of(detail));
+            n.options.push_back(key);
+        }
     } else {
         n.kind = "score";
         if (n.instructions.empty()) n.instructions = "Which level fits the evidence best?";

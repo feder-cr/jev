@@ -99,8 +99,8 @@ local one may be enough. The way to know is a labelled sample of your own cases.
   at a time; see [throughput vs latency for a decision server](throughput-vs-latency-for-a-decision-server.md).
 - **Region.** A client near the provider sees a lower floor. A client far away sees a higher one.
 - **Text length.** Short texts favour local; very long ones narrow or reverse the gap.
-- **Languages and question types.** jevos is English and yes/no only; `choice` and `score` are
-  refused with a `422`.
+- **Languages and question types.** jevos is English, and answers yes/no and `choice`
+  questions; `score` questions are refused with a `422`.
 - **Both at once.** With the same wire format, you can answer confident cases locally and send the
   uncertain band to the hosted model, as on
   [a model cascade: small model first](model-cascade-small-model-first.md).

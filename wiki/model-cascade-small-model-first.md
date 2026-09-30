@@ -42,8 +42,8 @@ Those are their numbers on their tasks, not a prediction for yours.
 
 ## The escalation is a URL change
 
-jevos accepts TypeSafe Jev's request format: `model`, `state`, and named `noul` questions. Code
-written for Jev's SDK works unchanged for yes/no questions. So the second stage does not need a
+jevos accepts TypeSafe Jev's request format: `model`, `state`, and named `noul` or `choice`
+questions. Code written for Jev's SDK works unchanged for yes/no and `choice` questions. So the second stage does not need a
 second integration:
 
 ```python
@@ -64,8 +64,8 @@ def decide(body, hosted_url, low=0.2, high=0.8):
 ```
 
 Only the uncertain questions are sent on. Authentication for the hosted service is left out of
-the sketch. Two limits apply: jevos answers only `noul` questions (`choice` and `score` are
-refused with a 422), and the large model does not have to be Jev. Any model you trust more can
+the sketch. Two limits apply: the sketch reads only `noul` answers (jevos also answers `choice`
+questions, and `score` questions are refused with a 422), and the large model does not have to be Jev. Any model you trust more can
 be the second stage; the shared wire format only makes Jev the one with no extra code.
 
 ## Cost and latency, as arithmetic
@@ -158,7 +158,7 @@ those cluster on arithmetic and dates.
 - Our measurements: 26 ms local and 344 ms hosted on the same short request, the 0.009
   calibration error on the held-out split, and the error direction and mean P(yes) on the
   999-question set. Latency figures are in the [jev README](https://github.com/feder-cr/jev).
-- Wire format compatibility and the 422 on `choice` and `score`: the jev README.
+- Wire format compatibility and the 422 on `score`: the jev README.
 - FrugalGPT: Chen, Zaharia and Zou, [FrugalGPT: How to Use Large Language Models While Reducing
   Cost and Improving Performance](https://arxiv.org/abs/2305.05176), arXiv 2305.05176, fetched
   2026-09-29.

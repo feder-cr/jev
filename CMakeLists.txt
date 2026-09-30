@@ -53,6 +53,13 @@ if(MSVC)
   target_compile_options(tokenizer-test PRIVATE /utf-8 /EHsc /W3)
 endif()
 
+# A choice's distribution from its options' yes/no answers (src/choice.hpp), checked without a model.
+add_executable(choice-test tests/choice_test.cpp)
+target_include_directories(choice-test PRIVATE src)
+if(MSVC)
+  target_compile_options(choice-test PRIVATE /utf-8 /EHsc /W3)
+endif()
+
 # How requests are split into model calls (src/calls.hpp), checked without a model.
 add_executable(plan-calls-test tests/plan_calls_test.cpp)
 target_include_directories(plan-calls-test PRIVATE src)

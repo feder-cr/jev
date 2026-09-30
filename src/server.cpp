@@ -9,6 +9,7 @@
 #define CPPHTTPLIB_KEEPALIVE_MAX_COUNT 1000000
 #define CPPHTTPLIB_KEEPALIVE_TIMEOUT_SECOND 60
 #include "httplib.h"
+#include "choice.hpp"
 #include "prompt.hpp"
 #include "request_tokens.hpp"
 #include "text.hpp"
@@ -32,11 +33,29 @@ std::string Api::systemone(const Value& body, Timing& tm) const {
     check_native(state, qs, errs);
     if (!errs.empty()) throw unprocessable(std::move(errs));
     std::string others;
-    for (auto& q : qs) if (q.kind != "boolean") others += (others.empty() ? "" : ", ") + q.id;
-    if (!others.empty()) throw unprocessable(app_err({S("body")}, "Binary model: only yes/no (noul) questions are answered; not " + others));
+    for (auto& q : qs) if (q.kind == "score") others += (others.empty() ? "" : ", ") + q.id;
+    if (!others.empty())
+        throw unprocessable(app_err({S("body")}, "Binary model: yes/no (noul) and choice questions are answered; not " + others));
 
     auto v1 = Clock::now();
     tm.validate = ms(v0, v1);
+    // The model answers yes/no questions: a noul question is one, a choice one per option and phrasing
+    // (choice_instructions), each asked against all the other options.
+    struct Prompt {
+        size_t question;
+        std::string instructions;
+    };
+    std::vector<Prompt> prompts;
+    for (size_t k = 0; k < qs.size(); ++k) {
+        if (qs[k].kind == "boolean") {
+            prompts.push_back({k, qs[k].instructions});
+            continue;
+        }
+        std::vector<std::string> described;
+        for (auto& [field, text] : qs[k].texts) described.push_back(text);
+        for (auto& phrasing : CHOICE_PHRASINGS)
+            for (size_t i = 0; i < described.size(); ++i) prompts.push_back({k, choice_instructions(qs[k].instructions, described, i, phrasing)});
+    }
     // Tokens on the request's own thread (the vocabulary is read-only): a request tokenizes while
     // another one runs.
     auto t0 = Clock::now();
@@ -45,44 +64,56 @@ std::string Api::systemone(const Value& body, Timing& tm) const {
         return unprocessable(app_err({S("body")}, "Question " + q.id + ": " + std::to_string(n) + " tokens exceeds the context limit " +
                                                       std::to_string(ctx) + " (--ctx); no truncation"));
     };
-    for (auto& q : qs)
-        if (std::string bad = surrogate_error(binary_prompt(vocab.bos(), state_text, q.instructions)); !bad.empty()) {
+    for (auto& pr : prompts)
+        if (std::string bad = surrogate_error(binary_prompt(vocab.bos(), state_text, pr.instructions)); !bad.empty()) {
             // the first question whose prompt cannot be encoded, as in the Python loop; a
             // context error of an earlier question comes first there
-            for (size_t i = 0; i < static_cast<size_t>(&q - qs.data()); ++i)
-                if (size_t n = vocab.tokenize(binary_prompt(vocab.bos(), state_text, qs[i].instructions)).size(); n > ctx) throw too_long(qs[i], n);
+            for (size_t i = 0; i < static_cast<size_t>(&pr - prompts.data()); ++i)
+                if (size_t n = vocab.tokenize(binary_prompt(vocab.bos(), state_text, prompts[i].instructions)).size(); n > ctx)
+                    throw too_long(qs[prompts[i].question], n);
             throw unprocessable(app_err({S("body")}, bad));
         }
     std::vector<std::string> instructions;
-    for (auto& q : qs) instructions.push_back(q.instructions);
+    for (auto& pr : prompts) instructions.push_back(pr.instructions);
     RequestTokens rt = tokenize_request(vocab, state_text, instructions);
     std::vector<Job> jobs;
-    for (size_t i = 0; i < qs.size(); ++i) {
-        if (rt.prompts[i].empty() || rt.prompts[i].size() > ctx) throw too_long(qs[i], rt.prompts[i].size());
-        jobs.push_back({qs[i].id, std::move(rt.prompts[i])});
+    for (size_t i = 0; i < prompts.size(); ++i) {
+        if (rt.prompts[i].empty() || rt.prompts[i].size() > ctx) throw too_long(qs[prompts[i].question], rt.prompts[i].size());
+        jobs.push_back({qs[prompts[i].question].id, std::move(rt.prompts[i])});
     }
     Tokens prefix = std::move(rt.prefix);
     auto t1 = Clock::now();
     tm.tokenize = ms(t0, t1);
     // usage counts the shared state once, as the Python server does (its prefix is the state's).
     size_t compiled = 0, shared = jobs.size() > 1 ? prefix.size() : 0, count = jobs.size();
-    std::vector<std::string> ids;
-    for (auto& j : jobs) {
-        compiled += j.tokens.size();
-        ids.push_back(j.id);
-    }
+    for (auto& j : jobs) compiled += j.tokens.size();
     auto result = scheduler.score({std::move(prefix), std::move(jobs)});
     auto t2 = Clock::now();
     tm.queue = result.queue_ms;
     tm.inference = result.run_ms;
-    const auto& ps = result.ps;
+    std::vector<std::vector<double>> answered(qs.size());  // P(yes) of each question's prompts, in order
+    for (size_t i = 0; i < prompts.size(); ++i) answered[prompts[i].question].push_back(result.ps[i]);
     std::string out = "{\"model\":";
     pyjson::quote(out, served);
     out += ",\"answers\":{";
-    for (size_t i = 0; i < count; ++i) {
-        if (i) out += ",";
-        pyjson::quote(out, ids[i]);
-        out += ":{\"type\":\"noul\",\"noul\":" + pyjson::float_repr(ps[i]) + "}";
+    for (size_t k = 0; k < qs.size(); ++k) {
+        if (k) out += ",";
+        pyjson::quote(out, qs[k].id);
+        if (qs[k].kind == "boolean") {
+            out += ":{\"type\":\"noul\",\"noul\":" + pyjson::float_repr(answered[k][0]) + "}";
+            continue;
+        }
+        const std::vector<std::string>& options = qs[k].options;
+        ChoiceAnswer a = choose(answered[k], options.size());
+        out += ":{\"type\":\"choice\",\"choice\":";
+        pyjson::quote(out, options[a.best]);
+        out += ",\"probabilities\":{";
+        for (size_t i = 0; i < options.size(); ++i) {
+            if (i) out += ",";
+            pyjson::quote(out, options[i]);
+            out += ":" + pyjson::float_repr(a.probabilities[i]);
+        }
+        out += "},\"confidence\":" + pyjson::float_repr(a.confidence) + "}";
     }
     out += "},\"usage\":{\"input_tokens\":" + std::to_string(compiled - shared * (count - 1)) + ",\"output_tokens\":0}}";
     tm.respond = ms(t2, Clock::now());

@@ -72,8 +72,10 @@ The request itself is walked through on
 
 ## Splitting a "classify as one of" prompt
 
-jevos answers only yes/no questions; a `choice` question is refused with a 422. A multi-label
-prompt becomes one question per label, all in the same request so the text is read once:
+jevos also answers a `choice` question directly: the labels go in `criteria`, and the answer
+is the most probable label with a probability per label, summing to 1. That fits a prompt that
+wants exactly one label. A multi-label prompt, where a message can have several, becomes one
+yes/no question per label, all in the same request so the text is read once:
 
 ```json
 {
@@ -103,7 +105,7 @@ is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-
 | The old prompt asks for | Move it? |
 |---|---|
 | yes or no about something stated in the text | yes |
-| a label from a fixed list | yes, one question per label |
+| a label from a fixed list | yes, as a `choice` question or one question per label |
 | a score from 1 to 5 | as boundary questions ("is it at least 4?"), see [scores as yes/no thresholds](scores-as-yes-no-threshold-questions.md) |
 | yes or no that needs a sum or a date | compute in code first, then ask what is left |
 | a reason or explanation | no, that is generated text |
@@ -134,8 +136,8 @@ label and then used in an `if`, it is a decision and a candidate.
 **Do I need to keep the system prompt?** No role or format instructions are needed. The rule, if
 there is one, goes into the question.
 
-**What about "classify as one of" prompts?** One yes/no question per label in one request, and
-the choice made in code.
+**What about "classify as one of" prompts?** A `choice` question when exactly one label applies;
+one yes/no question per label in one request, and the choice made in code, when several can.
 
 **What about scores?** Rewrite them as threshold questions, one per boundary.
 
@@ -148,8 +150,8 @@ against each other.
 
 ## Sources
 
-- The billing request and its answer (0.9, 27 input tokens, 0 output tokens), the 422 on
-  `choice` questions and the English-only limit: the [jev README](https://github.com/feder-cr/jev).
+- The billing request and its answer (0.9, 27 input tokens, 0 output tokens), the `choice`
+  question type and the English-only limit: the [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind of question: our 999-question test set on `jevos-q4_k_m`.
 - No outside sources are used on this page.
 

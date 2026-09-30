@@ -109,7 +109,7 @@ The server answers a request it cannot handle with `422` and a body of the form
 `{"detail": [{"loc": [...], "msg": "...", "type": "..."}]}`, the same shape FastAPI uses for
 its own validation errors. From the code, the usual causes are:
 
-- a `choice` or `score` question: only `noul` is answered on this server;
+- a `score` question: only `noul` and `choice` are answered on this server;
 - a `model` that is neither a `jev-*` alias nor the served model's name;
 - an unknown field, for example a misspelt `instructions`: requests reject fields they do not
   know, so a typo fails loudly instead of being ignored;
@@ -140,7 +140,7 @@ is the next step. The model reads English only.
 ## Short answers to the questions that lead here
 
 **Is there an official Python SDK for jevos?** No separate one. The server speaks TypeSafe's
-Jev wire format, so code written for Jev's SDK works unchanged for yes/no questions; otherwise a
+Jev wire format, so code written for Jev's SDK works unchanged for yes/no and `choice` questions; otherwise a
 plain `requests` call is all it takes.
 
 **Should I use async?** Only if your application is already async. Concurrent requests share
@@ -151,7 +151,7 @@ barely makes one server faster.
 your longest texts and your peak concurrency, measured on your machine.
 
 **Why do I get 422 on a question that looks fine?** Check `loc` in the body: a misspelt field,
-a `choice` question, or a model name that is not `jev-*` are the common causes.
+a `score` question, or a model name that is not `jev-*` are the common causes.
 
 **Can I send a dict as the state?** Yes. `state` accepts a string, an object or an array.
 

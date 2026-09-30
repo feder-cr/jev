@@ -27,7 +27,7 @@ the long request.
 | | **jevos-v2** | Jev | Laya |
 |---|:---:|:---:|:---:|
 | Yes/no questions | ✓ | ✓ | ✓ |
-| Multiple choice | Soon | ✓ | ✓ |
+| Multiple choice | ✓ | ✓ | ✓ |
 | Scores | Soon | ✓ | ✓ |
 | Runs on | your machine | cloud | your machine |
 | Cost | free | per token | free |
@@ -115,9 +115,49 @@ against 49 ms for one of them alone, and 39 ms when the same state is asked abou
 
 - **Put the rule in the question.** If the decision depends on a policy, write it into
   `instructions`, as in `refund` above. Jev's optional `criteria` field is accepted but not read.
-- **Yes/no only.** `choice` and `score` questions are refused with a `422`.
+- **Yes/no and multiple choice.** `score` questions are refused with a `422` for now (see below for `choice`).
 - **Timing.** Every response carries a `Server-Timing` header: parsing, validation, tokenization,
   queue and inference times.
+
+### Multiple choice
+
+A `choice` question names its options in `criteria`, each with an optional description, and gets back
+the most probable one, a probability per option and Jev's `confidence` (the peak probability rescaled
+from uniform, 0, to certain, 1):
+
+```json
+{
+  "model": "jev-latest",
+  "state": {"item": "wireless mouse", "customer_message": "The box arrived empty. This is the second time!"},
+  "questions": {
+    "team": {
+      "type": "choice",
+      "instructions": "Which team should handle this message?",
+      "criteria": {
+        "billing": "payments, invoices, refunds",
+        "shipping": "deliveries, missing or damaged parcels",
+        "tech": "a product that does not work"
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "model": "jevos-v2",
+  "answers": {
+    "team": {"type": "choice", "choice": "shipping",
+             "probabilities": {"billing": 0.02, "shipping": 0.94, "tech": 0.04}, "confidence": 0.91}
+  },
+  "usage": {"input_tokens": 245, "output_tokens": 0}
+}
+```
+
+jevos answers yes/no questions, so a choice is asked as one yes/no question per option, each listing all
+the options ("... Among the candidates, is it this one? Candidate: shipping"), the way the model saw
+choices in training. The option's probability is its P(yes) divided by the sum over the options. The
+text is read once for all of them; each option costs about as much as one more yes/no question.
 
 ### Other endpoints
 

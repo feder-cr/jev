@@ -90,11 +90,12 @@ there, step 2 above is your code. The general reason this route still costs a de
 `jev serve --threads 16` gives you, on 127.0.0.1:8017:
 
 - **One endpoint, one answer shape.** `state` (text or any JSON) plus named questions in; each
-  question back as `{"type": "noul", "noul": ...}`, with `output_tokens` always 0.
+  yes/no question back as `{"type": "noul", "noul": ...}`, each `choice` question as the most
+  probable option with a probability per option, with `output_tokens` always 0.
 - **Shared reading of the text.** Questions in one request share the state, which is read once:
   three questions took about 66 ms against 49 ms for one on our reference laptop.
 - **A wire format someone else defined.** It is TypeSafe Jev's, so clients written for Jev's SDK
-  work unchanged for yes/no questions, as described on
+  work unchanged for yes/no and `choice` questions, as described on
   [an open-source alternative to Jev](open-source-alternative-to-jev.md).
 - **Provenance.** `GET /health` reports the served model; every response carries a
   `Server-Timing` header.
@@ -104,8 +105,8 @@ there, step 2 above is your code. The general reason this route still costs a de
 - **Server-free batch use.** `jev decide` answers a request file, the same body as
   `POST /v1/systemone`, with no server, and prints the answers as indented JSON.
 
-What it does not add: generation, chat, embeddings, other models, or `choice` and `score`
-questions, which are refused with a `422` for now.
+What it does not add: generation, chat, embeddings, other models, or `score` questions, which
+are refused with a `422` for now.
 
 ## When llama-server is the better choice
 
