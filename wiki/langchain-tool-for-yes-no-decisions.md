@@ -103,7 +103,7 @@ the number means exactly what it says.
 
 ## When a LangChain tool is the wrong wrapper
 
-- jevos answers yes/no and multiple-choice questions in English and nothing else. It is not a chat model and cannot
+- jevos answers yes/no, multiple-choice and (early) score questions in English and nothing else. It is not a chat model and cannot
   be used as the agent's main model in LangChain.
 - The probability is only as good as the question. Questions the model has to compute, dates and
   sums, lean toward yes; the measurement is on

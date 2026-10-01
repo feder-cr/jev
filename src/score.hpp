@@ -39,7 +39,7 @@ inline ScoreAnswer rate(const std::vector<double>& ps, size_t n) {
     ge.clear();
     for (auto& [sum, count] : pools) ge.insert(ge.end(), count, std::clamp(sum / static_cast<double>(count), 0.0, 1.0));
     std::vector<double> p(n);
-    for (size_t i = 0; i < n; ++i) p[i] = (i == 0 ? 1.0 : ge[i - 1]) - (i == t ? 0.0 : ge[i]);
+    for (size_t i = 0; i < n; ++i) p[i] = std::max(0.0, (i == 0 ? 1.0 : ge[i - 1]) - (i == t ? 0.0 : ge[i]));  // not -1e-17 from rounding
     double score = 0.0;
     size_t mode = 0;
     for (size_t i = 0; i < n; ++i) {

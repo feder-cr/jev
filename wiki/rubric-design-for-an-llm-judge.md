@@ -84,8 +84,8 @@ never seen. Write the rule into the question:
 }
 ```
 
-If you are moving a rubric from TypeSafe's Jev, note that jevos accepts Jev's optional `criteria`
-field but does not read it: the standard has to be in `instructions`. Why the rule belongs in the
+If you are moving a rubric from TypeSafe's Jev, note that on a yes/no question jevos accepts
+Jev's optional `criteria` field but does not read it: the standard has to be in `instructions`. Why the rule belongs in the
 question, and how far a small model can apply one, is on
 [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
@@ -161,5 +161,5 @@ rewrite the criteria that people or the judge disagree on.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which accepts a rubric's `criteria`
-field and ignores it, so the standard always has to live in the question.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which accepts a yes/no rubric's
+`criteria` field and ignores it, so the standard always has to live in the question.*

@@ -119,8 +119,9 @@ yes. Three questions took about 66 ms together against 49 ms for one alone.
 **Does the model answer each question independently?** Each question gets its own probability
 under its own name. They share the text, not the answer.
 
-**Is there a limit on questions per request?** The total must fit in the 8,192-token context.
-Long instructions in many questions add up.
+**Is there a limit on questions per request?** Up to 1,024. The 8,192-token context applies to
+the text plus each question, not to the total, but long instructions in many questions add up in
+time.
 
 **Why not one question that asks everything?** A compound question is no faster and hides which
 condition was true. Separate questions, combined in code, are clearer and easier to threshold.

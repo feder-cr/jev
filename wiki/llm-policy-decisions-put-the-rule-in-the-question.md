@@ -46,9 +46,9 @@ The README's run of this request answers 0.93. The model has to find three thing
 that the item is missing, that it was reported, and that the delivery was five days ago, and
 check the last against 30 days.
 
-Jev's API has an optional `criteria` field for describing what yes and no mean. This server
-accepts it for compatibility and does not read it, so anything the decision depends on belongs
-in `instructions`.
+Jev's API has an optional `criteria` field for describing what yes and no mean. On a yes/no
+question this server accepts it for compatibility, checks it, and does not read it, so anything
+the decision depends on belongs in `instructions`.
 
 ## Measured: which conditions the model gets right
 
@@ -128,8 +128,8 @@ whole refund flow end to end is on [refund request triage](refund-request-triage
 answered 0.810 of 2,000 questions on policies it had never seen correctly; a large hosted model
 answered 0.927.
 
-**Where do I put the policy?** In the question's `instructions`. The `criteria` field is
-accepted but not read by this server.
+**Where do I put the policy?** In the question's `instructions`. On a yes/no question the
+`criteria` field is accepted but not read by this server.
 
 **Why does it get dates and totals wrong?** Computation is its weakest skill, 0.58 to 0.65 on our
 test set against 0.95 for stated facts. Extract the numbers and compare them in code.

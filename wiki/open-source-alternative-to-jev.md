@@ -12,7 +12,8 @@ questions written for Jev move over by pointing the client at `http://127.0.0.1:
 TypeSafe's API.** The request body, the `jev-latest` model name and the shape of the answers stay
 the same, for `choice` and `score` questions too. Two things do not: `score` answers are early
 (54% on held-out score questions, 82% within one level), and on a yes/no question Jev's optional
-`criteria` field is accepted but not read, so the rule has to live in `instructions`. Whether the switch is worth it depends on how a local 1B model does on your questions, not on the
+`criteria` field is optional and checked but not read, so the rule has to live in `instructions`
+(`choice` and `score` questions require `criteria`, and use it). Whether the switch is worth it depends on how a local 1B model does on your questions, not on the
 code.
 
 Conflict of interest, in one line: we build jevos, and we are not affiliated with TypeSafe AI,
@@ -84,7 +85,8 @@ The same steps are covered from the other direction, starting from nothing, on
 | `noul` questions | answered |
 | `choice` questions | answered, 2 to 26 options |
 | `score` questions | answered, 2 to 10 levels (early) |
-| `criteria` on a `noul` | accepted, not read |
+| `criteria` on a `noul` | optional; checked, not read |
+| `criteria` on a `choice` or `score` | required |
 | unknown fields | rejected with `422` |
 | languages other than English | not supported |
 
@@ -115,7 +117,7 @@ Three checks, all cheap:
 - **`GET /health`** reports the SHA-256 of the model's files, so a log line can prove which files made a
   decision.
 
-Every response also carries a `Server-Timing` header with the inference time, which makes a
+Every successful response also carries a `Server-Timing` header with the inference time, which makes a
 before-and-after latency comparison possible without a separate benchmark harness.
 
 ## When to keep Jev
@@ -125,7 +127,7 @@ Keep Jev, or keep it for part of the traffic, when:
 - **Accuracy on hard rules matters most.** 0.927 against 0.810 on our 2,000 policy questions,
   with the gap largest on additive point scores, where several signals are summed and compared
   with a cut-off.
-- **You need `score` today.**
+- **You need `score` answers past jevos's early ones.**
 - **Your texts are not in English.**
 - **You do not want to operate anything.** A local server is a folder and a port, and
   you own its uptime.
@@ -137,13 +139,13 @@ difference between the two calls is the URL.
 
 ## Short answers to the questions that lead here
 
-**Is there an open-source alternative to Jev?** For yes/no and multiple-choice questions, jevos: MIT code, a model
-file on GitHub, and the same wire format, running on a CPU.
+**Is there an open-source alternative to Jev?** For yes/no and multiple-choice questions, and
+early scores, jevos: MIT code, a model file on GitHub, and the same wire format, running on a CPU.
 
-**Do I have to change my code?** For `noul` and `choice` questions, only the base URL. Code
-using `score`, or `criteria` on a `noul`, needs the changes in the table above.
+**Do I have to change my code?** For `noul`, `choice` and `score` questions, only the base URL.
+Code that relies on `criteria` on a `noul` needs the change in the table above.
 
-**Why did my `criteria` stop working?** On a yes/no question, jevos accepts the field and does
+**Why did my `criteria` stop working?** On a yes/no question, jevos checks the field and does
 not read it. Put the
 definition of yes into `instructions`.
 

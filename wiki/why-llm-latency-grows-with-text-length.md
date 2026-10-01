@@ -121,7 +121,7 @@ answering. On our laptop each extra token cost jevos about 0.5 ms.
 **Does the length of the question matter, or only the text?** Both. Instructions are input
 tokens like any other, and a long policy written into each of several questions adds up.
 
-**How many tokens can jevos read?** 8,192.
+**How many tokens can jevos read?** 8,192 per question, the text plus that question, by default.
 
 **Is latency exactly linear in length?** Close to it over the range we measured, about 30 to 190
 tokens. We have not measured the full context and would not assume it stays linear.

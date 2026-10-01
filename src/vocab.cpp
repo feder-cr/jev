@@ -27,13 +27,13 @@ Vocab::~Vocab() {
 }
 
 Tokens Vocab::tokenize(const std::string& text) const {
-    Tokens out(text.size() + 8);  // a token covers at least one byte
-    int n = llama_tokenize(vocab_, text.data(), static_cast<int32_t>(text.size()), out.data(), static_cast<int32_t>(out.size()), false, true);
+    thread_local Tokens scratch;  // room for the worst case, kept by the thread; the result holds only its tokens
+    scratch.resize(text.size() + 8);  // a token covers at least one byte
+    int n = llama_tokenize(vocab_, text.data(), static_cast<int32_t>(text.size()), scratch.data(), static_cast<int32_t>(scratch.size()), false, true);
     if (n < 0) {
-        out.resize(-n);
-        n = llama_tokenize(vocab_, text.data(), static_cast<int32_t>(text.size()), out.data(), static_cast<int32_t>(out.size()), false, true);
+        scratch.resize(-n);
+        n = llama_tokenize(vocab_, text.data(), static_cast<int32_t>(text.size()), scratch.data(), static_cast<int32_t>(scratch.size()), false, true);
     }
     if (n < 0) throw std::runtime_error("llama_tokenize failed");
-    out.resize(n);
-    return out;
+    return Tokens(scratch.begin(), scratch.begin() + n);
 }

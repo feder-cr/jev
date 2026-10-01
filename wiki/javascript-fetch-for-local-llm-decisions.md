@@ -51,7 +51,7 @@ async function decide(state, questions, ms = 10000) {
 ```
 
 `decide("I was charged twice for the same order.", { billing: "Is this a billing problem?" })`
-is the README's Quickstart request (the README shows `0.9` for it). Put every question about one
+is the README's Quickstart request (the README shows `0.94` for it). Put every question about one
 text in the same call: the state is read once, so on the reference laptop three questions take
 about 66 ms together against 49 ms for one alone. The request shape is described in full on
 [ask a local LLM a yes/no question and get P(yes)](ask-a-local-llm-yes-no-questions.md).
@@ -70,9 +70,9 @@ the like. So the code checks the status itself. What each case means here:
   one model (small ones arriving together are read in one model call), so a timeout under load
   usually means the queue is long, not that the model hangs.
 - **`422`.** The body is `{"detail": [{"loc": [...], "msg": "...", "type": "..."}]}`. Common
-  causes: a `score` question (only `noul` and `choice` are answered), a model name that is not
-  `jev-*` or the served model, a misspelt field (unknown fields are rejected), or a text over the
-  context limit.
+  causes: a model name that is not `jev-*` or the served model, a misspelt field (unknown fields
+  are rejected), a `choice` with one option or a `score` with one level, or a question whose
+  prompt, the state plus that question, is over the context limit.
 - **`401`.** The server was started with `JEV_API_KEY` and the header is missing or wrong.
 
 Do not retry a `422` or a `401`; the same request fails the same way.
@@ -107,8 +107,8 @@ already does.
 
 ## Being straight about what JavaScript adds
 
-Nothing about the model changes with the language. The same limits apply: English only, yes/no
-questions only, and a probability whose reliability depends on the kind of question. On our
+Nothing about the model changes with the language. The same limits apply: English only, yes/no,
+choice and (early) score questions, and a probability whose reliability depends on the kind of question. On our
 999-question set a small model leaned toward yes on arithmetic and dates, which is why
 [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md) says to
 compute numbers in code, and in JavaScript that is one line.

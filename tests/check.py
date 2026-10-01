@@ -46,6 +46,7 @@ REQUEST = {"model": "jev-latest",
            "questions": {"upset": {"type": "noul", "instructions": "Is the customer upset?"},
                          "wrong_item": {"type": "noul", "instructions": "Does the customer say they received the wrong item?"}}}
 failed = []
+TIMEOUT = 600  # seconds for any one request: a hang fails the checks instead of holding the runner
 THREADS = []  # --threads N: passed to every jev it starts, and to snapshots.py's oracle (default: their own)
 
 
@@ -56,19 +57,28 @@ def step(name, ok):
 
 
 class Server:
+    START_SECONDS = 300
+
     def __init__(self, jev, *args, port=8045):
         self.url = f"http://127.0.0.1:{port}"
+        try:  # something already answering here would be tested in place of this build
+            requests.get(self.url + "/health", timeout=2)
+            sys.exit(f"port {port} is in use by another server: stop it, the checks start their own")
+        except requests.ConnectionError:
+            pass
         self.log = tempfile.TemporaryFile()
+        env = {k: v for k, v in os.environ.items() if k != "JEV_API_KEY"}  # the checks send no key
         self.proc = subprocess.Popen([str(jev), "serve", "--model-dir", str(MODEL_DIR), "--port", str(port), *THREADS, *args],
-                                     stdout=self.log, stderr=subprocess.STDOUT)
-        for _ in range(300):
+                                     stdout=self.log, stderr=subprocess.STDOUT, env=env)
+        deadline = time.monotonic() + self.START_SECONDS
+        while time.monotonic() < deadline and self.proc.poll() is None:
             try:
                 requests.get(self.url + "/health", timeout=1)
                 return
             except requests.ConnectionError:
-                if self.proc.poll() is not None:
-                    break
                 time.sleep(0.3)
+        self.proc.kill()
+        self.proc.wait()
         self.log.seek(0)
         sys.exit(f"jev serve did not start:\n{self.log.read().decode(errors='replace')}")
 
@@ -93,7 +103,7 @@ def check_decide(jev, url):
     with tempfile.TemporaryDirectory() as tmp:
         request = Path(tmp) / "request.json"
         request.write_text(json.dumps(REQUEST), encoding="utf-8")
-        served = requests.post(url + "/v1/systemone", json=REQUEST).json()
+        served = requests.post(url + "/v1/systemone", json=REQUEST, timeout=TIMEOUT).json()
         out = Path(tmp) / "answers" / "answer.json"
         first = subprocess.run([str(jev), "decide", str(request), "--model-dir", str(MODEL_DIR), *THREADS, "--output", str(out)], capture_output=True)
         written = out.read_text(encoding="utf-8") if out.exists() else ""
@@ -119,17 +129,25 @@ CHOICE_INSTRUCTIONS = "Which team should handle this message?"
 PHRASING = "Among the candidates, is it this one?"
 
 
+def resume_from_snapshot(url, state):
+    """Ask once about `state`, so that the requests compared next all resume from its snapshot (with INT8
+    activations an answer moves slightly with how its call is composed)."""
+    requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {
+        "q": {"type": "noul", "instructions": "Is this a message?"}}}, timeout=TIMEOUT)
+
+
 def check_choice(url):
     """A choice is its options' yes/no answers (src/prompt.hpp choice_instructions), normalized: the same
     prompts asked as noul questions in the same order give the same numbers."""
     state, upset = REQUEST["state"], {"type": "noul", "instructions": "Is the customer upset?"}
+    resume_from_snapshot(url, state)
     options = [f"{k}: {v}" for k, v in CHOICE.items()]
     listed = "\n".join(f"- {o}" for o in options)
     as_noul = {f"o{i}": {"type": "noul", "instructions": f"{CHOICE_INSTRUCTIONS}\nCandidates:\n{listed}\n{PHRASING}\nCandidate: {o}"}
                for i, o in enumerate(options)}
     choice = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {
-        "team": {"type": "choice", "instructions": CHOICE_INSTRUCTIONS, "criteria": CHOICE}, "upset": upset}})
-    noul = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {**as_noul, "upset": upset}})
+        "team": {"type": "choice", "instructions": CHOICE_INSTRUCTIONS, "criteria": CHOICE}, "upset": upset}}, timeout=TIMEOUT)
+    noul = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {**as_noul, "upset": upset}}, timeout=TIMEOUT)
     ok = choice.status_code == 200 and noul.status_code == 200
     if ok:
         a, ps = choice.json()["answers"]["team"], [noul.json()["answers"][f"o{i}"]["noul"] for i in range(len(options))]
@@ -153,13 +171,14 @@ def check_score(url):
     non-increasing: the same prompts asked as noul questions give the same numbers; the levels come back
     as sent in `legend`."""
     state = REQUEST["state"]
+    resume_from_snapshot(url, state)
     named = [json.dumps(l, sort_keys=True, separators=(",", ":")) if isinstance(l, dict) else l for l in LEVELS]
     scale = " < ".join(named)
     as_noul = {f"k{k}": {"type": "noul", "instructions": f"{SCORE_INSTRUCTIONS}\nScale from lowest to highest: {scale}\n{SCORE_PHRASING}\nLevel: {named[k]}"}
                for k in range(1, len(LEVELS))}
     score = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": {
-        "anger": {"type": "score", "instructions": SCORE_INSTRUCTIONS, "criteria": LEVELS}}})
-    noul = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": as_noul})
+        "anger": {"type": "score", "instructions": SCORE_INSTRUCTIONS, "criteria": LEVELS}}}, timeout=TIMEOUT)
+    noul = requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": as_noul}, timeout=TIMEOUT)
     ok = score.status_code == 200 and noul.status_code == 200
     if ok:
         a = score.json()["answers"]["anger"]
@@ -199,7 +218,7 @@ def check_shared_reads(url):
     prompts = [f"{CHOICE_INSTRUCTIONS}\nCandidates:\n{listed}\n{PHRASING}\nCandidate: {o}" for o in options]
     prompts += ["Is the customer upset?", "Does the customer ask for a refund?"]
     prompts += [f"{SCORE_INSTRUCTIONS}\nScale from lowest to highest: {scale}\n{SCORE_PHRASING}\nLevel: {named[k]}" for k in range(1, len(LEVELS))]
-    ask = lambda qs: requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": qs})
+    ask = lambda qs: requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": qs}, timeout=TIMEOUT)
     together = ask({f"p{i}": {"type": "noul", "instructions": t} for i, t in enumerate(prompts)})
     ok = together.status_code == 200
     worst = 0.0
@@ -213,7 +232,7 @@ def check_shared_reads(url):
 
 
 def check_health(url):
-    health = requests.get(url + "/health").json()
+    health = requests.get(url + "/health", timeout=TIMEOUT).json()
     files = {n: hashlib.sha256((MODEL_DIR / n).read_bytes()).hexdigest() for n in ("model.json", "openvino_model.bin", "openvino_model.xml", "tokenizer.gguf")}
     fingerprint = hashlib.sha256("".join(f"{files[n]}  {n}\n" for n in sorted(files)).encode()).hexdigest()
     step("health: the model files' SHA-256 and fingerprint", health.get("model_files") == files and health.get("fingerprint") == fingerprint)
@@ -229,6 +248,7 @@ def main():
     args = ap.parse_args()
     if args.threads:
         THREADS.extend(["--threads", str(args.threads)])
+    args.jev, args.build_dir = args.jev.resolve(), args.build_dir.resolve()
     os.environ["PYTHONIOENCODING"] = "utf-8"
     golden = HERE / "golden"
 

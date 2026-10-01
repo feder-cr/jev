@@ -75,8 +75,8 @@ automation:
 `sensor.last_notification_text` stands for whatever entity carries the text in your setup, and
 the trigger is yours to choose. The response dictionary has `status`, `content` and `headers`,
 as the docs describe; checking `status` first means a `422` or a `401` does not look like a
-"no". A `422` comes back when the request is something the server does not answer, such as an
-unknown field or a text longer than its context.
+"no". A `422` comes back when the request is invalid, such as an unknown field or a text that,
+with its question, is longer than the context.
 
 The threshold of 0.8 is a placeholder. For a notification filter a missed alert is usually worse
 than an extra one, so you may want the threshold lower, not higher; the trade-off is worked

@@ -7,7 +7,7 @@ nav_order: 11
 
 # Yes/no questions about long documents
 
-**If a document fits in 8,192 tokens together with the questions, you can send it whole; if it
+**If a document fits in 8,192 tokens together with each question, you can send it whole; if it
 does not, or if speed matters, split it into chunks, ask the same questions of each chunk, and
 combine the answers in code, usually with OR: the document says X if any chunk says X.**
 Cost grows with every token the model reads, so a long document is also a slow one, and
@@ -25,10 +25,14 @@ and where the approach stops.
 
 ## How long is too long?
 
-The context of jevos is 8,192 tokens, for the `state` and every question together. How many words
-that is depends on the text, so measure it: every response reports `input_tokens` in its
-`usage` field, and a dozen of your real documents tell you where you stand. Shorter contracts,
-email threads and reports can fit whole; books and full policy manuals will not.
+The context of jevos is 8,192 tokens by default, and it applies to each question's prompt on its
+own: the `state` plus that one question. The questions of a request do not add up against it.
+How many words that is depends on the text, so measure it: send a document with one short
+question, and the `input_tokens` in the response's `usage` field is about what each prompt uses;
+a dozen of your real documents tell you where you stand. With several questions, `input_tokens`
+counts the state once plus every question, so it can pass 8,192 on a request that is accepted.
+Shorter contracts, email threads and reports can fit whole; books and full policy manuals will
+not.
 
 The limit is not the whole story. Some models are known to use long inputs unevenly: Liu and
 colleagues (2023) found that several language models answered best when the relevant
@@ -124,8 +128,9 @@ role, as on [ask whether the text says it at all](ask-whether-the-text-says-it.m
 
 ## Short answers to the questions that lead here
 
-**How long a document can jevos read?** 8,192 tokens for the text and all questions together.
-The `input_tokens` field of each response tells you how much of that a document uses.
+**How long a document can jevos read?** 8,192 tokens for the text and each question, by default;
+the limit is per question, not per request. The `input_tokens` of a request with one question
+tells you about how much of it a document uses.
 
 **How do I ask a yes/no question about a document longer than the context?** Split it into
 chunks, ask each chunk, and combine with max for "does it contain" or min for "is it all".

@@ -123,8 +123,8 @@ is the expensive part and it is read once; each extra label adds a fraction of t
 labels on one ticket are one request, not ten. A deep taxonomy asked level by level is on
 [product categorization with yes/no questions](product-categorization-with-yes-no-questions.md).
 
-The limit is context, 8,192 tokens for the text and all the questions together, which leaves
-room for long documents and many labels before it matters.
+The limit is context, 8,192 tokens for the text plus each question, counted per question, which
+leaves room for long documents and many labels before it matters.
 
 ## Where it works and where it does not
 
@@ -151,8 +151,8 @@ yes/no question. jevos answers each in one pass on a CPU.
 **Why do the probabilities not sum to 1?** Each question is answered independently. Use a
 threshold for "no label fits" and allow several labels when more than one is high.
 
-**How many labels can I use?** As many as fit in 8,192 tokens with the text. They share one
-reading of the text, so cost grows slowly.
+**How many labels can I use?** Up to 1,024 questions per request, each fitting in 8,192 tokens
+with the text. They share one reading of the text, so cost grows slowly.
 
 **Is it better than fine-tuning a classifier?** It is better when labels change or you have no
 data. With thousands of labelled examples and fixed labels, a fine-tuned classifier will usually

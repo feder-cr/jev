@@ -154,5 +154,5 @@ points to add up barely better than always the most common level.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), which answers yes/no and multiple-choice
-questions today, and gets its scores by asking several yes/no ones.*
+*From the notes of [jev](https://github.com/feder-cr/jev), which answers yes/no, multiple-choice
+and score questions, and gets its scores by asking several yes/no ones.*

@@ -12,8 +12,8 @@ nav_order: 16
 first page or the first few hundred words, and pick the type from the probabilities, with an
 "other" bin when none is high.** No training data is needed, a new type is a new question, and
 the text stays on your machine. What you have to handle yourself is getting text out of the file
-and deciding how much of it to send, because a request holds at most 8,192 tokens and every
-token costs time.
+and deciding how much of it to send, because the text plus each question holds at most 8,192
+tokens and every token costs time.
 
 The non-obvious part is that more text rarely helps. A document announces its type early: the
 header, the title, the first paragraph. Sending the whole file makes each request slower and
@@ -59,7 +59,8 @@ The first page, almost always. Three reasons.
   tokens read from scratch took 112 ms. A first page of 400 to 600 tokens takes longer, and a
   whole report longer still; the numbers behind that are on
   [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
-- **Limit.** jevos reads at most 8,192 tokens per request. Many documents are longer.
+- **Limit.** jevos reads at most 8,192 tokens per question, the text plus that question, by
+  default. Many documents are longer.
 - **Signal.** Type is a property of the whole document that is visible at the start. A contract
   says "Agreement" in its title and names the parties in its first lines.
 
@@ -125,7 +126,7 @@ that is [contract clause detection with a local LLM](contract-clause-detection-w
 A new type is a new question, not a new model.
 
 **How much of the document should I send?** Usually the first page, plus the file name and
-perhaps a sample of the last page. The request limit is 8,192 tokens.
+perhaps a sample of the last page. The limit is 8,192 tokens for the text plus each question.
 
 **Can it read PDFs or scans?** Not directly. Extract the text first, with OCR for scans.
 

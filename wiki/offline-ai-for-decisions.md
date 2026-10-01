@@ -61,8 +61,11 @@ them across.
    archive or a missing file is easier to find in a rehearsal than in an incident.
 
 If your security process requires building the binary yourself, the repository builds it with
-`python scripts/build.py` (CMake, Ninja and a C++17 compiler; on Windows from a Visual Studio
-developer prompt), and `python tests/check.py` checks the result.
+`python -m pip install -r requirements.txt` (OpenVINO's SDK, CMake, Ninja) and then
+`python scripts/build.py` (a C++17 compiler; on Windows from a Visual Studio developer prompt),
+and `python tests/check.py` checks the result. The first build needs network access, because
+CMake downloads llama.cpp, so build on the connected side; an isolated machine should use the
+release archives.
 
 ## How do you verify the files?
 
@@ -103,7 +106,7 @@ decision log ties each answer to a verified file, as described on
   uncertain middle goes to a person, or waits. If you plan an escalation path like the one on
   [a model cascade: small model first](model-cascade-small-model-first.md), it needs a
   connected side.
-- **More capability.** The model is the same one: English only, yes/no and multiple choice only, 0.810 on 2,000
+- **More capability.** The model is the same one: English only, yes/no, multiple choice and early scores, 0.810 on 2,000
   questions about unseen business policies against 0.927 for the hosted Jev. Offline changes
   where it runs, not what it knows.
 

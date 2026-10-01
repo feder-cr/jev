@@ -104,7 +104,7 @@ long the job takes. `jev decide` answers request files without a server; the wor
 2. **Add load in steps.** Send requests from several concurrent clients, starting at a rate well
    below the ceiling and raising it.
 3. **Watch p90 and the queue**, not just the average. Record the `total` minus `inference` gap
-   from `Server-Timing` on every response.
+   from `Server-Timing` on every successful response.
 4. **Stop at the knee.** Capacity is the highest rate at which the p90 still fits your budget,
    not the rate at which the server stops failing.
 5. **Leave headroom.** Traffic has peaks; size for them, not for the daily average.

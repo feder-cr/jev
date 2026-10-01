@@ -103,7 +103,7 @@ call, and with per-token pricing they are billed as well, while a decision needs
 - **With a local runtime**: llama.cpp's own tools report prompt processing and text generation
   speed separately, in tokens per second. Its quantization README, for example, gives both
   figures for each quantization of the model it uses as an example.
-- **With jevos**: every response carries a `Server-Timing` header with `inference` and `total`
+- **With jevos**: every successful response carries a `Server-Timing` header with `inference` and `total`
   durations. Since there is no decode, the inference time is essentially prompt processing.
 
 Measure more than once and report the median; the method is on

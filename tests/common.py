@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-MODEL_DIR = Path(os.environ.get("JEV_MODEL_DIR", HERE.parent / "dist" / "jev" / "model"))
+MODEL_DIR = Path(os.environ.get("JEV_MODEL_DIR", HERE.parent / "dist" / "jev" / "model")).resolve()  # the same folder from tests/ as from where they were started
 HF_TOKENIZER = MODEL_DIR / "tokenizer.json"
 
 

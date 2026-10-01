@@ -53,7 +53,7 @@ The server is one process holding one model. Treat it like any other internal HT
 - **Readiness.** `GET /health` returns `{"status": "ready", ...}` once the model is loaded.
   Point your service manager's health check, or your load balancer, at it, and do not send
   traffic before it answers.
-- **Timing.** Every response carries a `Server-Timing` header with the inference time and the
+- **Timing.** Every successful response carries a `Server-Timing` header with the inference time and the
   total. Log it next to your own wall-clock measurement, so you can tell the model's cost from
   your network's.
 - **Capacity.** The measured figures come from one laptop, an Intel Core Ultra 7 255H with 16

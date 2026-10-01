@@ -92,7 +92,7 @@ nearest region is far, no client-side change fits it.
   [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 - **The texts are long.** Local latency grows with every token read on our laptop; a hosted
   model's fixed cost matters less the more work each request carries.
-- **You need score questions today**, or languages other than English.
+- **You need score answers past jevos's early ones**, or languages other than English.
 - **The latency budget is seconds, not milliseconds.** A nightly job or a webhook with a
   three-second timeout has room for a round trip; see
   [latency budgets: where a 200 ms model fits](latency-budgets-for-llm-decisions.md).

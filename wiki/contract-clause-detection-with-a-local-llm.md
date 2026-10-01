@@ -65,7 +65,8 @@ than one, because the section is read once.
 
 ## Long contracts: split, ask, combine
 
-A request holds at most 8,192 tokens, and on our reference laptop latency grows with the text:
+Each question's prompt, the text plus that question, holds at most 8,192 tokens by default, and
+on our reference laptop latency grows with the text:
 about 26 ms for 30 tokens, 112 ms for 191 tokens read from scratch. A long agreement with schedules will not fit, and even when it fits, one
 question about a hundred pages is worse than the same question about each section.
 
@@ -132,7 +133,7 @@ replace the review.
 lawyer.
 
 **How do I handle a 60-page contract?** Split it by section, ask each clause question per section,
-and combine with OR in code. One request holds at most 8,192 tokens.
+and combine with OR in code. The text plus each question has to fit in 8,192 tokens.
 
 **What threshold should I use?** A low one for highlighting, because a missed clause costs more
 than a false highlight. Check it on contracts a lawyer has already marked.

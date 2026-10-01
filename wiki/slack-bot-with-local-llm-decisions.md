@@ -123,7 +123,7 @@ treat it like any other copy of workspace data.
 
 ## Where the bot needs a person or a bigger model
 
-jevos reads English only and answers yes/no and multiple-choice questions only. It does not write replies; a bot that
+jevos reads English only and answers yes/no, multiple-choice and (early) score questions only. It does not write replies; a bot that
 answers questions in threads needs a generative model. Sarcasm, in-jokes and channel context it
 cannot see are where a small model is weakest; on our 999-question set tone questions were right
 0.938 of the time, which is good and still means mistakes at chat volume. For moderation of a

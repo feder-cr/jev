@@ -10,9 +10,9 @@ nav_order: 1
 **A good Python client for a local decision server is about twenty lines: one `requests.Session`
 reused for every call, an explicit timeout, retries only for connection failures, and a helper
 that returns the `noul` of each question as a float.** The server is `jev serve` on
-`127.0.0.1:8017`, the call is `POST /v1/systemone`, and the only answer type is `noul`, the
-probability that the answer is yes. Everything else in the client is about failing loudly: a
-`422` means the request itself is wrong and must not be retried, a `401` means the key is
+`127.0.0.1:8017`, the call is `POST /v1/systemone`, and the helper asks only `noul` questions,
+whose answer is the probability that the answer is yes. Everything else in the client is about
+failing loudly: a `422` means the request itself is wrong and must not be retried, a `401` means the key is
 missing.
 
 The README's four-line example is enough to try the model. It is not what you want in a service
@@ -51,7 +51,7 @@ def decide(state, questions, timeout=(3.05, 10)):
 ```
 
 Called as `decide("I was charged twice for the same order.", {"billing": "Is this a billing
-problem?"})`, this is the README's Quickstart request, for which the README shows `0.9`. The
+problem?"})`, this is the README's Quickstart request, for which the README shows `0.94`. The
 helper keeps the question names you chose, so the result is a plain dict of floats you can
 threshold. Ask every question you have about one text in one call: the text is read once and
 the extra questions cost a fraction of the first (three questions about 66 ms against 49 ms
@@ -109,12 +109,12 @@ The server answers a request it cannot handle with `422` and a body of the form
 `{"detail": [{"loc": [...], "msg": "...", "type": "..."}]}`, the same shape FastAPI uses for
 its own validation errors. From the code, the usual causes are:
 
-- a `score` question: only `noul` and `choice` are answered on this server;
+- a `choice` with one option or a `score` with one level;
 - a `model` that is neither a `jev-*` alias nor the served model's name;
 - an unknown field, for example a misspelt `instructions`: requests reject fields they do not
   know, so a typo fails loudly instead of being ignored;
-- an empty `state`, a `state` over 256 KB, or a text longer than the context limit (8,192 tokens
-  per question by default).
+- an empty `state`, a `state` over 256 KB, or a question whose prompt, the state plus that
+  question, is longer than the context limit (8,192 tokens by default).
 
 `loc` points at the offending field, which is why the helper raises it as it is. A `401`
 carries `WWW-Authenticate: Bearer` and appears only when the server was started with
@@ -140,7 +140,7 @@ is the next step. The model reads English only.
 ## Short answers to the questions that lead here
 
 **Is there an official Python SDK for jevos?** No separate one. The server speaks TypeSafe's
-Jev wire format, so code written for Jev's SDK works unchanged for yes/no and `choice` questions; otherwise a
+Jev wire format, so code written for Jev's SDK works unchanged for yes/no, `choice` and `score` questions; otherwise a
 plain `requests` call is all it takes.
 
 **Should I use async?** Only if your application is already async. Concurrent requests share
@@ -151,7 +151,7 @@ barely makes one server faster.
 your longest texts and your peak concurrency, measured on your machine.
 
 **Why do I get 422 on a question that looks fine?** Check `loc` in the body: a misspelt field,
-a `score` question, or a model name that is not `jev-*` are the common causes.
+a `choice` with one option, or a model name that is not `jev-*` are the common causes.
 
 **Can I send a dict as the state?** Yes. `state` accepts a string, an object or an array.
 
@@ -175,4 +175,4 @@ and [curl examples for a local LLM decision API](curl-examples-for-a-local-llm-a
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), a yes/no decision model that runs on
-a laptop CPU. The helper is short on purpose: the server has one endpoint and one answer type.*
+a laptop CPU. The helper is short on purpose: the server has one endpoint and one answer shape per question type.*

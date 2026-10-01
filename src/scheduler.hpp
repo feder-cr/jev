@@ -3,6 +3,7 @@
 #include <condition_variable>
 #include <cstdio>
 #include <deque>
+#include <exception>
 #include <future>
 #include <memory>
 #include <mutex>
@@ -90,7 +91,12 @@ private:
             if (batch.empty()) {  // idle: the next length no call has run yet
                 while (next_warm <= warm_to_ && model_.is_warm(next_warm)) ++next_warm;
                 if (next_warm > warm_to_) continue;
-                model_.warm_length(next_warm++);
+                try {
+                    model_.warm_length(next_warm++);
+                } catch (const std::exception& e) {
+                    std::fprintf(stderr, "jev: warm-up stopped at prompt length %zu: %s\n", next_warm - 1, e.what());
+                    next_warm = warm_to_ + 1;
+                }
                 if (next_warm > warm_to_) {
                     std::printf("warmed prompt lengths 1-%zu in %.0f s\n", warm_to_, std::chrono::duration<double>(Clock::now() - warm_start).count());
                     std::fflush(stdout);

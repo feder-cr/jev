@@ -118,7 +118,8 @@ to the 100 tokens the questions need is the single largest speed-up available to
 than any server option. Why latency grows with length is on
 [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 
-The hard limit is 8,192 tokens for the state and the questions together. Records that approach
+The hard limit is 8,192 tokens by default for the state plus each question, counted per question,
+and 256 KB for the state itself. Records that approach
 it are long documents, and those have their own design, on
 [yes/no questions about long documents](yes-no-questions-about-long-documents.md).
 
@@ -136,7 +137,8 @@ match the words in your questions make the state easier to answer from.
 **How much does a bigger state cost?** On the reference laptop, about 26 ms for 30 tokens and
 112 ms for 191 tokens read from scratch. Removing fields no question needs is the cheapest speed-up.
 
-**Is there a size limit?** 8,192 tokens for the state and all questions together.
+**Is there a size limit?** 8,192 tokens for the state plus each question, by default, and 256 KB
+for the state.
 
 **See also:** [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md),
 [checking text for personal data with yes/no questions](pii-check-with-yes-no-questions.md) and
