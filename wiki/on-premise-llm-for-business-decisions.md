@@ -29,7 +29,7 @@ defensible.
 | Accelerator | none; CPU only (x86-64 with AVX2, or Apple silicon) | README |
 | Memory | about 1 GB with the model loaded, up to 1.4 GB with its cache of recent texts full | README |
 | Disk | the `jev` folder: binary, OpenVINO's libraries and the INT8 model | release files |
-| Context | up to 8,192 tokens per request | README |
+| Context | up to 8,192 tokens per question (the text plus that question) | README |
 | Network | one port, `127.0.0.1:8017` by default | README |
 | Runtime | one prebuilt binary; no Python, no compiler | release files |
 
@@ -46,8 +46,8 @@ tokens. Server CPUs differ in cores, clock, cache and memory bandwidth, and
 have other workloads on them. The number that matters is yours, measured like this:
 
 1. Take a sample of real inputs, at their real length.
-2. Start the server with `--threads` set to the cores you can give it; the README's advice is
-   your core count, fewer if other heavy applications share the machine.
+2. Start the server with `--threads` set to the cores you can give it; the default is all
+   logical CPUs, and fewer is better if other heavy applications share the machine.
 3. Warm it up, then take the median and the 90th percentile of many requests, one at a time.
    Read the `Server-Timing` header for the model's share. The method is on
    [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md).
@@ -70,7 +70,7 @@ As a small internal HTTP service. The common shapes:
 - **Batch.** `jev decide` answers a request file without a server, for nightly jobs over a
   queue of documents; see [batch decisions from files with jev decide](batch-decisions-with-jev-decide.md).
 
-Because the server speaks the same wire format as TypeSafe's hosted Jev for yes/no and `choice` questions,
+Because the server speaks the same wire format as TypeSafe's hosted Jev for yes/no, `choice` and `score` questions,
 an application written against Jev's SDK can point at the internal server instead, and back,
 by changing the base URL.
 

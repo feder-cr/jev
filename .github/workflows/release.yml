@@ -22,7 +22,22 @@ env:
   MODEL_ASSET: jevos-v2-openvino-int8.zip
 
 jobs:
+  clear-sums:
+    # The release's SHA256SUMS.txt describes the archives it is published with: removed before they are
+    # replaced, attached again by `sums` once all three are, so a failed or partial run leaves no stale one.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Remove SHA256SUMS.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" --repo "${{ github.repository }}" --json assets --jq '.assets[].name' | grep -qx SHA256SUMS.txt; then
+            gh release delete-asset "$TAG" SHA256SUMS.txt --repo "${{ github.repository }}" --yes
+          fi
+
   archive:
+    needs: clear-sums
     strategy:
       fail-fast: false
       matrix:
@@ -31,6 +46,7 @@ jobs:
           - {os: ubuntu-22.04, name: linux-x64, format: gztar}
           - {os: macos-14, name: macos-arm64, format: gztar}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,6 +90,7 @@ jobs:
     # SHA256SUMS.txt over every asset of the release, the archives above included (sha256sum's format)
     needs: archive
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - name: Hash the assets and attach SHA256SUMS.txt
         env:

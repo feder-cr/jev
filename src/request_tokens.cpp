@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <atomic>
+#include <exception>
+#include <mutex>
 #include <thread>
 
 #include "prompt.hpp"
@@ -17,10 +19,21 @@ RequestTokens tokenize_request(const Vocab& vocab, const std::string& state_text
     size_t workers = std::min<size_t>(tokens.size(), std::max(1u, std::thread::hardware_concurrency()));
     if (workers > 1 && state_text.size() * tokens.size() > PARALLEL_TOKENIZE_BYTES) {
         std::atomic<size_t> next{0};
+        std::exception_ptr failed;
+        std::mutex mu;
         std::vector<std::thread> pool;
         for (size_t w = 0; w < workers; ++w)
-            pool.emplace_back([&] { for (size_t i; (i = next++) < tokens.size();) work(i); });
+            pool.emplace_back([&] {
+                try {
+                    for (size_t i; (i = next++) < tokens.size();) work(i);
+                } catch (...) {  // the request fails with it (500), the server keeps running
+                    std::lock_guard<std::mutex> lk(mu);
+                    if (!failed) failed = std::current_exception();
+                    next = tokens.size();
+                }
+            });
         for (auto& t : pool) t.join();
+        if (failed) std::rethrow_exception(failed);
     } else {
         for (size_t i = 0; i < tokens.size(); ++i) work(i);
     }

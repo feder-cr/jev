@@ -115,8 +115,8 @@ question, and route them to a person; the retention case is worked through on
 
 ## How big can a catalogue get?
 
-The text and all the questions share an 8,192-token context, so a few dozen intents with a
-chat message fit easily. Cost grows with the total tokens read: on our reference laptop a
+The 8,192-token context applies to the text plus each question, not to all the questions
+together, so a few dozen intents with a chat message fit easily. Cost grows with the total tokens read: on our reference laptop a
 30-token request took 26 ms and a 191-token one 112 ms, and questions are tokens too. For a catalogue of hundreds of intents, ask in
 two stages: a handful of coarse questions first (orders, account, billing), then only the
 detailed intents under the winning area. The same idea, used for choosing between models, is on

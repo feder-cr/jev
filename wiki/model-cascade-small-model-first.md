@@ -42,8 +42,8 @@ Those are their numbers on their tasks, not a prediction for yours.
 
 ## The escalation is a URL change
 
-jevos accepts TypeSafe Jev's request format: `model`, `state`, and named `noul` or `choice`
-questions. Code written for Jev's SDK works unchanged for yes/no and `choice` questions. So the second stage does not need a
+jevos accepts TypeSafe Jev's request format: `model`, `state`, and named `noul`, `choice` or
+`score` questions. Code written for Jev's SDK works unchanged for all three. So the second stage does not need a
 second integration:
 
 ```python

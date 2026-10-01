@@ -41,7 +41,7 @@ These are properties of the release, true on any machine that runs it:
   unpacked into it as `jev/model`. No Python and no other runtime to install.
 - **Compute:** CPU only, x86-64 with AVX2 or Apple silicon; fastest on CPUs with AVX-VNNI or
   AVX-512 VNNI. `--threads` defaults to all logical CPUs.
-- **Context:** up to 8,192 tokens per request.
+- **Context:** up to 8,192 tokens per question, the text plus that question.
 - **Output:** one probability per question, no generated text, so there is no generation step
   whose length depends on the answer.
 - **Network:** none after the download; the server listens on `127.0.0.1:8017` by default.

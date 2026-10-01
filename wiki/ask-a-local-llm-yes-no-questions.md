@@ -157,7 +157,7 @@ A probability is more useful than a word because you choose where to cut it.
 
 The model knows only what is in `state` and in `instructions`. If the answer depends on a rule,
 write the rule into the question, as the `refund` example does. On a yes/no question, Jev's
-optional `criteria` field is accepted for compatibility but not read. How to phrase rules, and how much to trust the answer
+optional `criteria` field is accepted for compatibility and checked, but not read. How to phrase rules, and how much to trust the answer
 when you do, is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
 ## The other endpoints
@@ -167,7 +167,7 @@ when you do, is on [LLM policy decisions: put the rule in the question](llm-poli
 | `GET /v1/models` | the served model and its `jev-latest` alias |
 | `GET /health` | `{"status": "ready", ...}` once the model is loaded |
 
-Every response to `/v1/systemone` carries a `Server-Timing` header with the inference time,
+Every successful response to `/v1/systemone` carries a `Server-Timing` header with the inference time,
 which is the number to log if you want to know what the model costs you, separate from the
 network. If the `JEV_API_KEY` environment variable is set when the server starts, every call
 except `/health` needs `Authorization: Bearer <key>`, as the hosted API does.

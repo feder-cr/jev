@@ -60,8 +60,8 @@ set it against the p90 or higher, as argued on
 
 The W3C Server-Timing specification, a Working Draft dated 2026-04-07, lets a server "communicate
 performance metrics about the request-response cycle" in a response header, as named metrics
-with an optional `dur`. Every jev response carries one, with an `inference` and a `total`
-duration.
+with an optional `dur`. Every successful jev response carries one, with an `inference` and a
+`total` duration among others.
 
 Measure both, and read them together:
 

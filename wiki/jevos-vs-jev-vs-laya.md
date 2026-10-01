@@ -9,7 +9,7 @@ nav_order: 1
 
 **For yes/no decisions on a CPU, jevos is the fastest of the three on short and long requests,
 TypeSafe's hosted Jev is the most accurate, and Laya is the one to pick when you need many
-languages or scores today.** On the same laptop and the same requests, jevos answered
+languages or scores past jevos's early ones.** On the same laptop and the same requests, jevos answered
 in 26 ms and 112 ms, Laya in 104 ms and 449 ms, and Jev in about 345 ms both times, most of it
 network. On 2,000 yes/no questions about business policies none of them had been tuned on,
 Jev was right 0.927 of the time, jevos 0.810, and Laya 0.489.
@@ -88,19 +88,19 @@ fastest of the three on both request sizes, and free. Plan around its weak spot,
 by doing arithmetic in code.
 
 **Jev** if accuracy on hard rules matters more than latency and cost, if you need scores
-now, or if you do not want to run anything. Because the wire format is the
+past jevos's early ones, or if you do not want to run anything. Because the wire format is the
 same, starting with jevos and moving the hard cases to Jev is a change of URL, not of code. The switch itself, step by step, is on
 [an open-source alternative to Jev](open-source-alternative-to-jev.md), and the same trade-off
 against a general hosted chat API is on [jevos vs the OpenAI API](jevos-vs-openai-api-for-classification.md).
 
-**Laya** if you need many languages, or local scores today, and your texts
+**Laya** if you need many languages, or local scores past jevos's early ones, and your texts
 fit its context.
 
 ## Short answers to the questions that lead here
 
 **Is jevos an alternative to Jev?** For yes/no and multiple-choice questions, yes: same wire
-format, local, free and faster from a laptop. Jev is more accurate on unseen rules (0.927 against
-0.810) and answers scores.
+format, local, free and faster from a laptop. Scores are answered too, but early. Jev is more
+accurate on unseen rules (0.927 against 0.810).
 
 **Which is fastest?** jevos: 26 ms and 112 ms against 104/449 ms for Laya and about 345 ms for
 Jev on our two requests.

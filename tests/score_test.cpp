@@ -40,6 +40,26 @@ int main() {
     expect(near(rate({1.0, 1.0, 0.0}, 4).confidence, 1.0), "a certain level gives confidence 1");
     expect(near(rate({0.5}, 2).confidence, 0.0), "an even split of two levels gives confidence 0");
 
+    // many threshold answers, in and out of order: no level below 0 (pooled means rounded the other way
+    // could give -1e-17), and the levels sum to 1
+    unsigned seed = 12345;
+    auto next = [&] { seed = seed * 1103515245u + 12345u; return static_cast<double>((seed >> 8) % 100000) / 100000.0; };
+    bool nonnegative = true, sums = true;
+    for (int r = 0; r < 20000; ++r) {
+        size_t levels = 2 + static_cast<size_t>(next() * 9);
+        std::vector<double> ps(levels - 1);
+        for (double& x : ps) x = next() < 0.2 ? 1.0 / 3.0 : next();  // repeated thirds make ties in the pools
+        ScoreAnswer s = rate(ps, levels);
+        double total = 0;
+        for (double x : s.probabilities) {
+            nonnegative = nonnegative && x >= 0.0;
+            total += x;
+        }
+        sums = sums && std::fabs(total - 1.0) < 1e-9;
+    }
+    expect(nonnegative, "no level below 0");
+    expect(sums, "the levels sum to 1");
+
     if (failures) return 1;
     std::printf("rate: all checks passed\n");
     return 0;

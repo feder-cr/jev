@@ -77,7 +77,7 @@ in your log can be tied to a specific public release file.
 
 ## Timing from the response
 
-Every jevos response carries a `Server-Timing` header with `inference` and `total` durations.
+Every successful jevos response carries a `Server-Timing` header with `inference` and `total` durations.
 Log both. The difference between them, and between them and the wall clock of your client, tells
 you whether a slow decision was the model, the server or the network. The general method is on
 [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md).

@@ -35,10 +35,9 @@ unzip ../jevos-v2-openvino-int8.zip     # creates model/
 ./jev serve --threads 8
 ```
 
-`--threads` should match the cores you can spare. n8n on the same box also needs CPU, so leave
-it some; the README's advice is "set it to your core count, fewer if other heavy apps are
-running". The server listens on `127.0.0.1:8017` and takes about 1 GB of memory with the
-model loaded.
+`--threads` should match the cores you can spare. By default the server uses all logical CPUs;
+n8n on the same box also needs CPU, so set fewer if other heavy work runs there. The server
+listens on `127.0.0.1:8017` and takes about 1 GB of memory with the model loaded.
 
 ## The HTTP Request node
 
@@ -96,11 +95,11 @@ what has to be read from the text.
   needs `Authorization: Bearer <key>`. In n8n, store it as a credential rather than in the node:
   Header Auth is one of the generic credential types the docs list. Details are on
   [securing a local LLM server with an API key](securing-a-local-llm-server-with-an-api-key.md).
-- **422.** A request the server cannot answer, such as a `score` question, an unknown field or
-  a model name that is not `jev-*`, comes back as `422` with a `detail` list. By default the node
+- **422.** An invalid request, such as an unknown field, a `choice` with one option or a model
+  name that is not `jev-*`, comes back as `422` with a `detail` list. By default the node
   "returns success only when the response returns with a 2xx code", so the execution fails,
   which is usually right. Turn on **Never Error** only if you route errors yourself.
-- **Server-Timing.** Every answer carries a `Server-Timing` header with the inference time.
+- **Server-Timing.** Every successful answer carries a `Server-Timing` header with the inference time.
   The node returns only the body unless you turn on **Include Response Headers and Status**.
 
 ## When n8n runs in Docker
@@ -122,7 +121,7 @@ n8n is a good home for this when the decision is one step in a workflow that alr
 a form arrives, a ticket is created, a message is routed. It is not the tool for scoring a
 hundred thousand stored records; a script or
 [batch decisions from files with jev decide](batch-decisions-with-jev-decide.md) is simpler for
-that. The model reads English only and answers yes/no and multiple-choice questions only; a workflow step that needs
+that. The model reads English only and answers yes/no, multiple-choice and (early) score questions only; a workflow step that needs
 generated text, a summary or a reply, still needs a generative model. The same HTTP call from a
 home automation hub is on [Home Assistant automations with local LLM decisions](home-assistant-local-llm-decisions.md).
 

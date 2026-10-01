@@ -74,6 +74,10 @@ std::string Api::systemone(const Value& body, Timing& tm) const {
                     throw too_long(qs[prompts[i].question], n);
             throw unprocessable(app_err({S("body")}, bad));
         }
+    // Every prompt holds the whole state and is at least as long: a state over the context makes the
+    // first question's prompt too long, the error the Python loop stops at, without tokenizing them all.
+    if (vocab.tokenize(vocab.bos() + state_text).size() > ctx)
+        throw too_long(qs[prompts[0].question], vocab.tokenize(binary_prompt(vocab.bos(), state_text, prompts[0].instructions)).size());
     std::vector<std::string> instructions;
     for (auto& pr : prompts) instructions.push_back(pr.instructions);
     RequestTokens rt = tokenize_request(vocab, state_text, instructions);

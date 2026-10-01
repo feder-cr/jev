@@ -105,7 +105,7 @@ unload**: a classifier that runs every few minutes will pay a model load on some
   per question with `output_tokens` always 0, reads the shared text once for several questions
   (three questions take about 66 ms against 49 ms for one on the reference laptop), and
   reports the served model in `/health`. It is English only and answers
-  yes/no and multiple-choice questions only; a comparison at the product level is on
+  yes/no, multiple-choice and (early) score questions only; a comparison at the product level is on
   [jevos vs Ollama for yes/no decisions](jevos-vs-ollama-for-yes-no-decisions.md).
 
 ## Short answers to the questions that lead here

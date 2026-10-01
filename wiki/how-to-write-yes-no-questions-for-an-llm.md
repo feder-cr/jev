@@ -62,7 +62,7 @@ to put in front of any question the text might not answer.
 2. **The rule goes in the question.** The model knows nothing about your policy except what the
    request says. "Our policy refunds items reported missing within 30 days of delivery. Should
    this customer get a refund?" is answerable; "Is this eligible under policy R-12?" is a guess.
-   This server does not read Jev's optional `criteria` field, so the rule belongs in
+   On a yes/no question this server does not read Jev's optional `criteria` field, so the rule belongs in
    `instructions`. The long version is [put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 3. **Reading, not computing.** Send "delivered: 5 days ago" rather than two dates and a
    question about their difference. How to shape the text for this is on
@@ -111,7 +111,7 @@ covered in [building a yes/no test set for your own data](building-a-yes-no-test
 
 Some limits are not about wording:
 
-- **Length.** Text and questions share 8,192 tokens, and cost grows with every token. For
+- **Length.** The text plus each question must fit in 8,192 tokens, and cost grows with every token. For
   contracts and long threads, see [yes/no questions about long documents](yes-no-questions-about-long-documents.md).
 - **Language.** jevos reads English only. The options for other languages are on
   [using an English-only LLM with other languages](using-an-english-only-model-with-other-languages.md).
@@ -128,8 +128,8 @@ put any rule in the question, and leave numbers and dates to code.
 reading of the text, so each extra question costs a fraction of the first, and when a decision
 fails you can see which part failed.
 
-**Where do I put the policy text?** In `instructions`, in front of the question. jevos does not
-read the `criteria` field.
+**Where do I put the policy text?** In `instructions`, in front of the question. On a yes/no
+question jevos does not read the `criteria` field.
 
 **Why does the model get dates wrong?** Dates and durations are computation. It scored 0.598
 on them on our 999-question set. Compute the duration in code and send it as text.

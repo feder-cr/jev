@@ -1,5 +1,6 @@
 #include "model.hpp"
 
+#include <algorithm>
 #include <atomic>
 #include <cmath>
 #include <cstring>
@@ -127,7 +128,8 @@ struct Model::Impl {
             const ScoreRequest& q = *reqs[r];
             if (q.prefix.empty()) continue;
             Tokens state(q.prefix.begin(), q.prefix.begin() + q.state);
-            if (snaps.wants(state)) fresh.emplace_back(std::move(state), first(extend(blocks[span[r].first]), q.state));
+            bool queued = std::any_of(fresh.begin(), fresh.end(), [&](const auto& f) { return f.first == state; });
+            if (!queued && snaps.wants(state)) fresh.emplace_back(std::move(state), first(extend(blocks[span[r].first]), q.state));
         }
         for (auto& [tokens, cells] : fresh) snaps.add(std::move(tokens), std::move(cells));
         return out;

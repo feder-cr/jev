@@ -91,13 +91,14 @@ there, step 2 above is your code. The general reason this route still costs a de
 
 - **One endpoint, one answer shape.** `state` (text or any JSON) plus named questions in; each
   yes/no question back as `{"type": "noul", "noul": ...}`, each `choice` question as the most
-  probable option with a probability per option, with `output_tokens` always 0.
+  probable option with a probability per option, each `score` question as the expected level
+  with a probability per level, with `output_tokens` always 0.
 - **Shared reading of the text.** Questions in one request share the state, which is read once:
   three questions took about 66 ms against 49 ms for one on our reference laptop.
 - **A wire format someone else defined.** It is TypeSafe Jev's, so clients written for Jev's SDK
-  work unchanged for yes/no and `choice` questions, as described on
+  work unchanged for yes/no, `choice` and `score` questions, as described on
   [an open-source alternative to Jev](open-source-alternative-to-jev.md).
-- **Provenance.** `GET /health` reports the served model; every response carries a
+- **Provenance.** `GET /health` reports the served model; every successful response carries a
   `Server-Timing` header.
 - **A model built for yes/no questions**, not a general chat model prompted into answering
   them, with calibration measured on held-out questions (0.009 on 6,397 natural yes/no
@@ -105,8 +106,9 @@ there, step 2 above is your code. The general reason this route still costs a de
 - **Server-free batch use.** `jev decide` answers a request file, the same body as
   `POST /v1/systemone`, with no server, and prints the answers as indented JSON.
 
-What it does not add: generation, chat, embeddings, other models, or `score` questions, which
-are refused with a `422` for now.
+What it does not add: generation, chat, embeddings or other models. `score` questions are
+answered, but early: the most probable level is right 54% of the time on 2,350 held-out
+questions, and weak where the level is a sum of points.
 
 ## When llama-server is the better choice
 

@@ -76,11 +76,12 @@ yes/no questions.
 |---|---|
 | `model` | `jev-latest` (any `jev-*` name works) or the served model's name |
 | `state` | the text to decide on: a string, or any JSON object or array |
-| `questions` | one or more named questions, each `{"type": "noul", "instructions": "…?"}` |
+| `questions` | one or more named questions, such as `{"type": "noul", "instructions": "…?"}` |
 
-Every answer is `noul`, the probability that the answer is yes (0 to 1). Questions in the same
-request share the state, which is read once: the three questions below take about 66 ms together,
-against 49 ms for one of them alone, and 39 ms when the same state is asked about again.
+Here every question is a `noul`, and its answer is the probability that the answer is yes (0 to 1).
+Questions in the same request share the state, which is read once: the three questions below take
+about 66 ms together, against 49 ms for one of them alone, and 39 ms when the same state is asked
+about again.
 
 ```json
 {
@@ -114,10 +115,11 @@ against 49 ms for one of them alone, and 39 ms when the same state is asked abou
 ```
 
 - **Put the rule in the question.** If the decision depends on a policy, write it into
-  `instructions`, as in `refund` above. Jev's optional `criteria` field is accepted but not read.
+  `instructions`, as in `refund` above. On a `noul`, Jev's optional `criteria` field is checked but
+  not read; `choice` and `score` require it.
 - **Every question type.** `noul`, `choice` and `score`, in Jev's shapes (see below for the last two).
-- **Timing.** Every response carries a `Server-Timing` header: parsing, validation, tokenization,
-  queue and inference times.
+- **Timing.** Every successful response carries a `Server-Timing` header: parsing, validation,
+  tokenization, queue and inference times.
 
 ### Multiple choice
 
@@ -157,9 +159,11 @@ from uniform, 0, to certain, 1):
 jevos answers yes/no questions, so a choice is asked as one yes/no question per option, each listing all
 the options ("... Among the candidates, is it this one? Candidate: shipping"), the way the model saw
 choices in training. The option's probability is its P(yes) divided by the sum over the options.
-All of them go to the model in one call, read as a prefix tree: what the option questions have in
-common, the state, the instructions and the list of options, is read once, and each option then costs
-only its last line, also when the request asks other questions beside the choice. Each option still
+All of them are read as a prefix tree: what the option questions have in common, the state, the
+instructions and the list of options, is read once, and each option then costs only its last line,
+also when the request asks other questions beside the choice. A request whose questions fit in up to
+1,024 tokens is one model call; a longer one (a long state, many questions) is several, the state read
+in pieces of up to 2,048 tokens. Each option still
 sees only its own question: the answers are the same as asking each option alone. On the laptop where
 one yes/no question takes about 20 ms, this three-option choice takes about 100 ms, a ten-option one
 about 170 ms.
@@ -246,10 +250,13 @@ status 1.
 | Option | Default | |
 |---|---|---|
 | `--model-dir` | `model` beside the binary | the model folder |
+| `--name` | the name in `model/model.json` | the served model's name |
 | `--threads` | all logical CPUs | CPU threads; fewer if other heavy apps are running |
 | `--host`, `--port` | `127.0.0.1`, `8017` | where the server listens |
+| `--ctx` | 8,192 | most tokens in one question's prompt (the state plus that question) |
 | `--state-cache`, `--state-cache-tokens` | 16, 8,192 | texts kept for later requests, how many and how many tokens in all; 0 turns it off |
-| `--batch-tokens` | 384 | small requests arriving together are read in one model call while their tokens fit |
+| `--batch-tokens` | 384 | small requests arriving together are read in one model call while their tokens fit; at most 1,024 |
+| `--warmup` | 384 | prompt lengths from 1 to this many tokens are compiled while the server is idle; at most 384, 0 turns it off |
 | `--dynamic-quantization` | 128 | activations in INT8 groups of this many values; 0 keeps them f32, slower |
 
 With `JEV_API_KEY` set, every call but `/health` needs `Authorization: Bearer <key>`. The server needs about

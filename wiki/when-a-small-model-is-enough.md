@@ -46,8 +46,9 @@ at them. The options are laid out on
 
 The yes/no shape fits more often than it seems. A label from a list becomes one question per
 label; a level such as low, medium or high becomes "is it at least medium?" and "is it high?". jevos answers
-`noul` and `choice` questions, the latter as one yes/no question per option; `score` requests
-are refused with a `422`, and are on the roadmap. If the output has to be text, a summary, a reply, an extracted list, a small
+`noul`, `choice` and `score` questions, the last two as one yes/no question per option or level;
+scores are early (the most probable level is right 54% of the time on 2,350 held-out questions,
+within one level 82%) and weak where the level is a sum of points. If the output has to be text, a summary, a reply, an extracted list, a small
 yes/no model is the wrong tool, and a generative model is the right one.
 
 ## Is the answer read or computed?
@@ -98,7 +99,7 @@ reasonable default for the hard questions, and the trade-off is on
 
 Then use both. Ask the small model first; act when the probability is confidently high or low;
 send the middle band to a large model or a person. Because jevos speaks the same wire format as
-TypeSafe's Jev for yes/no and `choice` questions, the escalation can be the same request sent to a different
+TypeSafe's Jev for yes/no, `choice` and `score` questions, the escalation can be the same request sent to a different
 base URL. How to size the band and what it saves is on
 [a model cascade: small model first, large model on doubt](model-cascade-small-model-first.md).
 Measure the split on your own labelled cases, split by kind of question, before trusting it.
@@ -130,7 +131,7 @@ and [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 - Accuracy by kind of question and error direction: our 999-question set, `jevos-q4_k_m`.
 - The 2,000-question policy comparison and latency on the two requests: our measurements,
   reported in the [jev README](https://github.com/feder-cr/jev).
-- Supported question types and the `422`: the README.
+- Supported question types and the score accuracy: the README.
 
 ---
 

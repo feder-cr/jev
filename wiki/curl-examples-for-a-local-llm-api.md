@@ -89,7 +89,7 @@ curl -s -D - -o /dev/null http://127.0.0.1:8017/v1/systemone \
   -H 'Content-Type: application/json' --data-binary @request.json -w 'wall: %{time_total}s\n'
 ```
 
-Every response to `/v1/systemone` carries `Server-Timing: inference;dur=..., total;dur=...`, in
+Every successful response to `/v1/systemone` carries `Server-Timing: ..., inference;dur=..., total;dur=...`, in
 milliseconds: `inference` is the model's work, `total` is everything inside the engine,
 including any wait for other requests; small requests that arrive at the same time are read
 together in one model call.
@@ -125,7 +125,8 @@ curl -s -w '\nHTTP %{http_code}\n' http://127.0.0.1:8017/v1/systemone --json '{
 The status is `422` and the body is a validation error, with `loc` pointing at the field. For this request `loc` is `["body", "model"]` and the message says that
 the server answers as its served model and accepts any `jev-*` alias. Other requests that get a
 `422`: an unknown or misspelt field, a `choice` with one option or a `score` with one level,
-an empty state, or a text longer than the context limit.
+an empty state, or a question whose prompt, the state plus that question, is longer than the
+context limit.
 
 In scripts, `--fail-with-body` makes curl return error 22 on HTTP 400 and above while still
 showing the body, so a shell `&&` chain stops on a `422` and you can still read why. Add `-S`
@@ -143,7 +144,7 @@ header; `@` followed by a filename tells curl to read the data from that file.
 in the output before the body.
 
 **Why does the server reject my curl request with 422?** Read `loc` in the body: usually the
-model name, a misspelt field or a question type other than `noul` and `choice`.
+model name, a misspelt field, or a `choice` with one option or a `score` with one level.
 
 **Why does my request fail with 401?** The server was started with `JEV_API_KEY`; add
 `-H "Authorization: Bearer <key>"`.

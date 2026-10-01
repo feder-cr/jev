@@ -31,13 +31,13 @@ sketches to adapt; every flag shown is one of `jev decide`'s options.
 
 With `request.json` holding the README's Quickstart body (`"model": "jev-latest"`, the
 double-charge text and the `billing` question), the output is the same JSON the server returns,
-which in the README reads `0.9` for `billing`, with `output_tokens` 0. A `model` name that is
+which in the README reads `0.94` for `billing`, with `output_tokens` 0. A `model` name that is
 neither a `jev-*` alias nor the served model's name is rejected, exactly as the server does it.
 
 The options you are most likely to touch are the same as the server's: `--threads` (all logical
 CPUs by default, fewer if other heavy programs run), `--model-dir` (the `model` folder beside the
-binary by default), and `--ctx`, the context limit per question in tokens (default 8,192; longer
-inputs are rejected, not truncated).
+binary by default), and `--ctx`, the context limit per question in tokens, the state plus that
+question (default 8,192; longer prompts are rejected, not truncated).
 
 ## Errors and the exit status
 

@@ -21,6 +21,7 @@ jobs:
       matrix:
         os: [windows-2022, ubuntu-22.04, macos-14]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90  # a hang fails the run instead of holding the runner for 6 hours
     steps:
       - uses: actions/checkout@v4
 
