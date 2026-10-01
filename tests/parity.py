@@ -259,6 +259,12 @@ def compare(name, path, a, b, tol, multi_tol):
         if (ja.get("status"), ja.get("model")) != (jb.get("status"), jb.get("model")):
             diffs.append(f"health {ja.get('status')},{ja.get('model')} vs {jb.get('status')},{jb.get('model')}")
         return diffs, None
+    if path == "/v1/models" and a.status_code == 200 and b.status_code == 200:
+        # release_date is the day the server started (UTC): a recorded response is from another day
+        for j in (ja, jb):
+            for m in j.get("models", []):
+                if isinstance(m, dict) and "release_date" in m:
+                    m["release_date"] = "<the day the server started>"
     if a.status_code != 200 or b.status_code != 200 or path != "/v1/systemone":
         if ja != jb:
             diffs.append(f"body\n      ref:    {json.dumps(ja, ensure_ascii=False)[:1500]}\n      target: {json.dumps(jb, ensure_ascii=False)[:1500]}")

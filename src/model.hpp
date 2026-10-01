@@ -38,7 +38,7 @@ public:
     Model& operator=(const Model&) = delete;
 
     // P(yes) per job of each request. Several requests are read in one call (the scheduler hands over
-    // only requests that fit CALL_TOKENS together); a request's prefix is its state (empty: none known).
+    // only requests that fit CALL_TOKENS together); a request's prefix is what all its prompts start with (empty: none known).
     std::vector<std::vector<double>> score_batch(const std::vector<const ScoreRequest*>& reqs);
     std::vector<double> score(const ScoreRequest& r) { return score_batch({&r})[0]; }
 
