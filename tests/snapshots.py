@@ -38,12 +38,13 @@ ap.add_argument("--model-dir", default=str(MODEL_DIR))
 ap.add_argument("--tokenizer", help="the HF tokenizer.json (default: the model folder's)")
 ap.add_argument("--dynamic-quantization", type=int, default=0, help="the server's --dynamic-quantization, which the oracle uses too")
 ap.add_argument("--tol", type=float, default=0.001)
+ap.add_argument("--threads", type=int, default=16, help="the oracle's OpenVINO threads")
 args = ap.parse_args()
 
 tok = Tokenizer.from_file(args.tokenizer or f"{args.model_dir}/tokenizer.json")
 core = ov.Core()
 cm = core.compile_model(f"{args.model_dir}/openvino_model.xml", "CPU",
-                        {"INFERENCE_NUM_THREADS": 16, "PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1",
+                        {"INFERENCE_NUM_THREADS": args.threads, "PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": "1",
                          "DYNAMIC_QUANTIZATION_GROUP_SIZE": args.dynamic_quantization, "INFERENCE_PRECISION_HINT": "f32"})
 req = cm.create_infer_request()
 pasts = {n: np.zeros((1, i.get_partial_shape()[1].get_length(), 0, i.get_partial_shape()[3].get_length()), np.float32)

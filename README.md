@@ -157,9 +157,12 @@ from uniform, 0, to certain, 1):
 jevos answers yes/no questions, so a choice is asked as one yes/no question per option, each listing all
 the options ("... Among the candidates, is it this one? Candidate: shipping"), the way the model saw
 choices in training. The option's probability is its P(yes) divided by the sum over the options.
-What the option questions have in common, the state, the instructions and the list of options, is read
-once; each option then costs only its last line. On the laptop where one yes/no question takes about
-20 ms, this three-option choice takes about 100 ms.
+All of them go to the model in one call, read as a prefix tree: what the option questions have in
+common, the state, the instructions and the list of options, is read once, and each option then costs
+only its last line, also when the request asks other questions beside the choice. Each option still
+sees only its own question: the answers are the same as asking each option alone. On the laptop where
+one yes/no question takes about 20 ms, this three-option choice takes about 100 ms, a ten-option one
+about 170 ms.
 
 On 2,676 held-out choice questions, the most probable option is the right one 78.8% of the time (74.2%
 on rental questions with labels from code, 81.2% agreement with Jev on workflow questions). The

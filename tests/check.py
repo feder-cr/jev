@@ -1,6 +1,6 @@
 """Check a build of `jev`: the tests CI runs on every OS, and the release is made from.
 
-    python tests/check.py [--jev dist/jev/jev] [--build-dir build] [--exact] [--record]
+    python tests/check.py [--jev dist/jev/jev] [--build-dir build] [--exact] [--record] [--threads N]
 
 1. plan-calls-test: how requests are split into model calls; choice-test, score-test: a choice's and a score's
    distribution; tokenizer.py: the token ids of 3,054 texts,
@@ -13,6 +13,8 @@
    and the numbers differ in the last digits between OSes); --record keeps them again;
 4. snapshots.py: state snapshots, blocks and batching against an oracle that has none, both with f32
    activations (--dynamic-quantization 0), so they compute the same function and every answer must match;
+   and, on that server, a request whose prompts share runs (a choice's options, a score's thresholds) read
+   as a prefix tree: every answer the same as its prompt asked alone;
 5. jev decide: a request file answered as the server answers it, errors on stderr with exit 1, and
    an --output file never written over; a choice: the same numbers as its options' yes/no questions,
    normalized, in Jev's shape; a score: the same numbers as its thresholds' yes/no questions, in Jev's shape;
@@ -44,6 +46,7 @@ REQUEST = {"model": "jev-latest",
            "questions": {"upset": {"type": "noul", "instructions": "Is the customer upset?"},
                          "wrong_item": {"type": "noul", "instructions": "Does the customer say they received the wrong item?"}}}
 failed = []
+THREADS = []  # --threads N: passed to every jev it starts, and to snapshots.py's oracle (default: their own)
 
 
 def step(name, ok):
@@ -56,7 +59,7 @@ class Server:
     def __init__(self, jev, *args, port=8045):
         self.url = f"http://127.0.0.1:{port}"
         self.log = tempfile.TemporaryFile()
-        self.proc = subprocess.Popen([str(jev), "serve", "--model-dir", str(MODEL_DIR), "--port", str(port), *args],
+        self.proc = subprocess.Popen([str(jev), "serve", "--model-dir", str(MODEL_DIR), "--port", str(port), *THREADS, *args],
                                      stdout=self.log, stderr=subprocess.STDOUT)
         for _ in range(300):
             try:
@@ -92,14 +95,14 @@ def check_decide(jev, url):
         request.write_text(json.dumps(REQUEST), encoding="utf-8")
         served = requests.post(url + "/v1/systemone", json=REQUEST).json()
         out = Path(tmp) / "answers" / "answer.json"
-        first = subprocess.run([str(jev), "decide", str(request), "--model-dir", str(MODEL_DIR), "--output", str(out)], capture_output=True)
+        first = subprocess.run([str(jev), "decide", str(request), "--model-dir", str(MODEL_DIR), *THREADS, "--output", str(out)], capture_output=True)
         written = out.read_text(encoding="utf-8") if out.exists() else ""
         step("decide: the server's answer, as json.dumps(indent=2)", first.returncode == 0 and written == json.dumps(served, indent=2, ensure_ascii=False) + "\n")
-        again = subprocess.run([str(jev), "decide", str(request), "--model-dir", str(MODEL_DIR), "--output", str(out)], capture_output=True)
+        again = subprocess.run([str(jev), "decide", str(request), "--model-dir", str(MODEL_DIR), *THREADS, "--output", str(out)], capture_output=True)
         step("decide: an existing --output is not written over", again.returncode == 1 and out.read_text(encoding="utf-8") == written)
         bad = Path(tmp) / "bad.json"
         bad.write_text(json.dumps({"model": "jev-latest", "state": "x"}), encoding="utf-8")
-        refused = subprocess.run([str(jev), "decide", str(bad), "--model-dir", str(MODEL_DIR)], capture_output=True, text=True)
+        refused = subprocess.run([str(jev), "decide", str(bad), "--model-dir", str(MODEL_DIR), *THREADS], capture_output=True, text=True)
         step("decide: an invalid request is refused on stderr, exit 1",
              refused.returncode == 1 and not refused.stdout and '"loc":["body","questions"]' in refused.stderr)
 
@@ -182,6 +185,33 @@ def check_score(url):
     step("score: its thresholds' yes/no answers, in Jev's shape", ok)
 
 
+def check_shared_reads(url):
+    """With f32 activations, prompts read as a prefix tree in one call (src/tree.hpp) answer as each
+    prompt asked in a request of its own: a 10-option choice, 2 yes/no questions and a 4-level score."""
+    state = {**REQUEST["state"], "order": 31337}
+    team = {**CHOICE, "returns": "sending a product back", "account": "login, password, profile", "sales": "questions before buying",
+            "warranty": "repairs under guarantee", "fraud": "suspicious orders or payments", "feedback": "praise or suggestions",
+            "legal": "privacy, data requests"}
+    options = [f"{k}: {v}" for k, v in team.items()]
+    listed = "\n".join(f"- {o}" for o in options)
+    named = [json.dumps(l, sort_keys=True, separators=(",", ":")) if isinstance(l, dict) else l for l in LEVELS]
+    scale = " < ".join(named)
+    prompts = [f"{CHOICE_INSTRUCTIONS}\nCandidates:\n{listed}\n{PHRASING}\nCandidate: {o}" for o in options]
+    prompts += ["Is the customer upset?", "Does the customer ask for a refund?"]
+    prompts += [f"{SCORE_INSTRUCTIONS}\nScale from lowest to highest: {scale}\n{SCORE_PHRASING}\nLevel: {named[k]}" for k in range(1, len(LEVELS))]
+    ask = lambda qs: requests.post(url + "/v1/systemone", json={"model": "jev-latest", "state": state, "questions": qs})
+    together = ask({f"p{i}": {"type": "noul", "instructions": t} for i, t in enumerate(prompts)})
+    ok = together.status_code == 200
+    worst = 0.0
+    for i, t in enumerate(prompts):
+        alone = ask({"q": {"type": "noul", "instructions": t}})
+        ok = ok and alone.status_code == 200
+        if ok:
+            worst = max(worst, abs(together.json()["answers"][f"p{i}"]["noul"] - alone.json()["answers"]["q"]["noul"]))
+    print(f"     {len(prompts)} prompts in one request vs each alone: max |dP| {worst:.6f}", flush=True)
+    step("shared reads: a choice, yes/no questions and a score in one call answer as each prompt alone", ok and worst < 1e-4)
+
+
 def check_health(url):
     health = requests.get(url + "/health").json()
     files = {n: hashlib.sha256((MODEL_DIR / n).read_bytes()).hexdigest() for n in ("model.json", "openvino_model.bin", "openvino_model.xml", "tokenizer.gguf")}
@@ -195,7 +225,10 @@ def main():
     ap.add_argument("--build-dir", type=Path, default=ROOT / "build")
     ap.add_argument("--exact", action="store_true", help="also compare with golden/jev.json at zero tolerance")
     ap.add_argument("--record", action="store_true", help="keep this build's responses as golden/jev.json")
+    ap.add_argument("--threads", type=int, help="threads for every jev started and for the snapshot oracle (to share the machine)")
     args = ap.parse_args()
+    if args.threads:
+        THREADS.extend(["--threads", str(args.threads)])
     os.environ["PYTHONIOENCODING"] = "utf-8"
     golden = HERE / "golden"
 
@@ -217,7 +250,8 @@ def main():
         check_port_taken(args.jev, 8045)
     with Server(args.jev, "--warmup", "0", "--dynamic-quantization", "0") as s:
         step("snapshots, blocks, batching vs the plain oracle", run(sys.executable, "snapshots.py", "--target", s.url, "--model-dir", MODEL_DIR,
-                                                                   "--dynamic-quantization", "0"))
+                                                                   "--dynamic-quantization", "0", *THREADS))
+        check_shared_reads(s.url)
     print(f"=== FAILED: {', '.join(failed)}" if failed else "=== every check passed", flush=True)
     sys.exit(1 if failed else 0)
 

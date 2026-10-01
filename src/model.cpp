@@ -30,8 +30,10 @@ struct Model::Impl {
     };
     using Index = SnapshotIndex<Cells>;  // a snapshot's payload: the state's cells
     // One block of a call: the first `past_n` cells of `past`, `shared` state tokens read now (positions
-    // from `shared_pos`, causal), then questions (their tokens from `skip` on) each seeing the block's
-    // cells, its shared tokens and itself. No questions: the logits are read at the last shared token.
+    // from `shared_pos`, causal), then questions (their tokens from `skip` on) as a prefix tree
+    // (tree.hpp): each question sees the block's cells, its shared tokens and its own tokens, the ones it
+    // has in common with other questions read once. No questions: the logits are read at the last shared
+    // token.
     struct Block {
         const Cells* past = nullptr;
         size_t past_n = 0;
@@ -169,10 +171,10 @@ struct Model::Impl {
         const Cells* start = sn ? &sn->payload : nullptr;
         const Cells* cur = start;  // holds at least the cells before the next call's state piece
         Cells state;
-        std::vector<size_t> suffix;
-        for (auto& j : q.jobs) suffix.push_back(j.tokens.size() - P);
+        std::vector<const Tokens*> prompts;
+        for (auto& j : q.jobs) prompts.push_back(&j.tokens);
         std::vector<double> out(q.jobs.size());
-        for (const Call& call : plan_calls(c, P, suffix, PIECE_TOKENS, CALL_TOKENS, q.jobs.size())) {
+        for (const Call& call : plan_calls(c, P, prompts, PIECE_TOKENS, CALL_TOKENS, q.jobs.size())) {
             std::vector<Block> one{state_block(cur, call.state_from, prefix, call.state_from, call.state_to, q.jobs, call.questions)};
             auto ps = run(one);
             for (size_t s = 0; s < call.questions.size(); ++s) out[call.questions[s]] = ps[s];
@@ -227,11 +229,12 @@ struct Model::Impl {
     // One call over `blocks`: P(yes) per question in block order (one per block without questions).
     std::vector<double> run(std::vector<Block>& blocks) {
         size_t C = 0, T = 0, K = 0;
+        std::vector<PromptTree> trees;
         for (auto& b : blocks) {
             C += b.past_n;
             b.row = T;
-            T += b.shared.size();
-            for (auto* p : b.pieces) T += p->size() - b.skip;
+            trees.push_back(b.pieces.empty() ? PromptTree{} : prompt_tree(b.pieces, b.skip));
+            T += b.shared.size() + trees.back().tokens;
             K += std::max<size_t>(1, b.pieces.size());
         }
         size_t W = C + T;
@@ -243,7 +246,9 @@ struct Model::Impl {
         float* pb = bias.data<float>();
         std::fill(pb, pb + T * W, -std::numeric_limits<float>::infinity());
         size_t c0 = 0, k = 0;
-        for (auto& b : blocks) {
+        for (size_t bi = 0; bi < blocks.size(); ++bi) {
+            Block& b = blocks[bi];
+            const PromptTree& tree = trees[bi];
             size_t S = b.shared.size(), at = b.row;
             auto open = [&](size_t row, size_t from, size_t to) { std::fill(pb + row * W + from, pb + row * W + to, 0.0f); };
             for (size_t j = 0; j < S; ++j) {
@@ -252,19 +257,24 @@ struct Model::Impl {
                 open(at + j, c0, c0 + b.past_n);                 // the block's cached cells
                 open(at + j, C + at, C + at + j + 1);             // its shared tokens, causally
             }
+            std::vector<size_t> node_row(tree.nodes.size());
             size_t r = at + S;
-            for (auto* p : b.pieces) {
-                size_t n = p->size() - b.skip;
-                for (size_t j = 0; j < n; ++j) {
-                    pi[r + j] = (*p)[b.skip + j];
-                    pp[r + j] = static_cast<int64_t>(b.skip + j);
+            for (size_t n = 0; n < tree.nodes.size(); ++n) {
+                const TreeNode& node = tree.nodes[n];
+                const Tokens& p = *b.pieces[node.prompt];
+                node_row[n] = r;
+                for (size_t j = 0; j < node.to - node.from; ++j) {
+                    pi[r + j] = p[node.from + j];
+                    pp[r + j] = static_cast<int64_t>(node.from + j);
                     open(r + j, c0, c0 + b.past_n);
                     open(r + j, C + at, C + at + S);             // the state read in this call
+                    for (size_t a = node.parent; a != TreeNode::NO_PARENT; a = tree.nodes[a].parent)
+                        open(r + j, C + node_row[a], C + node_row[a] + tree.nodes[a].to - tree.nodes[a].from);  // what it shares
                     open(r + j, C + r, C + r + j + 1);            // itself, causally
                 }
-                r += n;
-                px[k++] = static_cast<int64_t>(r - 1);
+                r += node.to - node.from;
             }
+            for (size_t q = 0; q < b.pieces.size(); ++q) px[k++] = static_cast<int64_t>(node_row[tree.leaf[q]]);  // a leaf is one token
             if (b.pieces.empty()) px[k++] = static_cast<int64_t>(at + S - 1);
             c0 += b.past_n;
         }
