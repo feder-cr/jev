@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 env:
-  MODEL_RELEASE: jevos-v2
-  MODEL_ASSET: jevos-v2-openvino-int8.zip
+  MODEL_RELEASE: jevos-v3
+  MODEL_ASSET: jevos-v3-openvino-int8.zip
 
 jobs:
   check:

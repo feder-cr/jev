@@ -19,7 +19,7 @@ permissions:
 
 env:
   TAG: ${{ github.event.release.tag_name || inputs.tag }}
-  MODEL_ASSET: jevos-v2-openvino-int8.zip
+  MODEL_ASSET: ${{ github.event.release.tag_name || inputs.tag }}-openvino-int8.zip  # the release's own model, named after its tag
 
 jobs:
   clear-sums:
