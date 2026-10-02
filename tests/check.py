@@ -6,7 +6,7 @@
    distribution; tokenizer.py: the token ids of 3,054 texts,
    the Python engine's wherever its std::regex pre-tokenizer could tokenize them;
 2. parity with the Python server this one replaced: the 215 cases of parity.py (errors, formats and
-   answers; parity.py's EXTENSIONS, answered here where it refused them, left out) against its responses kept in golden/jev-python-q8.json (the jevos-v2 q8_0 GGUF, the INT8
+   answers; parity.py's EXTENSIONS, answered here where it refused them, left out) against its responses kept in golden/jev-python-q8.json (the q8_0 GGUF of the released model, the INT8
    model's precision class): formats and errors exact, P(yes) within 0.15;
 3. --exact: the same cases against golden/jev.json, a verified build's own responses, with zero
    tolerance: a check of a change on the machine and OS they were recorded on (OpenVINO picks kernels by CPU,
@@ -256,8 +256,9 @@ def main():
     step("choice-test", run(args.build_dir / f"choice-test{EXE}"))
     step("score-test", run(args.build_dir / f"score-test{EXE}"))
     step("tokenizer: the recorded token ids", run(sys.executable, "tokenizer.py", "--test", args.build_dir / f"tokenizer-test{EXE}"))
-    with Server(args.jev, "--name", "jevos-v2-q8_0", "--warmup", "0") as s:
-        step("parity with the Python server (jevos-v2 q8_0, P within 0.15)", parity(s.url, golden / "jev-python-q8.json", "0.15", "--skip-extensions"))
+    reference = json.loads((golden / "jev-python-q8.json").read_text(encoding="utf-8"))["served"]  # the name it answered with
+    with Server(args.jev, "--name", reference, "--warmup", "0") as s:
+        step("parity with the Python server (the q8_0 GGUF of the same model, P within 0.15)", parity(s.url, golden / "jev-python-q8.json", "0.15", "--skip-extensions"))
     with Server(args.jev, "--warmup", "0") as s:
         if args.record:
             step("record golden/jev.json", run(sys.executable, "parity.py", "--ref", s.url, "--record", golden / "jev.json"))
