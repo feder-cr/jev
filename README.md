@@ -23,6 +23,24 @@ Ultra 7 255H laptop with 16 threads, each request reading its text from scratch 
 By default the server keeps the texts it has read, so asking about the same text again takes 22 ms for
 the long request.
 
+### Five public tasks
+
+<img src="assets/jevos_public_tasks.png" alt="Latency on a short / long request: jevos-v3 28 / 130 ms; Jev 311 / 314 ms; Qwen3.5-4B 3,060 / 4,761 ms; Laya 129 / 480 ms. Accuracy on 5 public tasks (Medical Q&A, Agent rules, Merger contracts, Patent phrases, Policy ratings): jevos-v3 0.75, 0.49, 0.59, 0.37, 0.57; Jev 0.90, 0.85, 0.74, 0.59, 0.70; Qwen3.5-4B 0.87, 0.60, 0.68, 0.18, 0.54; Laya 0.66, 0.45, 0.41, 0.32, 0.42" width="100%" />
+
+Every system gets the same questions through the same HTTP client. The right answers come from experts,
+annotators or code, and none of these tasks was used to train or choose jevos.
+
+- **Medical Q&A** ([PubMedQA](https://github.com/pubmedqa/pubmedqa), yes/no): a biomedical abstract without
+  its conclusion, and the question the study asked.
+- **Agent rules** ([DynaBench](https://huggingface.co/datasets/montehoover/DynaBench), yes/no): an AI agent's
+  rules and a conversation; did the agent follow every rule?
+- **Merger contracts** ([MAUD](https://huggingface.co/datasets/nguha/legalbench), choice): a clause of a merger
+  agreement and a legal question about it, with the options lawyers chose from.
+- **Patent phrases** ([Patent Phrase Similarity](https://huggingface.co/datasets/tasksource/patent-phrase-similarity),
+  score): how close two phrases from patents are in meaning, on five levels.
+- **Policy ratings** ([sys1bench](https://pypi.org/project/sys1bench/), score): support tickets, server logs,
+  phishing emails and other records, rated by a written policy.
+
 ## What each one does
 
 | | **jevos-v3** | Jev | Laya |
