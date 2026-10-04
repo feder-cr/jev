@@ -14,9 +14,12 @@ P(yes).
   <img src="assets/jevos_bench.png" alt="Latency on a short request: jevos-v2 26 ms, Jev 344 ms, Laya 104 ms. On a long request: jevos-v2 112 ms, Jev 345 ms, Laya 449 ms. Accuracy on 2,000 yes/no questions from unseen policies: jevos-v2 0.810, Jev 0.927, Laya 0.489" width="100%" />
 </picture>
 
-jevos-v3 answers 80.8% of 999 hand-written yes/no questions correctly (jevos-v2 80.3%, the first jevos
-75.8%), and 86.5% of 821 new ones written by another model family (jevos-v2 83.1%), with the same size
-and speed. The latencies here were measured with jevos-v2: jevos-v3 has the same architecture and size.
+jevos-v4 answers 87.0% of 821 hand-written yes/no questions written by another model family (jevos-v3
+86.5%, jevos-v2 82.7%) and 78.9% of the original 999 (jevos-v3 80.8%, the first jevos 75.8%), with the same
+size and speed. It learned from a wider mix than jevos-v3, adding structured records, long policies and public
+decision tasks, and gains most on choices and scores. On the 999 jevos-v3 stays ahead, and it is still
+available in its release. The latencies here were measured with jevos-v2: every version has the same
+architecture and size.
 
 Latency is the median of 10 requests through the HTTP API, after 3 warm-up requests, on an Intel Core
 Ultra 7 255H laptop with 16 threads, each request reading its text from scratch (`--state-cache 0`).
@@ -43,7 +46,7 @@ annotators or code, and none of these tasks was used to train or choose jevos.
 
 ## What each one does
 
-| | **jevos-v3** | Jev | Laya |
+| | **jevos-v4** | Jev | Laya |
 |---|:---:|:---:|:---:|
 | Yes/no questions | ✓ | ✓ | ✓ |
 | Multiple choice | ✓ | ✓ | ✓ |
@@ -54,14 +57,14 @@ annotators or code, and none of these tasks was used to train or choose jevos.
 
 ## Quickstart
 
-From the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v3), download the archive for your
+From the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v4), download the archive for your
 system (`jev-windows-x64.zip`, `jev-linux-x64.tar.gz` or `jev-macos-arm64.tar.gz`) and the model,
-`jevos-v3-openvino-int8.zip`. Unpack the model into the `jev` folder, so that it sits in `jev/model`:
+`jevos-v4-openvino-int8.zip`. Unpack the model into the `jev` folder, so that it sits in `jev/model`:
 
 ```bash
 tar -xzf jev-linux-x64.tar.gz                 # Windows: unzip jev-windows-x64.zip
 cd jev
-unzip ../jevos-v3-openvino-int8.zip           # creates model/
+unzip ../jevos-v4-openvino-int8.zip           # creates model/
 ./jev serve                                   # Windows: jev.exe serve
 ```
 
@@ -74,15 +77,15 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-v3",
+  "model": "jevos-v4",
   "answers": {"billing": {"type": "noul", "noul": 0.94}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
 ```
 
-`jev` runs on the CPU: jevos-v3 with 8-bit weights through [OpenVINO](https://github.com/openvinotoolkit/openvino),
+`jev` runs on the CPU: jevos-v4 with 8-bit weights through [OpenVINO](https://github.com/openvinotoolkit/openvino),
 in one binary with no Python and no GPU. The same release has the model as GGUF files
-(`jevos-v3-q4_k_m.gguf`, `jevos-v3-q8_0.gguf`) for llama.cpp and the tools built on it.
+(`jevos-v4-q4_k_m.gguf`, `jevos-v4-q8_0.gguf`) for llama.cpp and the tools built on it.
 
 ## API
 
@@ -123,7 +126,7 @@ about again.
 
 ```json
 {
-  "model": "jevos-v3",
+  "model": "jevos-v4",
   "answers": {
     "refund": {"type": "noul", "noul": 0.93},
     "upset": {"type": "noul", "noul": 0.83},
@@ -166,7 +169,7 @@ from uniform, 0, to certain, 1):
 
 ```json
 {
-  "model": "jevos-v3",
+  "model": "jevos-v4",
   "answers": {
     "team": {"type": "choice", "choice": "shipping",
              "probabilities": {"billing": 0.02, "shipping": 0.93, "tech": 0.05}, "confidence": 0.89}
@@ -187,8 +190,8 @@ sees only its own question: the answers are the same as asking each option alone
 one yes/no question takes about 20 ms, this three-option choice takes about 100 ms, a ten-option one
 about 170 ms.
 
-On 2,676 held-out choice questions, the most probable option is the right one 78.8% of the time, with
-jevos-v3 as with jevos-v2. With jevos-v2: 74.2% on rental questions with labels from code, 81.2%
+On 2,676 held-out choice questions, the most probable option is the right one 79.2% of the time with
+jevos-v4 (jevos-v3 78.8%). With jevos-v2: 74.2% on rental questions with labels from code, 81.2%
 agreement with Jev on workflow questions, and the `confidence` says when to trust it: at 0.75 or more, 95% of the answers are right, on 46% of the
 questions; below 0.25, 47%.
 
@@ -218,9 +221,10 @@ answers are not (pool adjacent violators, 19% of held-out questions), and P(leve
 P(≥ k) − P(≥ k + 1). The `confidence` is Jev's: how concentrated the probabilities are around the most
 probable level, from 0 for a uniform spread to 1.
 
-On 2,350 held-out score questions the most probable level is right 56.5% of the time with jevos-v3
-(jevos-v2 54%), and within one level 83% (82%). On 329 everyday ratings (how angry, how urgent, how
-severe; 3–5 levels, labels by Claude) it is right 61% of the time and within one level 96% (jevos-v2 55%).
+On 2,350 held-out score questions the most probable level is right 58.5% of the time with jevos-v4
+(jevos-v3 56.5%, jevos-v2 54%), and within one level 86% (83%, 82%). On 329 everyday ratings (how angry,
+how urgent, how severe; 3–5 levels, labels by Claude) it is right 63% of the time and within one level 97%
+(jevos-v3 61%, jevos-v2 55%).
 It depends on the kind of question (measured with jevos-v2):
 
 - **Rubrics** (contract clauses, logistics events, survey responses; 1,389 questions, labels from Jev):
