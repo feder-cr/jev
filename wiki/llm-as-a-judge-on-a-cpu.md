@@ -133,7 +133,7 @@ in the text, yes. For hard reasoning or maths, no.
 **How do I avoid parsing the judge's answer?** Use a model that returns a probability. jevos
 generates no text.
 
-**Can it run in CI?** Yes. It needs only a CPU (x86-64 with AVX2, or Apple silicon), and `jev decide`
+**Can it run in CI?** Yes. It needs only a CPU (x86-64 (Windows or Linux) or Apple silicon), and `jev decide`
 answers a request file without a server.
 
 **Are the scores calibrated?** On the first jevos's natural yes/no held-out questions, the

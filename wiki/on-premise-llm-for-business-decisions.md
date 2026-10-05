@@ -26,7 +26,7 @@ defensible.
 
 | Resource | What jevos needs | Where the figure comes from |
 |---|---|---|
-| Accelerator | none; CPU only (x86-64 with AVX2, or Apple silicon) | README |
+| Accelerator | none; CPU only (x86-64 (Windows or Linux) or Apple silicon) | README |
 | Memory | about 1 GB with the model loaded, up to 1.4 GB with its cache of recent texts full | README |
 | Disk | the `jev` folder: binary, OpenVINO's libraries and the INT8 model | release files |
 | Context | up to 8,192 tokens per question (the text plus that question) | README |

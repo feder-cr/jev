@@ -61,7 +61,7 @@ see. Look for the device you expect, with the kind you expect, before measuring 
 On llama.cpp's tools, `--device` decides where the model runs, separately from which archive was
 unpacked: `--device none` (or `-ngl 0`) keeps every weight on the processor, even in a GPU build.
 
-jev runs on the CPU only (x86-64 with AVX2), with no GPU path, no Python and no download step.
+jev runs on the CPU only (x86-64), with no GPU path, no Python and no download step.
 Unzip `jev-windows-x64.zip`, unpack `jevos-v4-openvino-int8.zip` into the `jev` folder so that
 it creates `jev\model`, and start the server from that folder. The jevos numbers were measured
 on the CPU with no GPU; in PowerShell the command is:

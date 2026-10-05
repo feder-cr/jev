@@ -11,8 +11,8 @@ nav_order: 8
 CPU, not a GPU: download the jev binary and its model from the release, cache them, run
 `jev decide` on request files as a step, and fail the job when a probability is on the wrong
 side of its threshold.** GitHub documents its standard Linux runners at 4 CPUs and 16 GB of RAM
-for public repositories and 2 CPUs and 8 GB for private ones, and jev runs on any x86-64 CPU
-with AVX2. The workflow below is an untested sketch: we have not run it, and you
+for public repositories and 2 CPUs and 8 GB for private ones, and jev runs on x86-64
+Linux. The workflow below is an untested sketch: we have not run it, and you
 should expect to adjust paths and versions.
 
 The reason to do this in CI at all is that prompts and generated outputs change with every

@@ -122,8 +122,8 @@ the two is a base URL change. The broader trade-off is on
 **What does self-hosted AI mean?** Running the model on hardware you control instead of calling
 someone else's API. For a decision model that is a file, a runtime and a local server.
 
-**Do I need a GPU to self-host?** Not for jevos. jev runs on the CPU only: x86-64 with AVX2, or
-Apple silicon.
+**Do I need a GPU to self-host?** Not for jevos. jev runs on the CPU only: x86-64 (Windows or
+Linux), or Apple silicon.
 
 **How do I update a self-hosted model safely?** Verify the new file's hash, test it against
 your own labelled cases, re-check thresholds, then switch, keeping the old file.
