@@ -11,7 +11,7 @@ nav_order: 3
 reads the output and the source and answers whether the source supports each statement.** That
 covers summaries, RAG answers, extracted fields and support replies built from a policy. It
 cannot tell you whether a statement is true about the world when no source is given, because
-a model of about 1B parameters does not hold enough reliable knowledge, and jevos in particular
+a small model does not hold enough reliable knowledge, and jevos in particular
 is built to answer questions about the text it is given, not from memory.
 
 So the useful question is not "can it detect hallucinations?" but "do I have the source?". If
@@ -31,8 +31,8 @@ invented names and numbers, what to do when there is no source, and the limits.
 | typical fix | regenerate, or send for review | retrieval, a larger model, a human |
 
 A grounded check asks what a text says. An open-world check asks what is true. The first is the
-top of every accuracy table we have measured: on our 999 test questions, jevos was right 0.954
-of the time on facts stated in the text. The second is not in any of our tables, because it is
+top of every accuracy table we have measured: on our 999 test questions, the first jevos was right 0.954
+of the time on facts stated in the text (per-kind numbers for jevos-v4 are not published). The second is not in any of our tables, because it is
 not the job the model was built for. The broader case for matching the task to the model size
 is on [when a small model is enough, and when it is not](when-a-small-model-is-enough.md).
 
@@ -73,7 +73,7 @@ that is not in the source. You can catch a large share of them without splitting
    a name), ask the model: "Does the source mention the finance lead?"
 
 This split keeps each tool on what it does well. String and number comparison is exact in code,
-and weak in a one-pass model: jevos scored 0.584 on arithmetic questions and 0.598 on dates,
+and weak in a one-pass model: the first jevos scored 0.584 on arithmetic questions and 0.598 on dates,
 measured on [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md). Recognising
 that two phrasings refer to the same thing is where the model helps.
 
@@ -100,10 +100,10 @@ facts, and a probability it returns about one should not be read as evidence. Op
   on Friday?" is a reading question. "Is the meeting on Friday?" invites the model to guess.
 - **Ask separately whether the source mentions it at all.** A gate question such as "Does the
   source say which day the meeting is?" separates "the source is silent" from "the source says
-  otherwise". jevos scored 0.847 on not-stated questions; the pattern is on
+  otherwise". the first jevos scored 0.847 on not-stated questions; the pattern is on
   [ask whether the text says it at all](ask-whether-the-text-says-it.md).
-- **Set the bar for "supported" above 0.5.** On new kinds of question jevos makes more wrong
-  yeses than wrong noes (152 against 91 on our test set). For a hallucination detector, a wrong
+- **Set the bar for "supported" above 0.5.** On new kinds of question the first jevos made more wrong
+  yeses than wrong noes (152 against 91 on our test set; not published for jevos-v4). For a hallucination detector, a wrong
   yes is a missed hallucination.
 
 ## Limits of this approach
@@ -125,8 +125,8 @@ does not support or contradicts, such as a wrong day in a meeting summary.
 **How do I catch invented numbers?** Extract them in code and look them up in the source. Only
 ask the model about items that may be paraphrased.
 
-**Can I run hallucination checks on every output?** With a local model, yes: a request of about
-190 tokens takes about 112 ms on our reference laptop, and no text leaves the machine.
+**Can I run hallucination checks on every output?** With a local model, yes: a long request
+takes about 130 ms on our reference laptop, and no text leaves the machine.
 
 **What should I use for open-domain fact checking?** Retrieval followed by a grounded check, or a
 large model with search, with a person for high-stakes claims.
@@ -138,7 +138,7 @@ large model with search, with a person for high-stakes claims.
 ## Sources
 
 - Accuracy by kind of question and the yes/no error split: our 999-question test set, run on
-  `jevos-q4_k_m`.
+  the first jevos.
 - Latency: our measurement on an Intel Core Ultra 7 255H, reported in the
   [jev README](https://github.com/feder-cr/jev).
 - Manakul, Liusie and Gales, "SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for

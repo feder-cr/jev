@@ -1,14 +1,14 @@
 ---
 title: "jevos: yes/no decisions from a local LLM on the CPU"
-description: "jevos is a 1B local LLM that answers yes/no questions about a text with one probability, on a laptop CPU in 25 to 110 ms. Guides, measurements and limits."
+description: "jevos-v4 is a local model that answers yes/no, choice and score questions about a text, on a laptop CPU in 28 to 130 ms. Guides, measurements, limits."
 nav_order: 0
 ---
 
 # jevos: yes/no decisions from a local LLM on the CPU
 
 **jevos is a small local LLM that answers yes/no questions about a text.** You send the text and the question, and it sends back P(yes), the probability that the
-answer is yes. It runs on a laptop CPU, in 26 ms for a short request and
-112 ms for a 190-token one, and it generates no text, so there is nothing to parse.
+answer is yes. It runs on a laptop CPU, in 28 ms for a short request and
+130 ms for a long one, and it generates no text, so there is nothing to parse.
 
 That narrow job is the point. A router, a filter, a policy check, a judge in an evaluation
 loop: most decisions an application asks a language model for are yes/no questions with a
@@ -34,9 +34,9 @@ model, including where it is wrong, and how it compares with the alternatives.
 ## What we measured
 
 - [Why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md): 152 wrong
-  yeses against 91 wrong noes on 999 new questions, and why calibration does not fix it.
+  yeses against 91 wrong noes on 999 new questions (first jevos), and why calibration does not fix it.
 - [Small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md):
-  0.58 on questions that need a sum, against 0.95 on questions that only need reading.
+  on the first jevos, 0.58 on questions that need a sum, against 0.95 on questions that only need reading.
 - [Our held-out benchmark said 0.855, new questions said 0.757](held-out-benchmark-too-optimistic.md):
   why a test split built like the training data is not held out enough.
 
@@ -61,14 +61,14 @@ model, including where it is wrong, and how it compares with the alternatives.
 
 ## What it is not
 
-jevos answers yes/no questions, and multiple-choice questions asked as one yes/no question per
-option, in English only. Scores, asked as one yes/no question per level, are early (54% on held-out
-score questions, 82% within one level). On rules it has never seen it is right about
-four times in five (0.810 on 2,000 such questions), which is good for a first pass and not good
+jevos-v4 answers yes/no questions, picks one option from several (`choice`) and rates on a scale
+(`score`), in English only. Scores are early (58.5% right on held-out score questions, 86%
+within one level). On rules and scenarios it is right 0.76 to 0.95 of the time on our yes/no
+and choice tasks, against 0.88 to 1.00 for Jev, which is good for a first pass and not good
 enough to be the last word on a refund, and the measurement pages say exactly where it fails.
 
 ---
 
 *jevos is built by [feder-cr](https://github.com/feder-cr) with
 [Loris Salsi (@LosaLosSantos)](https://github.com/LosaLosSantos). The code is MIT, the model is
-on the [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2).*
+on the [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v4).*

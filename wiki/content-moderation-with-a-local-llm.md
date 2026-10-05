@@ -76,8 +76,8 @@ def moderate(answers):
 The thresholds are placeholders, not recommendations. Two things shape the real ones. First,
 what a wrong yes costs on that rule: removing an innocent post as off-topic annoys a user,
 missing a leaked phone number harms someone, so personal data gets the lower bar. Second, the
-model's own lean. When it is wrong, it is more often wrong toward yes: 152 wrong yeses against
-91 wrong noes on our 999-question test set. That is a reason to ask for clearly more than 0.5
+model's own lean. When it is wrong, it is more often wrong toward yes: on the first jevos, 152 wrong yeses against
+91 wrong noes on our 999 hand-written questions (not published for jevos-v4). That is a reason to ask for clearly more than 0.5
 before an automatic removal, and the reasoning is worked through on
 [thresholds when a wrong yes costs more](thresholds-when-a-wrong-yes-costs-more.md).
 
@@ -126,14 +126,14 @@ all), covered on [review moderation with a local LLM](review-moderation-with-a-l
   it matters; the model cannot see what you do not send.
 
 Being straight about the limit: we have not measured jevos on a moderation dataset. Our accuracy
-by kind of question (tone 0.938 on 32 questions, intent 0.859 on 71) tells you which rule
+by kind of question on the first jevos (tone 0.938 on 32 questions, intent 0.859 on 71) tells you which rule
 shapes are likely to work, not how well your rules will. Measure on your own posts.
 
 ## What running it locally changes
 
 User posts, including the ones you remove, stay on your machine. There is no extra processor
 for this step and no per-token bill that grows with your community. A short post costs about
-26 ms on our reference laptop (Intel Core Ultra 7 255H, 16 threads), and several rules on one
+28 ms on our reference laptop (Intel Core Ultra 7 255H, 16 threads), and several rules on one
 post cost much less than several calls, because the post is read once. For a small community,
 moderation can run on the same box as the forum.
 
@@ -168,8 +168,8 @@ multilingual model.
 
 - Short-request latency, English only, `/health` fields: the
   [jev README](https://github.com/feder-cr/jev) and our measurements on the reference laptop.
-- Error direction (152 vs 91) and accuracy by kind of question: our 999-question test set,
-  written after training, run on `jevos-q4_k_m`.
+- Error direction (152 vs 91) and accuracy by kind of question: our 999 hand-written questions,
+  measured on the first jevos.
 - The per-rule thresholds, review band and appeal loop are a design pattern described here, not
   a measured result.
 

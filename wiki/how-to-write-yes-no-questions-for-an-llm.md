@@ -9,13 +9,14 @@ nav_order: 1
 
 **A yes/no question works best when it asks one thing, names who or what it is about, carries
 any rule it depends on, and can be answered by reading the text rather than by computing
-something from it.** On 999 yes/no questions written after the model was finished, jevos was
-right 0.954 of the time on facts stated in the text and 0.584 on questions that needed a sum.
+something from it.** On 999 yes/no questions written after the model was finished, the first jevos was
+right 0.954 of the time on facts stated in the text and 0.584 on questions that needed a sum
+(per-kind numbers for jevos-v4 are not published; it gets 78.9% of the 999 right overall).
 Same model, same texts: the difference is what the question asked it to do. Sibling questions
 should also be phrased the same way, so that their probabilities can be compared.
 
 This matters more for a small model than for a large one. A large model can sometimes rescue a vague
-question by guessing what you meant; a 1B model is far more likely to answer exactly the
+question by guessing what you meant; a small model is far more likely to answer exactly the
 question you wrote. That makes
 question design the cheapest accuracy you can buy: no retraining, no bigger machine, only a
 better string in `instructions`.
@@ -26,7 +27,7 @@ section, each of which takes one rule or one kind of question further.
 ## What kind of question does a small model answer well?
 
 Questions whose answer is written in the text, or can be read off it. On the 999-question set,
-labelled by the kind of reasoning each question needs:
+labelled by the kind of reasoning each question needs, measured on the first jevos:
 
 | The question needs | Accuracy |
 |---|---|
@@ -62,7 +63,7 @@ to put in front of any question the text might not answer.
 2. **The rule goes in the question.** The model knows nothing about your policy except what the
    request says. "Our policy refunds items reported missing within 30 days of delivery. Should
    this customer get a refund?" is answerable; "Is this eligible under policy R-12?" is a guess.
-   On a yes/no question this server does not read Jev's optional `criteria` field, so the rule belongs in
+   On a yes/no question jev checks the `criteria` field but does not read it, so the rule belongs in
    `instructions`. The long version is [put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 3. **Reading, not computing.** Send "delivered: 5 days ago" rather than two dates and a
    question about their difference. How to shape the text for this is on
@@ -97,7 +98,8 @@ This is the README's example, and it shows four of the rules at once: the rule i
 `refund`, the delivery is already a duration, each question asks one thing, and each names the
 customer. The README's run answers 0.93, 0.83 and 0.04. The state is read once for all three
 questions, so asking three small questions instead of one compound one costs about 66 ms
-against 49 ms for a single question on the reference laptop.
+against 49 ms for a single question on the reference laptop (39 ms when the same state is asked
+again).
 
 ## How do I know a phrasing is good?
 
@@ -116,8 +118,8 @@ Some limits are not about wording:
 - **Language.** jevos reads English only. The options for other languages are on
   [using an English-only LLM with other languages](using-an-english-only-model-with-other-languages.md).
 - **Rules the model has never seen.** Even a well written rule question is the harder case: on
-  2,000 questions from three unseen business policies, jevos was right 0.810 of the time. Put a
-  review band around decisions that cost money.
+  Rental policy (choice) jevos-v4 scored 0.76 against 0.91 for Jev, and on Admission policy
+  (yes/no rules) 0.95 against 1.00. Put a review band around decisions that cost money.
 
 ## Short answers to the questions that lead here
 
@@ -129,9 +131,9 @@ reading of the text, so each extra question costs a fraction of the first, and w
 fails you can see which part failed.
 
 **Where do I put the policy text?** In `instructions`, in front of the question. On a yes/no
-question jevos does not read the `criteria` field.
+question jevos checks but does not read the `criteria` field.
 
-**Why does the model get dates wrong?** Dates and durations are computation. It scored 0.598
+**Why does the model get dates wrong?** Dates and durations are computation. The first jevos scored 0.598
 on them on our 999-question set. Compute the duration in code and send it as text.
 
 **Do I need examples in the question?** Not as a rule. A clear condition and a named subject
@@ -144,14 +146,15 @@ and [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md
 ## Sources
 
 - Accuracy by kind of question: our 999-question test set, written after the model was
-  finished, run on `jevos-q4_k_m`.
+  finished, run on the first jevos.
 - The refund request, its answers, and the 66 ms against 49 ms timing: the
   [jev README](https://github.com/feder-cr/jev), reference laptop with an Intel Core Ultra 7
   255H, 16 threads.
-- The 0.810 on 2,000 policy questions: the jev README.
+- The six-task results (Rental policy 0.76 against 0.91, Admission policy 0.95 against 1.00):
+  the jev README. Five of the six sets helped choose the released checkpoint.
 
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), a yes/no decision model whose
-accuracy on the same set of texts ran from 0.584 to 0.954 depending on what the question asked
+first version's accuracy on the same set of texts ran from 0.584 to 0.954 depending on what the question asked
 it to do.*

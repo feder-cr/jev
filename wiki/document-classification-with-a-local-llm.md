@@ -55,8 +55,8 @@ pitfalls of a plain argmax, is on
 
 The first page, almost always. Three reasons.
 
-- **Speed.** On our reference laptop the cost grows with the text: a request of about 190
-  tokens read from scratch took 112 ms. A first page of 400 to 600 tokens takes longer, and a
+- **Speed.** On our reference laptop the cost grows with the text: a long request
+  read from scratch took 130 ms. A first page of 400 to 600 tokens takes longer, and a
   whole report longer still; the numbers behind that are on
   [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 - **Limit.** jevos reads at most 8,192 tokens per question, the text plus that question, by
@@ -110,8 +110,9 @@ model, as discussed on
 Take a hundred or two documents you have already filed, with their correct types. Run the
 questions, and look at three things: the confusion between similar pairs (invoice and receipt,
 report and letter), the share that lands in "other", and the documents where two types were high.
-Then change the wording of the confused pair, not the threshold, first. On our 999-question
-test set written after training, stated facts were answered right 0.954 of the time, and "is
+Then change the wording of the confused pair, not the threshold, first. On our 999
+hand-written questions, the first jevos answered stated facts right 0.954 of the time (per-kind numbers for
+jevos-v4 are not published), and "is
 this an invoice" is usually a question of that kind when the header says so. We have not
 measured document classification as such, so your archive is the only accuracy figure that
 counts. A method for the test set is on
@@ -133,7 +134,7 @@ perhaps a sample of the last page. The limit is 8,192 tokens for the text plus e
 **What about documents that match no type?** Use a threshold: when no type is high enough, the
 label is "other".
 
-**Is it fast enough for a backlog?** A request of about 190 tokens took 112 ms on a laptop CPU.
+**Is it fast enough for a backlog?** A long request took 130 ms on a laptop CPU.
 Time a few of your own first pages; a backlog is a batch job.
 
 **See also:** [product categorization with yes/no questions](product-categorization-with-yes-no-questions.md),
@@ -143,8 +144,8 @@ Time a few of your own first pages; a backlog is a batch job.
 ## Sources
 
 - Our measurements: context, latency and the reference laptop from the
-  [jev README](https://github.com/feder-cr/jev); accuracy on stated facts from our 999-question
-  test set on `jevos-q4_k_m`. No document classification measurement exists; none is claimed.
+  [jev README](https://github.com/feder-cr/jev); accuracy on stated facts from our 999
+  hand-written questions, measured on the first jevos. No document classification measurement exists; none is claimed.
 - No external facts are stated on this page.
 
 ---

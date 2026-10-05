@@ -11,7 +11,7 @@ nav_order: 4
 action runs: a small model reads the user's request and the proposed call, and answers
 questions such as "Is this action what the user asked for?" with a probability.** Code then
 runs the call, asks the user to confirm, or blocks it, depending on how high the probability is
-and how much damage the tool can do. On a laptop CPU the check adds 25 to 110 ms, which is
+and how much damage the tool can do. On a laptop CPU the check adds 28 to 130 ms, which is
 small next to the tool call itself.
 
 The gate is worth having because the model that chose the action is the model least likely to
@@ -65,8 +65,9 @@ Each answer comes back as its own `noul`. Three design points are carried by the
   topic and say yes. Phrasing advice is on
   [negation in yes/no questions](negation-in-yes-no-questions.md).
 - **No amounts are compared by the model.** If the refund amount must not exceed the order total,
-  compare the numbers in code. On our 999-question test set, questions comparing a number with a
-  threshold were answered right 0.654 of the time, against 0.954 for stated facts.
+  compare the numbers in code. On our 999-question test set, the first jevos answered questions
+  comparing a number with a threshold right 0.654 of the time, against 0.954 for stated facts
+  (per-kind numbers for jevos-v4 are not published).
 
 ## Thresholds per tool
 
@@ -115,9 +116,9 @@ with the user as the reviewer. Size it so confirmations are rare enough that use
 ## What it costs
 
 A gate request with the user's message and a small tool call is a short request: on our
-reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), about 26 ms for 30 tokens and
-about 112 ms for 190 tokens. Three questions on one state took about 66 ms against 49 ms for
-one, because the state is read once. Gate only the tools that change something, and the cost per
+reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), about 28 ms for a short
+request and about 130 ms for a long one. Three questions on one state took about 66 ms against
+49 ms for one, because the state is read once. Gate only the tools that change something, and the cost per
 agent run is a few of those calls.
 
 ## Short answers to the questions that lead here
@@ -145,7 +146,7 @@ arguments in plain words.
 
 - Our measurements: latency on the reference laptop and the three-question timing from the
   [jev README](https://github.com/feder-cr/jev); accuracy by kind of question and error
-  direction from our 999-question set.
+  direction from our 999-question set, measured on the first jevos.
 - OWASP GenAI Security Project, [LLM06:2025 Excessive Agency](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/),
   fetched 2026-09-29.
 

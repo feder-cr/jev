@@ -10,8 +10,8 @@ nav_order: 4
 **Before asking a yes/no question the text might not answer, ask a gate question first: "Does
 the message say when the parcel was delivered?"** If the gate says no, the real question has no
 answer in the text, and whatever probability the model gives it is a guess. jevos is good at
-the gate: 0.847 on questions about whether a text states something, on our 999-question test
-set, with an average P(yes) of 0.23 on those whose answer is no.
+the gate: the first jevos scored 0.847 on questions about whether a text states something, on our
+999 hand-written questions, with an average P(yes) of 0.23 on those whose answer is no.
 
 The reason this matters is that a yes/no model always answers. There is no "I don't know" in a
 probability, and a question about a fact that is not in the text still comes back as a number
@@ -90,12 +90,20 @@ what the customer wants, or whether they gave a reason.
 
 ## What the measurements say
 
-On the 999 yes/no questions written after the model was finished, 98 were "not stated"
-questions, and jevos `q4_k_m` was right on 0.847 of them. When the right answer was no, the
+On the 999 hand-written yes/no questions, 98 were "not stated"
+questions, and the first jevos was right on 0.847 of them. When the right answer was no, the
 average P(yes) it gave was 0.23, low next to 0.59 on arithmetic questions and 0.53 on dates.
 On a second set of 1,000 template questions, with answers computed by code from structured
 texts about orders, leave requests, loans, bookings and similar records, it answered every
-"not stated" question correctly.
+"not stated" question correctly. These per-kind numbers belong to the first jevos; per-kind
+numbers for jevos-v4 are not published.
+
+For jevos-v4 there is a different measurement of the same problem: how well `confidence`
+separates questions that can be answered from questions missing a needed fact (AUROC, where 0.5
+means it cannot tell). It is 0.90 on Admission policy, 0.94 on Fraud points, 0.95 on Policy
+ratings and 0.81 on Support tickets, against 0.68, 0.46, 0.68 and 0.42 for the hosted Jev. Even so,
+with the fact missing jevos-v4 still answers with 75% or more confidence on up to 42% of those
+questions, so keep the gate.
 
 Two caveats. The template set is regular by construction, so its perfect score says more about
 easy cases than about messy customer mail; the 0.847 is the number to plan with. And the
@@ -125,8 +133,8 @@ text states the fact. Act on the real question only when the gate says yes.
 **Does a probability near 0.5 mean the information is missing?** Not reliably. A missing fact
 can produce a confident answer. Ask the gate question explicitly.
 
-**How good is jevos at spotting missing information?** 0.847 on 98 not-stated questions in our
-999-question test set, and all correct on the not-stated questions of a 1,000-question template
+**How good is jevos at spotting missing information?** The first jevos scored 0.847 on 98 not-stated questions in our
+999 hand-written questions, and all correct on the not-stated questions of a 1,000-question template
 set.
 
 **Should the gate and the question be in the same request?** Yes. They share one reading of the
@@ -142,7 +150,9 @@ customer. Do not treat missing as no.
 ## Sources
 
 - 0.847 on 98 not-stated questions and the mean P(yes) values on no-answer questions: our
-  999-question test set, `jevos-q4_k_m`.
+  999 hand-written questions, measured on the first jevos (released 2026-09-27).
+- Missing-facts AUROC for jevos-v4: the six-task and sys1bench comparison in the jev README;
+  sys1bench was never used to train or choose jevos.
 - All-correct result on not-stated questions: our second test of 1,000 template questions with
   answers computed by code.
 

@@ -71,12 +71,14 @@ significantly." A yes/no format helps; the training stage can undo it.
 
 ## What we measured on jevos, and where it breaks
 
-On the natural yes/no questions of our held-out split (6,397 questions, `jevos-q8_0`), the
+These measurements were taken on the first jevos; calibration has not been re-measured on
+jevos-v4. On the natural yes/no questions of its held-out split (6,397 questions), the
 calibration error was 0.009; on the development split, 0.018. On questions of the kind the
-model knows, its probabilities are close to the frequencies it achieves.
+model knows, its probabilities were close to the frequencies it achieved.
 
-On 999 questions written from scratch after the model was finished, the picture changes. The
-errors lean one way: 152 answers said yes when the answer was no, against 91 the other way. And
+On 999 hand-written questions, the picture changes. The first jevos's errors leaned one way: 152
+answers said yes when the answer was no, against 91 the other way (jevos-v4 scores 78.9% on the
+same 999 questions, but per-kind numbers for it are not published). And
 the lean is concentrated. The mean P(yes) on questions whose answer is no is 0.59 for
 arithmetic and 0.53 for dates and times, but 0.17 for negation and 0.16 for tone. A calibrated
 model would keep all of these low. On the question kinds it can read, it does; on the kinds it
@@ -113,8 +115,9 @@ separately, and a model can be strong on one and weak on the other.
 good calibration for pre-trained models on multiple choice and true/false formats, and worse
 calibration after post-training in at least one report.
 
-**Is jevos calibrated?** On natural yes/no questions like its held-out split, ECE 0.009. On new
-kinds of question, especially arithmetic and dates, it leans toward yes.
+**Is jevos calibrated?** The first jevos had ECE 0.009 on natural yes/no questions like its
+held-out split, and on new kinds of question, especially arithmetic and dates, it leaned toward
+yes. Neither has been re-measured on jevos-v4.
 
 **Can calibration be fixed after the fact?** A uniform miscalibration, often yes. A directional
 error on some kinds of question, not with one global correction.
@@ -125,8 +128,8 @@ error on some kinds of question, not with one global correction.
 
 ## Sources
 
-- Our measurements: ECE 0.009 (held-out, 6,397 natural yes/no questions) and 0.018 (dev split)
-  on `jevos-q8_0`; the 999-question set on `jevos-q4_k_m` for error counts and mean P(yes) by
+- Our measurements, all on the first jevos: ECE 0.009 (held-out, 6,397 natural yes/no
+  questions) and 0.018 (dev split); the 999-question set for error counts and mean P(yes) by
   kind.
 - Guo, Pleiss, Sun, Weinberger (2017),
   [On Calibration of Modern Neural Networks](https://arxiv.org/abs/1706.04599), fetched

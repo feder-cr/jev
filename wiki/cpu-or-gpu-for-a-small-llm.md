@@ -26,7 +26,7 @@ not about speed, how jev picks a device, and when to switch.
 1. **How many decisions per second at peak?** A handful per second with no queue is a CPU job.
    Sustained high concurrency is where batching on a GPU earns its cost.
 2. **How long are the inputs?** Tens to a few hundred tokens read quickly on a CPU; on our
-   laptop jevos took 26 ms at about 30 tokens and 112 ms at about 190. Thousands of tokens per
+   laptop jevos took 28 ms for a short request and 130 ms for a long one. Thousands of tokens per
    request multiply that.
 3. **Does the model generate?** A decision model with zero output tokens avoids the long
    sequential phase entirely. A chat model writing paragraphs spends most of its time there.
@@ -70,7 +70,7 @@ For many teams the deciding argument is that the CPU servers already exist; that
 
 ## How jev picks a device
 
-It does not pick one: jev runs on the CPU only. It runs jevos-v2 with 8-bit (INT8) weights
+It does not pick one: jev runs on the CPU only. It runs jevos-v4 with 8-bit (INT8) weights
 through OpenVINO, on any x86-64 CPU with AVX2 and on Apple silicon, and it is fastest on CPUs
 with AVX-VNNI or AVX-512 VNNI. There is no device option and no GPU build.
 

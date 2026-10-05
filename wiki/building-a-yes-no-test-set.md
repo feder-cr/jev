@@ -18,7 +18,7 @@ Published benchmarks cannot do this job. They are not your texts, not your quest
 not clean; the reasons are on
 [benchmark contamination and truly held-out tests](benchmark-contamination-and-held-out-tests.md).
 Even a split of your own data can mislead if it was produced the same way as whatever the model
-or prompt was tuned on: on our own model, that gap was about ten points, as measured on
+or prompt was tuned on: on the first jevos, that gap was about ten points, as measured on
 [our held-out benchmark said 0.855, new questions said 0.757](held-out-benchmark-too-optimistic.md).
 
 This page is where the cases come from, the format of one case, balance, labelling, tags, the
@@ -59,7 +59,7 @@ Two sets, if you can afford them:
 
 - **A balanced set**, about half yes and half no. It measures error direction fairly: if the model
   makes many more wrong yeses than wrong noes on a balanced set, it leans toward yes. Our own
-  999-question set is exactly half yes for this reason, and it is how we found the lean described
+  999 hand-written questions are exactly half yes for this reason, and it is how we found the lean described
   on [why a small LLM says yes](why-a-small-llm-says-yes.md).
 - **A set with your real mix.** If only 3% of your tickets are fraud, precision on the real mix
   will be far worse than on a balanced set, because the rare yeses are outnumbered by false alarms.
@@ -91,8 +91,8 @@ bulk, as described on
 
 A kind tag is the reasoning the question needs: stated fact, paraphrase, tone, intent, negation,
 not stated, rule, number against a threshold, date, arithmetic. It costs a few seconds per case,
-and it turns one accuracy figure into a map of what to trust. On our own set the kinds ranged from
-0.954 to 0.584. The tags, and how to assign them when a question needs two kinds of reasoning, are
+and it turns one accuracy figure into a map of what to trust. On our own set the kinds ranged, on the first jevos, from
+0.954 to 0.584 (per-kind numbers for jevos-v4 are not published). The tags, and how to assign them when a question needs two kinds of reasoning, are
 on [accuracy by kind of question](accuracy-by-kind-of-question.md).
 
 ## Keep it clean: never tune on it
@@ -108,7 +108,7 @@ In practice:
 - Choose thresholds and phrasings on the development set.
 - Run the test set when a decision has been made, not to make it.
 - When you have run it many times while iterating, retire it and build a fresh one. The effect of
-  choosing on the test set is measurable: on our 999 questions, picking the best bias by looking at
+  choosing on the test set is measurable: on our 999 questions with the first jevos, picking the best bias by looking at
   the test answers themselves reached 0.763, against 0.759 with a bias fitted properly on other
   data. The gain was small in our case, but all of it came from looking at the answers, and with
   a smaller set and more choices to make it grows.
@@ -148,7 +148,7 @@ that a careful reader cannot answer from the text.
 
 - The balanced 999-question set, its accuracy range by kind, and the recalibration results
   (0.759 fitted on development data, 0.763 chosen on the test set): our measurements on
-  `jevos-q4_k_m`.
+  the first jevos.
 - The plus or minus 8 points for 100 cases is the normal approximation for a proportion at 0.8,
   not a measurement.
 

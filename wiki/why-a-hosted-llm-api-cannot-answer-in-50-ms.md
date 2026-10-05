@@ -1,6 +1,6 @@
 ---
 title: "Why a hosted LLM API cannot answer in 50 ms"
-description: "Network round trips, TCP and TLS setup and queueing cost time before a hosted model starts. Why our hosted timing was flat at 344 and 345 ms."
+description: "Network round trips, TCP and TLS setup and queueing cost time before a hosted model starts. Why our hosted timing was flat at 311 and 314 ms."
 parent: "Speed"
 nav_order: 6
 ---
@@ -11,8 +11,8 @@ nav_order: 6
 and back before the answer exists, and on a fresh connection it crosses more than once.**
 Light in fibre covers about 200 km per millisecond, a new HTTPS connection needs round trips for
 TCP and TLS before the request is even sent, and the provider may queue the request behind
-others. From our laptop in Europe, the hosted Jev API took 344 ms on a short request and 345 ms
-on a long one, while the same requests ran locally in 26 and 112 ms.
+others. From our laptop in Europe, the hosted Jev API took 311 ms on a short request and 314 ms
+on a long one, while the same requests ran locally in 28 and 130 ms.
 
 The flatness is the tell. When a request with six times more text takes the same time, the
 model is not what you are waiting for. That also means a hosted API can be the right choice for
@@ -52,15 +52,15 @@ For a 50 ms budget, that gives a hard ceiling on distance. A single round trip t
 cable routes are not straight lines, so the practical distance is shorter. Nearby regions fit;
 an ocean away does not.
 
-## Reading 344 and 345
+## Reading 311 and 314
 
 | Same two requests | short (about 30 tokens) | long (about 190 tokens) |
 |---|---|---|
-| jevos on the laptop, text read from scratch | 26 ms | 112 ms |
-| Jev, hosted, from Europe, network included | 344 ms | 345 ms |
+| jevos on the laptop, text read from scratch | 28 ms | 130 ms |
+| Jev, hosted, from Europe, network included | 311 ms | 314 ms |
 
-Locally, going from 30 to 190 tokens quadrupled the time, because the model reads every token.
-Hosted, it added one millisecond. The length-dependent part of the hosted call was lost in the
+Locally, going from 30 to 190 tokens more than quadrupled the time, because the model reads every
+token. Hosted, it added three milliseconds. The length-dependent part of the hosted call was lost in the
 fixed part: connection, round trips, and whatever happens before the provider's model starts.
 
 What the numbers do not tell you is how that fixed part splits. We do not know where
@@ -87,8 +87,8 @@ nearest region is far, no client-side change fits it.
 
 ## When hosted is still the right call
 
-- **Accuracy matters more than milliseconds.** On 2,000 policy questions none of them was tuned
-  on, Jev was right 0.927 of the time against 0.810 for jevos. The comparison is on
+- **Accuracy matters more than milliseconds.** On our six tasks the hosted Jev was ahead each time,
+  for example 1.00 against 0.95 for jevos on admission rules. The comparison is on
   [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 - **The texts are long.** Local latency grows with every token read on our laptop; a hosted
   model's fixed cost matters less the more work each request carries.
@@ -106,7 +106,7 @@ URL. The pattern is on
 
 **Why is my LLM API call slow even for a one-word answer?** Much of the time is network and
 setup, not the model. On our measurement from Europe, a 30-token and a 190-token request took
-the same 344 to 345 ms.
+about the same 311 to 314 ms.
 
 **Can any hosted API answer in 50 ms?** Only from close by, on a reused connection, with little
 queueing and a fast model. The distance alone rules it out from far away.
@@ -127,7 +127,7 @@ server near the provider, measure both.
 
 ## Sources
 
-- Local and hosted latencies and the 2,000-question accuracy comparison: our own measurements,
+- Local and hosted latencies and the six-task accuracy comparison: our own measurements,
   published in the [jev README](https://github.com/feder-cr/jev).
 - TCP handshake: [RFC 9293](https://www.rfc-editor.org/rfc/rfc9293), fetched 2026-09-29.
 - TLS 1.3 handshake and 0-RTT: [RFC 8446](https://www.rfc-editor.org/rfc/rfc8446), fetched
@@ -142,4 +142,4 @@ server near the provider, measure both.
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), written on a laptop in Europe, which
-is where the 344 ms came from and the only place we can vouch for it.*
+is where the 311 ms came from and the only place we can vouch for it.*

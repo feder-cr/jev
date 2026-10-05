@@ -1,6 +1,6 @@
 ---
 title: "Why LLM latency grows with the length of the text"
-description: "A local LLM reads every token of its input, so latency rises with length: about 0.5 ms per prompt token on our laptop. What it means and how to trim."
+description: "A local LLM reads every token of its input, so latency rises with length: about 0.6 ms per prompt token on our laptop. What it means and how to trim."
 parent: "Speed"
 nav_order: 5
 ---
@@ -9,8 +9,8 @@ nav_order: 5
 
 **A language model has to process every token of its input before it can answer, so a longer
 text takes longer, roughly in proportion to its length.** On our reference laptop, jevos
-answered a request of about 30 tokens in 26 ms and one of about 190 tokens in 112 ms, reading
-each text from scratch: about 0.5 ms for each additional prompt token. Double the text and you should expect close to double the
+answered a request of about 30 tokens in 28 ms and one of about 190 tokens in 130 ms, reading
+each text from scratch: about 0.6 ms for each additional prompt token. Double the text and you should expect close to double the
 time, which is why the cheapest speed-up is usually sending less.
 
 The counterintuitive part is where the tokens come from. The text you care about is only part of
@@ -24,12 +24,13 @@ documents, how to trim the input, and why a hosted API does not show the same sl
 
 | Request | Input tokens | jevos, text read from scratch | jevos, same text asked again |
 |---|---|---|---|
-| short | about 30 | 26 ms | 25 ms |
-| long | about 190 | 112 ms | 22 ms |
+| short | about 30 | 28 ms | not published |
+| long | about 190 | 130 ms | 22 ms |
 
-The difference is about 86 ms for about 160 extra tokens, a little over half a millisecond each,
-which is where the "about 0.5 ms per prompt token" figure comes from. Measured on an Intel Core
-Ultra 7 255H with 16 threads and no GPU in use.
+The difference is about 102 ms for about 160 extra tokens, a little over half a millisecond each,
+which is where the "about 0.6 ms per prompt token" figure comes from. Measured on an Intel Core
+Ultra 7 255H with 16 threads and no GPU in use, median of 10 requests after 3 warm-up requests,
+with jevos-v3, which has the same size and speed as jevos-v4.
 
 The last column is the same request sent again. jev keeps texts it has read (up to 16 of them,
 8,192 tokens in all, by default), so a second question on the same text reads only the
@@ -54,8 +55,8 @@ way to know what a record costs is to send a few real ones and read that field.
 
 ## What happens on a long document?
 
-jevos accepts up to 8,192 tokens. If the slope stayed at 0.5 ms per token all the way, a full
-context would take on the order of 4 seconds on our laptop. We have not measured that, and the
+jevos accepts up to 8,192 tokens. If the slope stayed at 0.6 ms per token all the way, a full
+context would take on the order of 5 seconds on our laptop. We have not measured that, and the
 straight-line assumption is optimistic rather than safe: attention over a long prompt does more
 work per token as the prompt grows, so treat the extrapolation as a rough idea, not a figure.
 
@@ -100,8 +101,8 @@ More on choosing fields and names is on
 
 ## Why a hosted API looks flat
 
-On the same two requests, the hosted Jev API took 344 ms and 345 ms from Europe, network
-included. Its time barely changed while the local model's quadrupled. A hosted model reads every
+On the same two requests, the hosted Jev API took 311 ms and 314 ms, network
+included. Its time barely changed while the local model's more than quadrupled. A hosted model reads every
 token too; the flat line only says that, from where we measured, the part that depends on length
 was small next to the fixed part, the network round trip and whatever happens before the model
 starts.
@@ -116,7 +117,7 @@ and the wider trade-off is on
 ## Short answers to the questions that lead here
 
 **Why is my LLM slower on long prompts?** Because it processes every input token before
-answering. On our laptop each extra token cost jevos about 0.5 ms.
+answering. On our laptop each extra token cost jevos about 0.6 ms.
 
 **Does the length of the question matter, or only the text?** Both. Instructions are input
 tokens like any other, and a long policy written into each of several questions adds up.
@@ -139,7 +140,7 @@ turned into durations, no quoted email history.
   the hosted Jev timings and the 8,192-token context: our own measurements and the
   [jev README](https://github.com/feder-cr/jev).
 - Token counts of the two examples: `usage.input_tokens` as shown in the README.
-- The 4-second figure is an extrapolation from the measured slope, not a measurement.
+- The 5-second figure is an extrapolation from the measured slope, not a measurement.
 - Attention work growing with sequence length:
   [Hugging Face Transformers, caching](https://huggingface.co/docs/transformers/main/en/cache_explanation),
   fetched 2026-09-29.

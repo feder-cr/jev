@@ -61,9 +61,10 @@ ask the facts the policy needs, and keep the verdict for code:
 - Is the customer upset?
 - Does the message say when the problem was noticed?
 
-These are reading questions. On 999 yes/no questions written after training, stated facts were
-answered right 0.954 of the time, intent 0.859 and tone 0.938, while applying a rule was 0.721
-and arithmetic 0.584. That spread is the reason for the split. All the questions go in one
+These are reading questions. On 999 yes/no questions, the first jevos answered stated facts
+right 0.954 of the time, intent 0.859 and tone 0.938, while applying a rule was 0.721
+and arithmetic 0.584 (per-kind numbers for jevos-v4 are not published; its overall score on
+those 999 is 78.9%). That spread is the reason for the split. All the questions go in one
 request: the text is read once, and on our reference laptop three questions on this example took
 about 66 ms against 49 ms for one.
 
@@ -121,7 +122,7 @@ approved, that record answers without re-running anything. Details on
 
 ## What goes wrong, and how the workflow absorbs it
 
-- **The model says yes when the answer is no.** On the 999 set it made 152 wrong yeses against
+- **The model says yes when the answer is no.** On the 999 set the first jevos made 152 wrong yeses against
   91 wrong noes. A wrong yes on "missing" costs a refund, so the automatic approval threshold is
   high, the amount is capped, and repeat claims go to review. The reasoning is on
   [thresholds when a wrong yes costs more than a wrong no](thresholds-when-a-wrong-yes-costs-more.md).
@@ -168,7 +169,7 @@ decided.
 - The request and its answers (0.93, 0.83, 0.04; 95 input tokens), the 66 ms and 49 ms timings,
   and the `/health` and `Server-Timing` behaviour: the [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind of question and the 152 to 91 error split: our 999-question test set on
-  `jevos-q4_k_m`. No refund dataset was measured.
+  the first jevos. No refund dataset was measured.
 - No external facts are stated on this page.
 
 ---

@@ -69,11 +69,11 @@ larger than a multiple of 3) and the read timeout, which is the wait for the ser
 Size the read timeout from your own traffic, not from the laptop figures. Two things make a
 reply slower than one inference:
 
-- **Long texts.** On the reference CPU a 191-token text read from scratch took 112 ms against
-  26 ms for a 30-token one; how that adds up is on [why latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
+- **Long texts.** On the reference CPU a long text (about 190 tokens) read from scratch took 130 ms against
+  28 ms for a short one; how that adds up is on [why latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 - **Queueing.** Concurrent requests share one CPU. Small requests arriving together are read in
   one model call, but throughput barely grows with the number of clients: on the reference
-  laptop, 1 client got 8.7 requests/s (median 110 ms), 4 clients 9.8/s (390 ms) and 8 clients
+  laptop, with an earlier jevos (not remeasured on jevos-v4), 1 client got 8.7 requests/s (median 110 ms), 4 clients 9.8/s (390 ms) and 8 clients
   10.1/s (780 ms). Ten threads calling at once do not get ten answers in the time of one; most
   of them wait. A thread pool in the client raises throughput only up to the point where the
   server is busy all the time.
@@ -132,8 +132,8 @@ what else to keep.
 ## Being straight about the limits of the client
 
 The helper does nothing about the model's own weaknesses. It returns a probability, and what
-that probability is worth depends on the question: on our 999-question test it was right 0.954
-of the time on facts stated in the text and 0.584 on arithmetic. A threshold of 0.5 is the
+that probability is worth depends on the question: on our 999-question test the first jevos was right 0.954
+of the time on facts stated in the text and 0.584 on arithmetic (per-kind numbers for jevos-v4 are not published; overall 78.9%). A threshold of 0.5 is the
 neutral starting point; [how to choose a threshold for P(yes)](how-to-choose-a-threshold-for-p-yes.md)
 is the next step. The model reads English only.
 
@@ -165,7 +165,7 @@ and [curl examples for a local LLM decision API](curl-examples-for-a-local-llm-a
   from the source of [jev](https://github.com/feder-cr/jev).
 - Latencies, the several-client throughput and the billing example: the
   [jev README](https://github.com/feder-cr/jev) and our measurements (Intel Core Ultra 7 255H,
-  16 threads). Accuracy by kind: our 999-question test set, `jevos-q4_k_m`.
+  16 threads). Accuracy by kind: our 999-question test set, measured on the first jevos.
 - Sessions, timeouts and the retry example:
   [Requests, Advanced Usage](https://requests.readthedocs.io/en/latest/user/advanced/), fetched
   2026-09-29.

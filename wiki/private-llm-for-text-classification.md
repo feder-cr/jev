@@ -84,8 +84,8 @@ easy to pass only what the questions need:
 No name, no email address, no order number, no account ID. None of the three questions needs
 them, and the answers come back keyed by question name, so your code joins them to the customer
 record it already has. Dropping fields also saves time: latency grows with the length of the
-input: on the reference laptop a 30-token request read from scratch took 26 ms and a 191-token
-one 112 ms. The general method is on
+input: on the reference laptop a short request read from scratch took 28 ms and a long one (about 190 tokens)
+130 ms. The general method is on
 [sending JSON as the text: designing the state](designing-the-state-as-json.md).
 
 If messages routinely contain identifiers you would rather not pass at all, strip the exact
@@ -97,7 +97,7 @@ exact patterns in code, meaning in the model.
 ## How good is the classification?
 
 Privacy is worth little if the labels are wrong. The measurements that matter for
-classification come from 999 yes/no questions written after training, on texts such as emails,
+classification come from 999 yes/no questions written after training and were measured on the first jevos (per-kind numbers for jevos-v4 are not published; its overall score is 78.9%), on texts such as emails,
 tickets, logs, reviews and forms: 0.954 on facts stated in the text, 0.938 on tone, 0.859 on
 the writer's intent, 0.858 on negation. The weak spots are questions that need a computation,
 0.584 on arithmetic and 0.598 on dates, which a classifier mostly should not be asking anyway.
@@ -115,8 +115,9 @@ example, three questions take about 66 ms together against 49 ms for one alone.
   set that does not change, a classifier trained on those examples will usually be more accurate; see
   [a yes/no LLM vs a fine-tuned BERT classifier](yes-no-llm-vs-fine-tuned-bert.md). It can be
   just as private.
-- **Hard rules.** On 2,000 questions about unseen business policies, jevos was right 0.810 of
-  the time against 0.927 for the hosted Jev. If the label is really a policy decision, compute
+- **Hard rules.** On six tasks built from rules, annotators or experts, jevos-v4 scored
+  0.95 against 1.00 for the hosted Jev on admission-policy yes/no rules and 0.76 against 0.91 on
+  rental-policy choices (five of the six sets helped choose the released checkpoint). If the label is really a policy decision, compute
   the policy in code.
 
 ## Short answers to the questions that lead here
@@ -144,8 +145,8 @@ probability that a customer is angry is information about that customer.
 
 - Server binding, `JEV_API_KEY`, the request format and the three-question timing: the
   [jev README](https://github.com/feder-cr/jev).
-- Accuracy by kind of question: our 999-question test set on `jevos-q4_k_m`; policy accuracy:
-  our 2,000-question comparison. Latency by text length: our measurement on an Intel Core Ultra 7
+- Accuracy by kind of question: our 999-question test set, measured on the first jevos; policy accuracy:
+  the six-task comparison in the jev README. Latency by text length: our measurement on an Intel Core Ultra 7
   255H.
 
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Local vs hosted LLM decisions: latency, cost, privacy"
-description: "The trade-off between a local and a hosted model for yes/no decisions, with one measured example (26/112 ms vs 344/345 ms) and what shifts with scale."
+description: "The trade-off between a local and a hosted model for yes/no decisions, with one measured example (28/130 ms vs 311/314 ms) and what shifts with scale."
 parent: "Comparisons"
 nav_order: 11
 ---
@@ -10,9 +10,9 @@ nav_order: 11
 **A local model wins on latency for short decisions, costs nothing per call and keeps the text on
 your machine; a hosted model wins on accuracy for hard questions, on languages, and on not having
 to run anything.** In our one measured example, from a laptop in Europe, jevos answered a short
-request in 26 ms and a long one in 112 ms, while TypeSafe's hosted Jev took 344 and 345 ms with
-the network included. On 2,000 rule questions, the hosted model was right 0.927 of the time
-against 0.810 locally. Which of those rows matters most is the decision.
+request in 28 ms and a long one in 130 ms, while TypeSafe's hosted Jev took 311 and 314 ms with
+the network included. On admission-policy yes/no rules, the hosted model was right 1.00 of the
+time against 0.95 locally. Which of those rows matters most is the decision.
 
 Conflict of interest, in one line: we build jevos, the local side of the one measurement on this
 page.
@@ -27,12 +27,13 @@ changes with scale and region.
 
 ## The one measurement
 
-| | short request (about 30 tokens) | long request (about 190 tokens) |
+| | short request | long request |
 |---|---|---|
-| jevos, local (Intel Core Ultra 7 255H, 16 threads, CPU) | 26 ms | 112 ms |
-| TypeSafe Jev, hosted API from Europe, network included | 344 ms | 345 ms |
+| jevos, local (Intel Core Ultra 7 255H, 16 threads, CPU) | 28 ms | 130 ms |
+| TypeSafe Jev, hosted API from Europe, network included | 311 ms | 314 ms |
 
-Same two requests, same laptop. The hosted numbers include everything an application
+Same two requests, same laptop, median of 10 requests after 3 warm-up requests (measured with
+jevos-v3, which has the same size and speed as jevos-v4). The hosted numbers include everything an application
 would see: connection, request, the provider's processing and the response. It is one hosted
 service from one place, not a statement about hosted APIs in general, and a server closer to the
 provider would see less.
@@ -40,13 +41,13 @@ provider would see less.
 ## Latency: a slope against a floor
 
 The local time is almost all prompt processing, and no generation, since jevos produces no output
-tokens. More text takes longer: 26 ms for about 30 tokens, 112 ms for about 190 on that laptop,
+tokens. More text takes longer: 28 ms for a short request, 130 ms for a long one on that laptop,
 unless the same text was read before (22 ms for the long one asked again). The mechanics are on [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 
 The hosted time has a floor that has nothing to do with the model: DNS, TLS, the distance to the
 data centre, queueing. OpenAI's latency guide makes the general point that "each time you make a
 request, you incur some round-trip latency" and recommends fewer, combined requests. Above the
-floor, a fast hosted model adds little per token, which is why Jev's two numbers are 1 ms apart.
+floor, a fast hosted model adds little per token, which is why Jev's two numbers are 3 ms apart.
 
 Two consequences follow. For short, interactive decisions, such as a chat message, a form field
 or a game loop, the local slope stays well under the hosted floor. For long documents the local
@@ -82,11 +83,13 @@ What local does not solve: who can reach the server, what your own logs keep, an
 
 ## Accuracy: often the deciding row
 
-On 2,000 yes/no questions about three business policies none of the models had been tuned on, Jev
-was right 0.927 of the time and jevos 0.810. The gap was largest on additive point scores, several
-signals summed and compared with a cut-off, which is arithmetic. On reading questions the local
-model is much stronger than on computation: 0.954 on stated facts against 0.584 on arithmetic in
-our 999-question test.
+On six tasks, with the same questions and HTTP client for all models, Jev was ahead of jevos-v4 on
+every one: 1.00 vs 0.95 on admission policy (yes/no), 0.88 vs 0.76 on ShARC rules and scenarios,
+0.91 vs 0.76 on rental policy (choice), 0.98 vs 0.81 on authority rules (choice), 0.69 vs 0.50 on
+fraud points (score, several signals summed and compared with a cut-off, which is arithmetic) and
+0.59 vs 0.37 on patent phrases (score, expert ratings). The gap is smallest on plain yes/no
+rules and widest on the score and choice tasks. Five of the six sets helped choose the released
+checkpoint, so jevos's scores there may be slightly optimistic.
 
 If a wrong decision is expensive and the questions involve rules and numbers, the hosted model's
 extra accuracy may be worth all its latency and cost. If the questions are reading questions, the
@@ -99,16 +102,17 @@ local one may be enough. The way to know is a labelled sample of your own cases.
   at a time; see [throughput vs latency for a decision server](throughput-vs-latency-for-a-decision-server.md).
 - **Region.** A client near the provider sees a lower floor. A client far away sees a higher one.
 - **Text length.** Short texts favour local; very long ones narrow or reverse the gap.
-- **Languages and question types.** jevos is English, and answers yes/no and `choice`
-  questions; its `score` answers are early (54% on held-out score questions, 82% within one level).
+- **Languages and question types.** jevos is English, and answers yes/no, `choice` and `score`
+  questions; its `score` answers are early (58.5% of 2,350 held-out score questions right, 86%
+  within one level).
 - **Both at once.** With the same wire format, you can answer confident cases locally and send the
   uncertain band to the hosted model, as on
   [a model cascade: small model first](model-cascade-small-model-first.md).
 
 ## Short answers to the questions that lead here
 
-**Is a local LLM faster than an API?** For short decisions in our measurement, yes: 26 ms against
-344 ms. For long texts the gap narrows, because local time grows with length and hosted time
+**Is a local LLM faster than an API?** For short decisions in our measurement, yes: 28 ms against
+311 ms. For long texts the gap narrows, because local time grows with length and hosted time
 barely does.
 
 **Is a local LLM cheaper?** No per-call price, but you pay for and run the machine. At high volume
@@ -117,7 +121,8 @@ it usually is; at low volume the API often is.
 **Is a local LLM more private?** The text stays on your machine. Access control and logs remain
 your job.
 
-**Is hosted more accurate?** In our test, yes: 0.927 against 0.810 on unseen rules.
+**Is hosted more accurate?** In our test, yes: on all six tasks, for example 1.00 against 0.95 on
+admission policy and 0.88 against 0.76 on ShARC rules.
 
 **Can I use both?** Yes. Decide locally when confident and escalate the rest.
 
@@ -127,10 +132,9 @@ your job.
 
 ## Sources
 
-- Latency (26/112 ms, 344/345 ms), the three-question timing, memory and the
-  2,000-question accuracy: our own measurements, published in the
+- Latency (28/130 ms, 311/314 ms), the three-question timing, memory and the six-task accuracy
+  table: our own measurements, published in the
   [jev README](https://github.com/feder-cr/jev).
-- Accuracy by kind: our 999-question test set on `jevos-q4_k_m`.
 - Round-trip latency advice: OpenAI, [Latency optimization](https://developers.openai.com/api/docs/guides/latency-optimization),
   fetched 2026-09-29.
 - Per-million-token pricing: OpenAI, [API pricing](https://developers.openai.com/api/docs/pricing),

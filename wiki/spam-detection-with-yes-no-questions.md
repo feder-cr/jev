@@ -48,7 +48,8 @@ point in its favour. Keeping each signal separate lets you weight them, and keep
 from being confused with "unwanted", which is not something the text can say.
 
 These are intent and tone questions, the kinds the model reads best. On our 999 yes/no
-questions written after training, intent scored 0.859 and tone 0.938. Asking whether a link's
+questions, the first jevos scored 0.859 on intent and 0.938 on tone (per-kind numbers for jevos-v4
+are not published). Asking whether a link's
 visible text matches its target is not a reading question: parse the HTML and compare in code.
 
 ## Combining the text with the sender, in code
@@ -79,7 +80,7 @@ own labelled mail, and accept the recall that comes with it;
 [precision and recall at a P(yes) threshold](precision-and-recall-at-a-threshold.md) shows how
 moving the cut-off trades one for the other.
 
-Two measured facts push the same way. When jevos is wrong on our test set, it is wrong toward
+Two measured facts push the same way. When the first jevos was wrong on our test set, it was wrong toward
 yes more often (152 wrong yeses against 91 wrong noes), and a wrong yes here is a real message
 flagged. And spam is often not rare in a mailbox, but on a forum or a sign-up form it can be: a
 0.9 on a kind of message that is spam once in a thousand still flags mostly innocent messages.
@@ -119,7 +120,7 @@ simpler than any model.
 
 For a contact form, a comment section or in-app chat, yes: the messages include your users'
 private words, the volume is too high to pay per token for comfortably, and a short message
-costs about 26 ms on our reference laptop, with all five questions sharing one reading of the text. For a large
+costs about 28 ms on our reference laptop, with all five questions sharing one reading of the text. For a large
 email provider, the question is moot: that is a different system with different data.
 
 ## Short answers to the questions that lead here
@@ -144,7 +145,7 @@ run yourself.
 ## Sources
 
 - Accuracy by kind of question and error direction (152 vs 91): our 999-question test set,
-  written after training, run on `jevos-q4_k_m`.
+  written after the first jevos was finished, run on the first jevos.
 - Short-request latency: our measurement on the reference laptop (Intel Core Ultra 7 255H, 16
   threads), in the [jev README](https://github.com/feder-cr/jev).
 - The combining weights in the code are illustrative, not fitted.

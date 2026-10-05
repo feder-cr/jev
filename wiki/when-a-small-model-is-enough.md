@@ -16,7 +16,7 @@ useful answer is to split them: the small model reads, code computes, and a larg
 person takes what is left.
 
 The trap is choosing one model for a whole application. The same product has "is this email a
-newsletter?", which a 1B model reads well, and "is this claim within the policy limits?",
+newsletter?", which a small model reads well, and "is this claim within the policy limits?",
 which it does not. Deciding per question is what makes a small model usable.
 
 This page is the checklist, then one section per question on it, with the measurements behind
@@ -45,15 +45,16 @@ at them. The options are laid out on
 [using an English-only LLM with other languages](using-an-english-only-model-with-other-languages.md).
 
 The yes/no shape fits more often than it seems. A label from a list becomes one question per
-label; a level such as low, medium or high becomes "is it at least medium?" and "is it high?". jevos answers
-`noul`, `choice` and `score` questions, the last two as one yes/no question per option or level;
-scores are early (the most probable level is right 54% of the time on 2,350 held-out questions,
-within one level 82%) and weak where the level is a sum of points. If the output has to be text, a summary, a reply, an extracted list, a small
+label; a level such as low, medium or high becomes "is it at least medium?" and "is it high?". jevos-v4 answers
+`noul`, `choice` and `score` questions; scores are early (the most probable level is right on
+58.5% of 2,350 held-out score questions, within one level 86%) and weak where the level is a sum
+of points (0.50 against 0.69 for the hosted Jev on the fraud-points task). If the output has to be text, a summary, a reply, an extracted list, a small
 yes/no model is the wrong tool, and a generative model is the right one.
 
 ## Is the answer read or computed?
 
-This is the most important row. On 999 questions written after the model was finished:
+This is the most important row. On 999 questions written after the model was finished, measured
+on the first jevos (per-kind numbers for jevos-v4, 78.9% overall, are not published):
 
 - read from the text: stated facts 0.954, tone 0.938, intent 0.859, negation 0.858, not stated
   0.847;
@@ -68,10 +69,10 @@ the parcel late?" may need a subtraction.
 
 ## Is it a hard written rule?
 
-Rules sit in between. On the 999-question set, applying a rule was right 0.721 of the time. On
-2,000 yes/no questions about three business policies none of the models was tuned on, jevos
-was right 0.810 of the time and the hosted Jev 0.927, with the widest gap on additive point
-scores. A rule with one condition written into the question works; a policy with points,
+Rules sit in between. On the 999-question set, applying a rule was right 0.721 of the time (first
+jevos). On the six tasks, jevos-v4 got 0.95 against 1.00 for the hosted Jev on yes/no admission
+rules, and 0.50 against 0.69 on fraud points, which are sums; five of the six sets helped choose
+the released checkpoint, so jevos's scores there may be slightly optimistic. A rule with one condition written into the question works; a policy with points,
 exceptions and cut-offs belongs in code, with the model answering only the factual questions
 the code needs. The method is on
 [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
@@ -89,8 +90,8 @@ covers the pattern; a larger model does not remove the need for it either.
 
 If they do, the small model is often the only option, and the job becomes shaping the questions
 so it can answer them. On the reference laptop, an Intel Core Ultra 7 255H with 16 threads,
-jevos answered a short request in 26 ms and a 190-token one in 112 ms; the hosted Jev took 344
-and 345 ms from Europe on the same requests, network included. There is no per-token cost, and
+jevos answered a short request in 28 ms and a long one in 130 ms; the hosted Jev took 311
+and 314 ms on the same requests, network included. There is no per-token cost, and
 the text stays on the machine. If none of these constraints applies, a hosted large model is a
 reasonable default for the hard questions, and the trade-off is on
 [local vs hosted LLM decisions](local-vs-hosted-llm-decisions.md).
@@ -112,8 +113,8 @@ especially where latency, cost or privacy rule out a hosted API.
 **When is a small model not enough?** When the decision needs arithmetic, dates, a complex
 rule, another language, or a generated answer.
 
-**Is a bigger model always more accurate?** On our 2,000 policy questions the hosted Jev was
-ahead, 0.927 against 0.810. We have not compared the two on pure reading questions, so measure
+**Is a bigger model always more accurate?** On all six of our tasks the hosted Jev was
+ahead, for instance 1.00 against 0.95 on admission rules. We have not compared the two on pure reading questions, so measure
 on yours.
 
 **Can I mix small and large models?** Yes. A cascade that escalates only the uncertain middle
@@ -128,8 +129,9 @@ and [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 
 ## Sources
 
-- Accuracy by kind of question and error direction: our 999-question set, `jevos-q4_k_m`.
-- The 2,000-question policy comparison and latency on the two requests: our measurements,
+- Accuracy by kind of question and error direction: our 999-question set, first jevos
+  (`jevos-q4_k_m`).
+- The six-task comparison and latency on the two requests: our measurements,
   reported in the [jev README](https://github.com/feder-cr/jev).
 - Supported question types and the score accuracy: the README.
 

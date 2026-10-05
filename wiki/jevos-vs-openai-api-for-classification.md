@@ -66,8 +66,8 @@ generation short, but the round trip stays: DNS, TLS, the request crossing the n
 at the provider, and the response coming back.
 
 We have not measured OpenAI's API, so there is no OpenAI number on this page. What we have
-measured is a different hosted decision API from a laptop in Europe: TypeSafe's Jev took 344 ms
-on a short request and 345 ms on a long one, network included, while jevos took 26 ms and 112 ms
+measured is a different hosted decision API from a laptop in Europe: TypeSafe's Jev took 311 ms
+on a short request and 314 ms on a long one, network included, while jevos took 28 ms and 130 ms
 on the same laptop. The flatness of the hosted numbers is the point: when the network dominates,
 text length barely matters. The detail is on
 [why a hosted LLM API cannot answer in 50 ms](why-a-hosted-llm-api-cannot-answer-in-50-ms.md).
@@ -103,9 +103,9 @@ as [a private LLM for text classification](private-llm-for-text-classification.m
 
 ## When the OpenAI API is the better choice
 
-- The question needs reasoning or knowledge beyond the text, or arithmetic. jevos was right
-  0.584 of the time on arithmetic questions in our 999-question test, against 0.954 on facts
-  stated in the text.
+- The question needs reasoning or knowledge beyond the text, or arithmetic. On the points task
+  (a fraud score added up from six rules) jevos-v4 got 0.50 right against 0.69 for the hosted
+  Jev, so sums are better computed in code.
 - The text is not in English. jevos reads English only.
 - You need a label with an explanation, or free text, alongside the decision.
 - Your volume is low and you do not want to operate a server.
@@ -119,13 +119,14 @@ probabilities of the output tokens, so you can read how likely the generated "ye
 and incomplete responses, but a boolean carries no measure of doubt.
 
 **Is a local model faster than the API?** We did not measure OpenAI. Against a hosted decision
-API from Europe, jevos was faster on both of our requests: 26 and 112 ms against 344 and 345 ms.
+API from Europe, jevos was faster on both of our requests: 28 and 130 ms against 311 and 314 ms.
 
 **Is it cheaper?** There is no per-token price locally; you pay for the hardware. Whether that
 is cheaper depends on volume.
 
-**Is jevos as accurate as a large hosted model?** No, especially on computation. It is strongest
-on reading questions: facts, tone, negation.
+**Is jevos as accurate as a large hosted model?** No. On admission-policy yes/no questions jevos-v4
+scored 0.95 against 1.00 for the hosted Jev, and the gap is wider on rules that need a sum (0.50 vs
+0.69 on fraud points).
 
 **See also:** [local vs hosted LLM decisions](local-vs-hosted-llm-decisions.md),
 [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md) and
@@ -134,8 +135,8 @@ on reading questions: facts, tone, negation.
 ## Sources
 
 - Our measurements: latency of jevos and of TypeSafe's Jev on the same two requests, the
-  three-question timing, and accuracy by kind on our 999-question set (`jevos-q4_k_m`); see the
-  [jev README](https://github.com/feder-cr/jev).
+  three-question timing, and the six-task accuracy table (five of the six sets helped choose the
+  released checkpoint); see the [jev README](https://github.com/feder-cr/jev).
 - OpenAI, [Structured model outputs](https://developers.openai.com/api/docs/guides/structured-outputs),
   fetched 2026-09-29.
 - OpenAI cookbook, [Using logprobs](https://developers.openai.com/cookbook/examples/using_logprobs),

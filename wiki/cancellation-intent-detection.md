@@ -70,9 +70,9 @@ a clear request with no anger. A furious message about an outage may contain no 
 at all. If one question mixes them, an angry venting message scores like a request and a calm
 request scores like nothing.
 
-The two kinds of question also behave differently on our measurements. On 999 yes/no questions
-written after training, tone questions were answered right 0.938 of the time and intent
-questions 0.859. On questions whose right answer was no, the mean P(yes) was 0.16 for tone and
+The two kinds of question also behave differently on our measurements. On 999 hand-written yes/no
+questions, the first jevos answered tone questions right 0.938 of the time and intent
+questions 0.859 (per-kind numbers for jevos-v4 are not published). On questions whose right answer was no, the mean P(yes) was 0.16 for tone and
 0.28 for intent: the model is steadier on how a message feels than on what the writer wants.
 That is a reason to set a firmer threshold on the intent questions, and to let tone adjust
 priority rather than route. More on the tone side on
@@ -102,7 +102,7 @@ queues and fallbacks are on
 "I'm cancelling" is stated. "I've started looking at other providers" implies an intent without
 saying it, and "I just want to know what my options are" may imply one or may not. We have not
 measured the two separately, but the reason to expect a gap is simple: a stated intent is close
-to a stated fact, the strongest kind of question on our test set at 0.954, while an implied one
+to a stated fact, the strongest kind of question on our test set at 0.954 for the first jevos, while an implied one
 has to be inferred.
 
 So write the routing questions about what the customer says ("Does the customer ask...", "Does
@@ -134,7 +134,7 @@ retention work can help.
 requests promptly; send conditional threats to the people who can fix the stated problem.
 
 **Is an angry message a churn signal?** Not by itself. Tone and intent are separate questions,
-and on our test set tone was answered more reliably (0.938) than intent (0.859).
+and on our test set the first jevos answered tone more reliably (0.938) than intent (0.859).
 
 **Can this run on every incoming message?** A handful of questions on one short message takes a
 fraction of a second on a laptop CPU, and the text stays on your machine.
@@ -146,7 +146,7 @@ fraction of a second on a laptop CPU, and the text stays on your machine.
 ## Sources
 
 - Accuracy by kind of question (tone 0.938, intent 0.859, fact 0.954) and the mean P(yes) on
-  no-answer questions (tone 0.16, intent 0.28): our 999-question test set on `jevos-q4_k_m`. No
+  no-answer questions (tone 0.16, intent 0.28): our 999 hand-written questions, measured on the first jevos. No
   cancellation dataset was measured.
 - Request format and the one-read-per-request behaviour: the
   [jev README](https://github.com/feder-cr/jev).

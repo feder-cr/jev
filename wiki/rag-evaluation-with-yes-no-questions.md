@@ -123,15 +123,15 @@ needs work.
 Being straight about the limits:
 
 - **Numbers.** If an answer says "you have 44 days left" and the passage gives a date, checking it
-  is arithmetic, and a one-pass model is weak there (0.584 on our arithmetic questions). Extract
+  is arithmetic, and a one-pass model is weak there (0.584 on arithmetic questions, measured on the first jevos; per-kind numbers for jevos-v4 are not published). Extract
   and compare numbers in code, as described on
   [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md).
 - **Long context.** jevos reads up to 8,192 tokens, and latency grows with length. Many retrieved
   chunks plus a long answer can exceed that; score passages one by one and split long answers.
 - **Knowledge outside the passages.** The judge reads; it does not know. "Is the answer correct?"
-  without passages is a question about the world, not about a text, and a 1B model is the wrong
+  without passages is a question about the world, not about a text, and a small model is the wrong
   tool for it.
-- **A lean toward yes.** On new kinds of question jevos made more wrong yeses than wrong noes, so
+- **A lean toward yes.** On new kinds of question the first jevos made more wrong yeses than wrong noes, so
   a "grounded" pass deserves a bar above 0.5. The measurement is on
   [why a small LLM says yes](why-a-small-llm-says-yes.md).
 - **English only.** For documents in other languages, use a multilingual judge.
@@ -154,7 +154,7 @@ retrieval and generation is what makes the numbers actionable.
 **How do I measure retrieval recall?** Only with labels saying which passages are relevant for
 each query. Relevance questions give you precision and hit rate, not recall.
 
-**How fast is it?** On our reference laptop a request of about 190 tokens read from scratch takes about 112 ms, and
+**How fast is it?** On our reference laptop a request of about 190 tokens read from scratch takes about 130 ms, and
 extra questions on the same state cost a fraction of that.
 
 **See also:** [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md),
@@ -165,7 +165,7 @@ extra questions on the same state cost a fraction of that.
 
 - Latency and the three-question timing: our measurements on an Intel Core Ultra 7 255H with 16
   threads, reported in the [jev README](https://github.com/feder-cr/jev).
-- Arithmetic accuracy and the yes/no error split: our 999-question test set, `jevos-q4_k_m`.
+- Arithmetic accuracy and the yes/no error split: our 999-question test set, measured on the first jevos.
 - Es, James, Espinosa-Anke and Schockaert, "Ragas: Automated Evaluation of Retrieval Augmented
   Generation", [arXiv:2309.15217](https://arxiv.org/abs/2309.15217), fetched 2026-09-29.
 

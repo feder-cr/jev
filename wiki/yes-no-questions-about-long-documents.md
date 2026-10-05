@@ -44,10 +44,10 @@ from an edge.
 ## What does length cost?
 
 Every token is read before any question is answered. On the reference laptop (Intel Core Ultra
-7 255H, 16 threads) we measured 26 ms for a request of about 30 tokens and 112 ms for one of
-about 190, reading each text from scratch, about 0.5 ms per prompt token over that range. We
+7 255H, 16 threads) we measured 28 ms for a request of about 30 tokens and 130 ms for one of
+about 190, reading each text from scratch, about 0.6 ms per prompt token over that range. We
 have not published measurements near the full context, and the cost per token of reading a long
-input can grow with length, so do not multiply 0.5 ms by 8,000 and call it a benchmark. Measure your own
+input can grow with length, so do not multiply 0.6 ms by 8,000 and call it a benchmark. Measure your own
 document sizes. The mechanics are on
 [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md)
 and [prefill vs decode](prefill-vs-decode-llm-latency.md).
@@ -124,7 +124,7 @@ role, as on [ask whether the text says it at all](ask-whether-the-text-says-it.m
 - **Arithmetic across a document.** Computation is the model's weakest kind of question even in
   a short text, as measured on [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md).
 - **Short-context models.** For comparison, the zero-shot model Laya that we measured has a
-  512-token context, and it truncated long rule texts in our 2,000-question test.
+  512-token context, and it truncated long rule texts in an earlier 2,000-question test.
 
 ## Short answers to the questions that lead here
 
@@ -147,7 +147,7 @@ request. Across chunks, no.
 
 ## Sources
 
-- 8,192-token context, the 26 ms and 112 ms latencies, the three-question timing, and Laya's
+- 8,192-token context, the 28 ms and 130 ms latencies, the three-question timing, and Laya's
   512-token context: the [jev README](https://github.com/feder-cr/jev) and our measurements on
   the reference laptop.
 - Nelson F. Liu et al., "Lost in the Middle: How Language Models Use Long Contexts", 2023,

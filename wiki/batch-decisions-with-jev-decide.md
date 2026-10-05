@@ -98,8 +98,8 @@ Because each run pays the model load, the shape of the batch matters more than t
   which is read once; on the reference laptop three questions take about 66 ms together against
   49 ms for one alone. A request takes up to 1,024 questions.
 - **Many texts** are better served by one `jev serve` process and a client that posts them one
-  after another: the model loads once and each request costs only inference, 26 to 112 ms for 30
-  to 191 tokens on an Intel Core Ultra 7 255H. The client side is on
+  after another: the model loads once and each request costs only inference, 28 ms for a short
+  request and 130 ms for a long one on an Intel Core Ultra 7 255H. The client side is on
   [a Python client for local LLM decisions](python-client-for-local-llm-decisions.md).
 - **A handful of files in CI**, where starting and stopping a server is one moving part too many,
   is where `jev decide` is at its best; see

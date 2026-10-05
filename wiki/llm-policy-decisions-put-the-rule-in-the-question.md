@@ -14,10 +14,11 @@ contains the rule ("Our policy refunds items reported missing within 30 days of 
 Should this customer get a refund?") is one it can answer from the text. A question that only
 names the rule ("Is this eligible under policy R-12?") is one it can only guess.
 
-Rules are also where a small model is weakest. On 2,000 yes/no questions about three business
-policies jevos never saw, with the exact answer computed by code from the rule and the facts,
-it was right 0.810 of the time, against 0.927 for TypeSafe's hosted Jev. That is useful as a
-first pass and it decides how to design around it.
+Rules are also where a small model is weakest. On six tasks whose answers come from the rules,
+annotators or experts, jevos-v4 scored 0.95 on admission-policy yes/no questions against 1.00
+for TypeSafe's hosted Jev, 0.76 against 0.88 on ShARC rules and scenarios, and 0.50 against 0.69
+on fraud points added up from six rules. That is useful as a first pass and it decides how to
+design around it.
 
 This page is how to write the question, how to split a rule the model gets wrong into parts it
 gets right, what the measurements say about each kind of condition, and where to draw the line
@@ -52,8 +53,9 @@ the decision depends on belongs in `instructions`.
 
 ## Measured: which conditions the model gets right
 
-On a separate set of 999 questions written after training, each labelled with the kind of
-reasoning it needs, the spread is wide:
+On a separate set of 999 hand-written questions, each labelled with the kind of reasoning it
+needs, the spread was wide. These per-kind numbers were measured on the first jevos; per-kind
+numbers for jevos-v4 are not published (its overall score on the same questions is 78.9%):
 
 | What the question needs | Accuracy |
 |---|---|
@@ -66,9 +68,9 @@ reasoning it needs, the spread is wide:
 | a sum or other arithmetic | 0.584 |
 
 Reading is strong. Computing is weak. And a business rule is usually both: a reading part (is
-the item missing?) and a computing part (is five days within thirty?). On the 2,000 policy
-questions the gap to Jev was largest on additive point scores, where several signals are summed
-and compared with a cut-off, which is arithmetic wearing a policy's clothes.
+the item missing?) and a computing part (is five days within thirty?). On the six tasks
+the gap to Jev was widest on the score tasks, 0.50 vs 0.69 on fraud points, where several
+signals are summed and compared with a cut-off, which is arithmetic wearing a policy's clothes.
 
 ## Split the rule into what the model reads and what code computes
 
@@ -97,8 +99,10 @@ in the middle.
 
 A rule applied to facts the text does not contain produces a confident answer to a question
 that has none. Before "Was it reported within 30 days?", it can pay to ask "Does the message
-say when the parcel was delivered?". The model is at 0.847 on noticing that a text does not
-state something, which makes that question a reliable gate in front of the rule.
+say when the parcel was delivered?". The first jevos was at 0.847 on noticing that a text does not
+state something, which makes that question a good gate in front of the rule. On jevos-v4, the
+confidence score separated answerable questions from ones missing a needed fact with an AUROC of
+0.90 on admission policy and 0.94 on fraud points (0.5 means it cannot tell).
 
 ## Thresholds for decisions with a cost
 
@@ -116,7 +120,8 @@ is a reason to set the upper band higher than the lower one is low.
 ## What this is not
 
 The model is not a rules engine and should not be the only check on a decision with legal or
-financial weight. On rules it has never seen it is wrong about one time in five. It is a fast,
+financial weight. On rules it has never seen it was right 0.95 of the time on admission policy but only 0.76 on
+ShARC, so on harder rule sets it is wrong about one time in four. It is a fast,
 local way to turn free text into the facts a rule needs, and to handle the easy majority of
 cases, so that people spend their time on the rest. How the model and a rules engine divide that
 work is on [a yes/no LLM vs a business rules engine](yes-no-llm-vs-business-rules-engine.md), and the
@@ -124,15 +129,16 @@ whole refund flow end to end is on [refund request triage](refund-request-triage
 
 ## Short answers to the questions that lead here
 
-**Can an LLM apply a business policy?** It can apply a rule written into the question. jevos
-answered 0.810 of 2,000 questions on policies it had never seen correctly; a large hosted model
-answered 0.927.
+**Can an LLM apply a business policy?** It can apply a rule written into the question. jevos-v4
+answered 0.95 of the admission-policy questions correctly and 0.76 of the ShARC ones; the hosted
+Jev answered 1.00 and 0.88.
 
 **Where do I put the policy?** In the question's `instructions`. On a yes/no question the
 `criteria` field is accepted but not read by this server.
 
-**Why does it get dates and totals wrong?** Computation is its weakest skill, 0.58 to 0.65 on our
-test set against 0.95 for stated facts. Extract the numbers and compare them in code.
+**Why does it get dates and totals wrong?** Computation is its weakest skill: on the first jevos,
+0.58 to 0.65 on our test set against 0.95 for stated facts, and 0.50 on summed fraud points for
+jevos-v4. Extract the numbers and compare them in code.
 
 **Should I trust it for refunds?** As a first pass with a band for human review, yes; as the
 final decision on every case, no.
@@ -146,10 +152,10 @@ the rule.
 
 ## Sources
 
-- The refund request and its 0.93 answer, and the 2,000-question comparison with Jev and Laya:
-  the [jev README](https://github.com/feder-cr/jev).
-- Accuracy by kind of question: our 999-question test set, written after training, run on
-  `jevos-q4_k_m`.
+- The refund request and its 0.93 answer, and the six-task comparison with Jev, Qwen3.5-4B and
+  Laya (five of the six sets helped choose the released checkpoint, so jevos's scores there may be
+  slightly optimistic): the [jev README](https://github.com/feder-cr/jev).
+- Accuracy by kind of question: our 999-question test set, measured on the first jevos.
 
 ---
 

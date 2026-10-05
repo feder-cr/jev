@@ -98,7 +98,7 @@ Two ways to bring it down:
   taxonomy does not have yet.
 - **The deciding fact is a number.** "Is this laptop's screen at least 15 inches?" is a
   comparison, and number-against-threshold questions were right only 0.654 of the time on our
-  999-question test set, against 0.954 for stated facts. Extract the number and compare in code.
+  999-question test set, against 0.954 for stated facts (first jevos; per-kind numbers for jevos-v4 are not published). Extract the number and compare in code.
 - **Not English.** jevos reads English only.
 
 For taxonomy levels that are ordered (budget, mid-range, premium), ask threshold questions
@@ -144,7 +144,7 @@ not force a leaf.
 
 - Our measurements: the 49 ms and 66 ms timings of the README example and the reference laptop
   from the [jev README](https://github.com/feder-cr/jev); accuracy by kind of question from our
-  999-question test set on `jevos-q4_k_m`. The per-product and per-catalog figures are estimates
+  999-question test set, measured on the first jevos. The per-product and per-catalog figures are estimates
   derived from those two timings, not measurements.
 - Google Merchant Center Help,
   [Google product category](https://support.google.com/merchants/answer/6324436), structure of

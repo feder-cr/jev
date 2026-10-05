@@ -17,5 +17,7 @@ and which nothing was tuned on.
 - [Small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md)
 - [Our held-out benchmark said 0.855, new questions said 0.757](held-out-benchmark-too-optimistic.md)
 
+Per-kind numbers on the 999 questions were measured on the first jevos; jevos-v4 scores 78.9% overall on that set and its per-kind numbers are not published.
+
 Latency numbers everywhere in this wiki come from one laptop: an Intel Core Ultra 7 255H, 16
 threads, no GPU. Other machines will differ.

@@ -102,7 +102,7 @@ automatically, refusals always reviewed. Whether that is enough in your case is 
 question, but it keeps the adverse decisions in human hands by construction.
 
 The direction of the model's mistakes matters too. On 999 questions written after training,
-jevos gave 152 wrong yeses against 91 wrong noes, as measured on
+the first jevos gave 152 wrong yeses against 91 wrong noes (not published for jevos-v4), as measured on
 [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md). If "yes" is the
 adverse answer ("Is this claim fraudulent?"), that lean points at the person, and the bar for
 acting on yes belongs higher, as on
@@ -157,7 +157,7 @@ threshold with no person involved, the threshold is the decision.
   Every quotation here, including Article 22(1) and the Recital 71 examples, is from it.
 - The regulation: [EUR-Lex, Regulation (EU) 2016/679](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng).
   Our fetch on 2026-09-29 returned no text, so nothing is quoted from it directly.
-- Error counts (152 and 91): our measurement on 999 questions, `jevos-q4_k_m`.
+- Error counts (152 and 91): our measurement on 999 questions, first jevos.
 
 ---
 

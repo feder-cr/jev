@@ -8,8 +8,8 @@ nav_order: 2
 # Negation in yes/no questions for an LLM
 
 **Keep the negation in the text and out of the question: ask "Did the customer ask for a
-refund?" and compute "did not" as 1 minus P(yes) in your code.** jevos handles negation that
-appears in the text well, 0.858 on the negation questions of our 999-question test set, but a
+refund?" and compute "did not" as 1 minus P(yes) in your code.** the first jevos handled negation that
+appears in the text well, 0.858 on the negation questions of our 999-question test set (per-kind numbers for jevos-v4 are not published), but a
 question that is itself negated adds a step between the words and the answer, and every such
 step is a place for a small model to slip. A positive question with the flip done in code
 costs nothing and removes the step.
@@ -55,15 +55,15 @@ could have computed yourself as 1 minus the first one.
 ## What we measured
 
 On the 999 yes/no questions written after the model was finished (10 scenarios, 10 texts each,
-exactly half of the answers yes), 106 questions were labelled as negation questions. jevos
-`q4_k_m` answered 0.858 of them correctly. More telling is the average P(yes) the model gave
+exactly half of the answers yes), 106 questions were labelled as negation questions. The first jevos
+answered 0.858 of them correctly (jevos-v4 scores 78.9% overall on the set; per-kind numbers are not published). More telling is the average P(yes) the model gave
 when the right answer was no: 0.17, one of the two lowest of any kind of question, next to tone
 at 0.16. On questions about stated facts the same number is 0.29. So on negation the model is
 not leaning toward yes, which is the failure a small model shows elsewhere and is measured on
 [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md).
 
 Being straight about the limit: we did not run the same questions twice, once positive and
-once negated, so we have no number for how much a negated question costs on jevos. The advice
+once negated, so we have no number for how much a negated question costs on jevos-v4. The advice
 on this page is a design habit, not a measured delta. It is cheap to follow and cheap to test
 on your own cases.
 
@@ -143,7 +143,7 @@ on cases with and without the negation.
 ## Sources
 
 - 0.858 accuracy on 106 negation questions and the mean P(yes) of 0.17, 0.16 and 0.29 on
-  no-answer questions: our 999-question test set, `jevos-q4_k_m`.
+  no-answer questions: our 999-question test set, measured on the first jevos.
 - Joel Jang, Seonghyeon Ye, Minjoon Seo, "Can Large Language Models Truly Understand Prompts? A
   Case Study with Negated Prompts", 2022, [arXiv:2209.12711](https://arxiv.org/abs/2209.12711),
   fetched 2026-09-29.

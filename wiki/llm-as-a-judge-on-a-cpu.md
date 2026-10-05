@@ -14,7 +14,7 @@ that was asked?", "Is the tone polite?": each becomes one question about the sam
 record is read once, and the scores come back in a fraction of a second with no data leaving
 the machine.
 
-What you give up is judgment on hard reasoning. A 1B model will not tell you whether a proof is
+What you give up is judgment on hard reasoning. A small model will not tell you whether a proof is
 correct. What you keep is the bulk of what evaluation pipelines actually check, which is
 whether an output does or does not have a property you can name.
 
@@ -70,13 +70,16 @@ Keep the per-criterion probabilities. They are the evaluation.
   prompts or two models criterion by criterion is far more informative than comparing two
   averages.
 
-The probabilities are calibrated well enough to average. On the natural yes/no questions of our
-held-out split the calibration error is 0.009, meaning that across many answers of about 0.8,
-about 80% are right.
+On the first jevos the probabilities were calibrated well enough to average: on the natural yes/no
+questions of its held-out split the calibration error was 0.009, meaning that across many answers
+of about 0.8, about 80% were right. Calibration has not been re-measured on jevos-v4, so check it
+on your own questions.
 
 ## Which criteria a small judge gets right
 
-On 999 yes/no questions written after training, labelled by the kind of reasoning they need:
+On 999 hand-written yes/no questions, labelled by the kind of reasoning they need, the first jevos
+scored as below (measured on the first jevos; per-kind numbers for jevos-v4 are not published,
+and its overall score on the same 999 questions is 78.9%):
 
 | Criterion shape | Accuracy |
 |---|---|
@@ -96,13 +99,13 @@ in code; the detail is on [small LLMs and arithmetic](small-llm-arithmetic-yes-n
 
 ## What it costs
 
-On an Intel Core Ultra 7 255H with 16 threads, a 190-token record takes about 112 ms and each
+On an Intel Core Ultra 7 255H with 16 threads, a long record takes about 130 ms and each
 additional criterion on the same record costs a fraction of that, because the record is read
 once. The README's three-question example takes about 66 ms against 49 ms for one question.
 
 So a test set of 1,000 outputs with five criteria is a few minutes on a laptop, costs nothing
 per token, and can run in CI on every prompt change. A hosted judge on the same set means 1,000
-round trips of about 340 ms each before the model does any work, plus the bill, plus sending
+round trips of about 310 ms each before the model does any work, plus the bill, plus sending
 your outputs to someone else.
 
 ## When to use a large judge instead
@@ -110,8 +113,9 @@ your outputs to someone else.
 - Criteria that need reasoning or knowledge beyond the text: "is this code correct", "is this
   medical advice sound".
 - Languages other than English.
-- The final evaluation of a release, where the extra accuracy is worth the cost. On 2,000
-  rule-based questions the hosted Jev was right 0.927 of the time against 0.810 for jevos.
+- The final evaluation of a release, where the extra accuracy is worth the cost. On
+  admission-policy yes/no rules the hosted Jev scored 1.00 against 0.95 for jevos-v4, and on
+  the ShARC rules-and-scenarios questions 0.88 against 0.76.
 
 A common split is the small judge on every commit and the large one on the release candidate.
 For retrieval pipelines, the same criteria applied per passage and per answer are on
@@ -132,8 +136,8 @@ generates no text.
 **Can it run in CI?** Yes. It needs only a CPU (x86-64 with AVX2, or Apple silicon), and `jev decide`
 answers a request file without a server.
 
-**Are the scores calibrated?** On our natural yes/no held-out questions, the calibration error
-is 0.009.
+**Are the scores calibrated?** On the first jevos's natural yes/no held-out questions, the
+calibration error was 0.009; it has not been re-measured on jevos-v4.
 
 **See also:** [ask a local LLM a yes/no question](ask-a-local-llm-yes-no-questions.md),
 [zero-shot text classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md)
@@ -141,10 +145,11 @@ and [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md
 
 ## Sources
 
-- Latency, the three-question timing and the 2,000-question comparison: the
+- Latency (measured with jevos-v3, same size and speed as jevos-v4), the three-question timing
+  and the six-task comparison (five of the six sets helped choose the released checkpoint): the
   [jev README](https://github.com/feder-cr/jev).
-- Calibration error: our held-out split, 6,397 natural yes/no questions, `jevos-q8_0`.
-- Accuracy by kind of question: our 999-question test set, run on `jevos-q4_k_m`.
+- Calibration error: our held-out split, 6,397 natural yes/no questions, on the first jevos.
+- Accuracy by kind of question: our 999-question test set, on the first jevos.
 - Background on the method: [LLM-as-a-Judge on Wikipedia](https://en.wikipedia.org/wiki/LLM-as-a-Judge).
 
 ---

@@ -11,7 +11,7 @@ nav_order: 1
 jevos server and read `noul`, the probability that the answer is yes.** The model does one
 forward pass over your text and returns that probability directly: no tokens are generated, so
 there is no "Yes." or "I think so" to parse, and no answer that comes back in the wrong format.
-On a laptop CPU a short request takes about 26 ms and a 191-token one about 112 ms.
+On a laptop CPU a short request takes about 28 ms and a long one about 130 ms.
 
 A chat model can be pushed into the same job by asking it to answer with one word and reading
 the word, or its log-probabilities. That works, and it is slower, needs a larger model, and
@@ -23,13 +23,13 @@ Python and from the command line, and what to do with the number once you have i
 ## Start the server
 
 Download the archive for your platform (`jev-linux-x64.tar.gz`, `jev-macos-arm64.tar.gz` or
-`jev-windows-x64.zip`) and the model, `jevos-v2-openvino-int8.zip`, from the
-[release](https://github.com/feder-cr/jev/releases/tag/jevos-v2), then:
+`jev-windows-x64.zip`) and the model, `jevos-v4-openvino-int8.zip`, from the
+[release](https://github.com/feder-cr/jev/releases/tag/jevos-v4), then:
 
 ```bash
 tar -xzf jev-linux-x64.tar.gz
 cd jev
-unzip ../jevos-v2-openvino-int8.zip     # creates model/
+unzip ../jevos-v4-openvino-int8.zip     # creates model/
 ./jev serve
 ```
 
@@ -49,7 +49,7 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-v2",
+  "model": "jevos-v4",
   "answers": {"billing": {"type": "noul", "noul": 0.94}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
@@ -95,7 +95,7 @@ the second and third cost a fraction of the first:
 
 ```json
 {
-  "model": "jevos-v2",
+  "model": "jevos-v4",
   "answers": {
     "refund": {"type": "noul", "noul": 0.93},
     "upset": {"type": "noul", "noul": 0.83},
@@ -124,8 +124,8 @@ if answer["answers"]["billing"]["noul"] > 0.5:
 ```
 
 The wire format is the one TypeSafe's Jev uses, so code already written against Jev's SDK works
-against this server for yes/no, `choice` and `score` questions. Scores are early: one yes/no question
-per level, right 54% of the time on 2,350 held-out score questions and within one level 82%, weak on points to add up.
+against this server for yes/no, `choice` and `score` questions. Scores are early: the most probable level is right
+58.5% of the time on 2,350 held-out score questions and within one level 86%, weak on points to add up.
 
 ## From the command line, without a server
 
@@ -145,8 +145,8 @@ server would be one moving part too many.
 A probability is more useful than a word because you choose where to cut it.
 
 - **0.5 is the neutral threshold**, and on the natural yes/no questions of our held-out split
-  the probabilities are well calibrated (calibration error 0.009: an answer of 0.8 is right
-  about 80% of the time).
+  the probabilities were well calibrated on an earlier jevos (calibration error 0.009: an answer
+  of 0.8 is right about 80% of the time; not re-measured on jevos-v4).
 - **Move the threshold with the cost of a mistake.** If a wrong "yes" means a refund paid by
   mistake, act automatically only above 0.9 and send the middle band to a person.
 - **Watch the middle.** The model leans toward "yes" on questions it cannot compute, such as
@@ -177,7 +177,7 @@ except `/health` needs `Authorization: Bearer <key>`, as the hosted API does.
 **Can a local LLM return a probability instead of text?** Yes. jevos returns P(yes) for each
 question and generates no text at all.
 
-**How fast is it on a CPU?** About 26 ms for a 30-token request and 112 ms for 191 tokens on an
+**How fast is it on a CPU?** About 28 ms for a short request and 130 ms for a long one on an
 Intel Core Ultra 7 255H with 16 threads. Extra questions on the same text cost less than the
 first.
 
@@ -189,7 +189,7 @@ first.
 
 **Can it answer multiple-choice questions?** Yes. Send a `choice` question with the options as
 the keys of `criteria`; the answer is the most probable option, a probability for each option and
-a confidence. Each option costs about as much as one more yes/no question.
+a confidence. A three-option choice takes about 100 ms and a ten-option one about 170 ms on the laptop where a yes/no question takes about 20 ms.
 
 **See also:** [zero-shot text classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md),
 [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md) and
@@ -198,13 +198,12 @@ a confidence. Each option costs about as much as one more yes/no question.
 ## Sources
 
 - The request and answer examples and the latencies are from the
-  [jev README](https://github.com/feder-cr/jev); the Quickstart request was re-run on
-  2026-09-29 and returned 0.899 for the billing question.
-- Calibration error: our held-out split, 6,397 natural yes/no questions, `jevos-q8_0`.
+  [jev README](https://github.com/feder-cr/jev); the billing question returns 0.94 there.
+- Calibration error: our held-out split, 6,397 natural yes/no questions, measured on an earlier jevos.
 - The `JEV_API_KEY` behaviour is read from jev's server code.
 - TypeSafe's Jev wire format: [docs.typesafe.ai](https://docs.typesafe.ai).
 
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), a yes/no decision model that runs on
-a laptop CPU. The billing question above is the README's Quickstart, re-run for this page.*
+a laptop CPU. The billing question above is the README's Quickstart.*

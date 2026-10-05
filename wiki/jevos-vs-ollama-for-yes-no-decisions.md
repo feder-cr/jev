@@ -33,13 +33,14 @@ the message), with timings and token counts: `prompt_eval_count`, `eval_count`,
 ("time spent generating tokens").
 
 jevos has `POST /v1/systemone` on port 8017. You send a `state` and named questions, and each
-question comes back as its own `noul`, the probability that the answer is yes, with
+yes/no question comes back as its own `noul`, the probability that the answer is yes (a `choice`
+returns the most probable option, an early `score` an expected level), with
 `output_tokens` at 0. It speaks TypeSafe Jev's wire format, not Ollama's or OpenAI's.
 
 | | Ollama | jevos |
 |---|---|---|
-| Job | run and serve many models | answer yes/no questions |
-| Output | generated text (or JSON) | P(yes) per question |
+| Job | run and serve many models | answer yes/no, choice and score questions |
+| Output | generated text (or JSON) | P(yes), option or level per question |
 | Models | a library, pulled by name | one model per server |
 | Default port | 11434 | 8017 |
 | Engine | llama.cpp as its supported backend | OpenVINO, INT8 weights, CPU |
@@ -70,8 +71,8 @@ split is the useful way to think about both tools. Reading the prompt costs time
 its length; each generated token costs a further step. A yes/no answer from a chat model pays
 the first and at least one of the second, plus whatever the chat template adds to the prompt.
 
-jevos pays only for reading. On an Intel Core Ultra 7 255H with 16 threads it took 26 ms on a
-request of about 30 tokens and 112 ms on one of about 190, each read from scratch. We
+jevos pays only for reading. On an Intel Core Ultra 7 255H with 16 threads it took 28 ms on a
+short request and 130 ms on a long one, each read from scratch. We
 have not measured Ollama on the same requests, so there is no head-to-head number here, and any
 comparison would depend on which model you load. [Prefill vs decode](prefill-vs-decode-llm-latency.md)
 explains the two costs in general.
@@ -92,12 +93,13 @@ workstation.
 
 **Ollama** when you need generation, many models, other languages through a multilingual model,
 or a single local runtime for a team's experiments. Also when the question genuinely needs a
-larger model's reasoning, which a 1B decision model will not replace.
+larger model's reasoning, which a small decision model will not replace.
 
-**jevos** when the task is a stream of English yes/no questions about texts, you want a
+**jevos** when the task is a stream of English yes/no or multiple-choice questions about texts, you want a
 probability for thresholds and review bands, and you want nothing to parse. Its measured
-strengths are reading questions: 0.954 on facts stated in the text and 0.938 on tone in our
-999-question test. Its weakness is computation, 0.584 on arithmetic, which you should do in code
+strengths are reading questions: the first jevos scored 0.954 on facts stated in the text and
+0.938 on tone in our 999-question test (per-kind numbers for jevos-v4 are not published). Its
+weakness is computation, 0.584 on arithmetic for the first jevos, which you should do in code
 whichever tool you use.
 
 ## Running both on one machine
@@ -113,14 +115,14 @@ compared on [jevos vs LM Studio](jevos-vs-lm-studio.md).
 ## Short answers to the questions that lead here
 
 **Is jevos an Ollama model?** No. It is a separate server with its own endpoint and wire format;
-it runs jevos-v2 with 8-bit weights through OpenVINO. The release also ships the model as GGUF
+it runs jevos-v4 with 8-bit weights through OpenVINO. The release also ships the model as GGUF
 files, which Ollama can load, without jev's endpoint.
 
 **Can Ollama answer yes/no questions?** Yes, with a general model, a prompt that asks for yes or
 no, and optionally `format`, `num_predict` and `logprobs` to constrain and score the answer.
 
 **Which is faster for a yes/no decision?** We have not measured Ollama on our requests. jevos
-generates no tokens and took 26 to 112 ms on our laptop; a chat model pays for at least one
+generates no tokens and took 28 to 130 ms on our laptop; a chat model pays for at least one
 generated token on top of reading the prompt.
 
 **Can I use both?** Yes: on different ports, with thread counts set so they do not fight for the
@@ -135,7 +137,7 @@ jevos reads English only.
 
 ## Sources
 
-- jevos latency (26 and 112 ms) and accuracy by kind: our own
+- jevos latency (28 and 130 ms) and accuracy by kind (first jevos): our own
   measurements, see the [jev README](https://github.com/feder-cr/jev).
 - Ollama's platforms, port, llama.cpp backend, license and `ollama run` example: the
   [Ollama repository](https://github.com/ollama/ollama), fetched 2026-09-29.

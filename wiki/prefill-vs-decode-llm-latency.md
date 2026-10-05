@@ -32,8 +32,8 @@ Two things come out of it: the model's prediction for what follows the prompt, a
 intermediate values for every prompt token, so they never have to be computed again.
 
 Prefill cost rises with the number of input tokens. On our reference laptop, a request of about
-30 tokens read from scratch took 26 ms end to end with jevos and one of about 190 tokens took
-112 ms. What that means for long documents is on
+30 tokens read from scratch took 28 ms end to end with jevos and one of about 190 tokens took
+130 ms. What that means for long documents is on
 [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 
 ## What happens in decode

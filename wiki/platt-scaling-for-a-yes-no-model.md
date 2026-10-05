@@ -71,7 +71,7 @@ Not worth it when:
   raw scale. Choosing that raw cut-off from your labelled cases, as in
   [how to choose a threshold for P(yes)](how-to-choose-a-threshold-for-p-yes.md), gives the same
   decisions with one less model to maintain.
-- **The error is a lean on specific kinds of question.** On our 999 new questions, a
+- **The error is a lean on specific kinds of question.** On our 999 new questions, with the first jevos, a
   temperature and bias fitted on the development split moved accuracy from 0.757 to 0.759; fitted
   on half the scenarios and tested on the other half, there was no gain. The lean lived in
   arithmetic and dates, not in the whole distribution.
@@ -138,7 +138,7 @@ that were right. Move the arithmetic into code instead.
 
 ## Sources
 
-- Our measurements: the recalibration experiments on the 999-question set, `jevos-q4_k_m`
+- Our measurements: the recalibration experiments on the 999-question set, with the first jevos
   (0.757 as shipped, 0.759 with temperature and bias fitted on dev, no gain across scenario
   halves).
 - [scikit-learn, Probability calibration](https://scikit-learn.org/stable/modules/calibration.html):

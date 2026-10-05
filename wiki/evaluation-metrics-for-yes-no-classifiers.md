@@ -13,7 +13,7 @@ threshold you will actually use, and a calibration measure.** Each one answers a
 question, and each one can look fine while another is bad. Add an uncertainty range to every
 number computed on fewer than a few hundred cases.
 
-The trap is the single accuracy figure. On our 999-question test set jevos scored 0.757 overall,
+The trap is the single accuracy figure. On our 999 hand-written questions the first jevos scored 0.757 overall,
 which describes no real use: the same model was right 0.954 of the time on stated facts and
 0.584 on arithmetic, and when it was wrong it was wrong toward yes five times out of eight.
 
@@ -57,8 +57,8 @@ Move the threshold and all four cells change. That trade is worth a page of its 
 ## Accuracy per kind: the report that changes decisions
 
 Tag every test question with the reasoning it needs (stated fact, tone, negation, rule, number,
-date, arithmetic) and report accuracy for each tag. On our set the spread runs from 0.954 to
-0.584, and the line between reading and computing is sharp. That split decides what you route to
+date, arithmetic) and report accuracy for each tag. On our set the spread runs, on the first jevos, from 0.954 to
+0.584 (per-kind numbers for jevos-v4 are not published; its overall figure is 78.9%), and the line between reading and computing is sharp. That split decides what you route to
 the model and what you keep in code, which one overall number never can. How to design the tags
 is on [accuracy by kind of question](accuracy-by-kind-of-question.md).
 
@@ -67,7 +67,7 @@ is on [accuracy by kind of question](accuracy-by-kind-of-question.md).
 Accuracy treats a wrong yes and a wrong no as equal. Applications almost never do: a wrong yes
 might refund a fraudster, a wrong no might ignore an urgent ticket. So count them separately.
 
-On our 999 questions, half yes and half no, jevos made 152 wrong yeses and 91 wrong noes. On a
+On our 999 questions, half yes and half no, the first jevos made 152 wrong yeses and 91 wrong noes. On a
 balanced set, an unbiased model would split its errors roughly evenly. A clearer view is the mean
 P(yes) on questions whose answer is no, per kind: 0.59 on arithmetic, 0.16 on tone. The details
 are on [why a small LLM says yes](why-a-small-llm-says-yes.md). If you report only accuracy, this
@@ -77,7 +77,7 @@ is invisible.
 
 A calibrated model's answers of about 0.8 are right about 80% of the time. The usual summary is
 the expected calibration error (ECE), the weighted average gap between confidence and accuracy
-across bins. On the natural yes/no questions of our held-out split jevos had an ECE of 0.009, and
+across bins. On the natural yes/no questions of our held-out split an earlier jevos had an ECE of 0.009, and
 that number did not predict the lean toward yes on new kinds of question, which is why calibration
 belongs next to per-kind accuracy and not in place of it. The definition and a worked example are
 on [expected calibration error, explained](expected-calibration-error-explained.md); drawing the
@@ -119,7 +119,7 @@ is the fix; generated questions with computed answers are the cheap way to get t
 **What metrics should I use for a binary classifier?** Accuracy per kind, error direction,
 precision and recall at your threshold, and a calibration measure, each with an uncertainty range.
 
-**Is accuracy enough?** No. Our overall 0.757 hid a range from 0.954 to 0.584 and a lean toward
+**Is accuracy enough?** No. Our overall 0.757 for the first jevos hid a range from 0.954 to 0.584 and a lean toward
 wrong yeses.
 
 **What is the difference between precision and recall?** Precision is the share of predicted yeses
@@ -138,8 +138,9 @@ differences you care about. About 100 gives plus or minus 8 points.
 ## Sources
 
 - Overall and per-kind accuracy, error counts and mean P(yes) on no-answer questions: our
-  999-question test set, `jevos-q4_k_m`.
-- Calibration error 0.009: our held-out split, 6,397 natural yes/no questions, `jevos-q8_0`.
+  999 hand-written questions, measured on the first jevos.
+- Calibration error 0.009: our held-out split, 6,397 natural yes/no questions, measured on an
+  earlier jevos.
 - The confusion matrix and the log-loss examples are illustrative arithmetic, not measurements.
   The interval formula is the standard normal approximation for a proportion.
 

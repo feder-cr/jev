@@ -51,12 +51,14 @@ and to add a negative criterion for padding.
 
 ## The lean toward yes: the one we measured
 
-On 999 yes/no questions written after training, exactly half with the answer yes, jevos made 152
+On 999 hand-written yes/no questions, exactly half with the answer yes, the first jevos made 152
 mistakes by saying yes when the answer was no and 91 the other way. Accuracy (0.757) says nothing
-about the direction; the error split does.
+about the direction; the error split does. These numbers are from the first jevos; jevos-v4
+scores 78.9% on the same 999 questions, but its error split and per-kind numbers are not
+published.
 
 The better diagnostic is the mean P(yes) on questions whose right answer is no. For an ideal
-judge it is 0. For jevos it ranged from 0.16 on tone questions to 0.59 on arithmetic. So the lean
+judge it is 0. For the first jevos it ranged from 0.16 on tone questions to 0.59 on arithmetic. So the lean
 is not a general optimism: it appears where the judge cannot work the answer out and the question
 reads like a yes. The full breakdown, and why recalibrating did not remove it, is on
 [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md).
@@ -114,14 +116,15 @@ difference smaller than the judge's disagreement with your labels as noise.
 **What is LLM judge bias?** A systematic preference of an LLM judge that is not about the quality
 being judged: position, length, a lean toward yes, its own style, or the wording of the criterion.
 
-**Does a yes/no judge have a bias toward yes?** jevos does on questions it cannot work out: 152
-wrong yeses against 91 wrong noes on a balanced 999-question set.
+**Does a yes/no judge have a bias toward yes?** The first jevos did on questions it could not work
+out: 152 wrong yeses against 91 wrong noes on a balanced 999-question set (not published for
+jevos-v4).
 
 **How do I detect bias in my judge?** Run it on cases with known answers and look at the direction
 of its errors per criterion, not only its accuracy.
 
-**Does calibration remove bias?** Not a directional one. A temperature and bias fitted on our
-development split moved accuracy from 0.757 to 0.759.
+**Does calibration remove bias?** Not a directional one. On the first jevos, a temperature and
+bias fitted on our development split moved accuracy from 0.757 to 0.759.
 
 **Is a judge from a different model family unbiased?** No, only free of self-preference toward the
 generator. It still has position, length and yes-lean effects to check.
@@ -137,7 +140,7 @@ generator. It still has position, length and yes-lean effects to check.
   [HTML version](https://arxiv.org/html/2306.05685v4), fetched 2026-09-29: the named biases, the
   repetitive-list attack and its failure rates.
 - Error split, mean P(yes) on no-answer questions and the recalibration result: our 999-question
-  test set, `jevos-q4_k_m`.
+  test set, measured on the first jevos.
 
 ---
 

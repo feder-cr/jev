@@ -23,12 +23,12 @@ an isolated network, how to verify the files, and what being offline does not gi
 ## What needs the network, and when?
 
 Two downloads, both before the first decision, both from the
-[release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2):
+[release page](https://github.com/feder-cr/jev/releases/tag/jevos-v4):
 
 | What | How | Size or note |
 |---|---|---|
 | jev binary | `jev-linux-x64.tar.gz`, `jev-windows-x64.zip` or `jev-macos-arm64.tar.gz` | a `jev/` folder with the binary, OpenVINO's libraries and the licenses |
-| Model | `jevos-v2-openvino-int8.zip` | unpacked into the `jev` folder as `jev/model` |
+| Model | `jevos-v4-openvino-int8.zip` | unpacked into the `jev` folder as `jev/model` |
 
 Both are prebuilt archives. Nothing is compiled and nothing is installed, which matters
 offline: there is no Python environment, package manager or compiler toolchain to carry over.
@@ -52,7 +52,7 @@ them across.
 1. On the connected machine, download the archive for the isolated machine's platform
    (`jev-linux-x64.tar.gz`, `jev-windows-x64.zip` or `jev-macos-arm64.tar.gz`). Each archive is
    built for one operating system and processor architecture.
-2. Download `jevos-v2-openvino-int8.zip` and `SHA256SUMS.txt` from the release into the same
+2. Download `jevos-v4-openvino-int8.zip` and `SHA256SUMS.txt` from the release into the same
    directory.
 3. Verify the files there (next section), then copy them onto the transfer medium.
 4. On the isolated machine, verify the files again after the copy, unpack the archive, unzip
@@ -60,12 +60,9 @@ them across.
 5. Test the whole sequence once with the network disabled before you depend on it. A wrong
    archive or a missing file is easier to find in a rehearsal than in an incident.
 
-If your security process requires building the binary yourself, the repository builds it with
-`python -m pip install -r requirements.txt` (OpenVINO's SDK, CMake, Ninja) and then
-`python scripts/build.py` (a C++17 compiler; on Windows from a Visual Studio developer prompt),
-and `python tests/check.py` checks the result. The first build needs network access, because
-CMake downloads llama.cpp, so build on the connected side; an isolated machine should use the
-release archives.
+If your security process requires building the binary yourself, the source is in the
+[jev repository](https://github.com/feder-cr/jev). Do the build on the connected side and carry
+the result across like the release archives; an isolated machine should use the release archives.
 
 ## How do you verify the files?
 
@@ -83,7 +80,7 @@ release files you did not download, such as the GGUF files.
 On Windows, PowerShell's `Get-FileHash` computes SHA256 by default:
 
 ```powershell
-Get-FileHash .\jevos-v2-openvino-int8.zip
+Get-FileHash .\jevos-v4-openvino-int8.zip
 ```
 
 Compare the `Hash` it prints with the line for that file in `SHA256SUMS.txt`. The sums file
@@ -106,8 +103,8 @@ decision log ties each answer to a verified file, as described on
   uncertain middle goes to a person, or waits. If you plan an escalation path like the one on
   [a model cascade: small model first](model-cascade-small-model-first.md), it needs a
   connected side.
-- **More capability.** The model is the same one: English only, yes/no, multiple choice and early scores, 0.810 on 2,000
-  questions about unseen business policies against 0.927 for the hosted Jev. Offline changes
+- **More capability.** The model is the same one: English only, yes/no, multiple choice and early scores; on the
+  admission policy task it scored 0.95 on yes/no rules against 1.00 for the hosted Jev. Offline changes
   where it runs, not what it knows.
 
 ## Short answers to the questions that lead here
@@ -136,7 +133,7 @@ architecture, yes: each release archive is built for one platform.
 - Commands, endpoints and the build from source: the [jev README](https://github.com/feder-cr/jev).
   The format of `SHA256SUMS.txt` is read from the file on the jevos release.
 - Release archives and what they contain: the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v4).
 - `sha256sum` options: [sha256sum(1) on man7.org](https://man7.org/linux/man-pages/man1/sha256sum.1.html),
   fetched 2026-09-29.
 - `Get-FileHash` and its SHA256 default: [Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash),

@@ -63,8 +63,8 @@ each comes back as its own `noul`, P(yes):
 ```
 
 None of those three is a safety hazard in a published taxonomy, and all three are the kind of
-rule a community actually enforces. That is the space jevos is for. It is a 1B-class model on a
-CPU: 26 to 112 ms per request on our reference laptop, with the text read once for every
+rule a community actually enforces. That is the space jevos is for. It runs on a
+CPU: 28 to 130 ms per request on our reference laptop, with the text read once for every
 question in the request.
 
 ## Where the specialist wins
@@ -87,8 +87,9 @@ is a specialist model plus the legal and reporting process that category require
 Most moderation work is not in the hazard list. It is forum rules, brand rules, product rules:
 off-topic posts, self-promotion, personal data in public reviews, a reply that promises what
 support cannot give, a message asking to cancel. These change often, differ per community, and
-are easy to state as a question. jevos' measured strengths match them: 0.938 on tone, 0.859 on
-intent and 0.954 on facts stated in the text, in our 999-question test.
+are easy to state as a question. the first jevos's measured strengths matched them: 0.938 on tone, 0.859 on
+intent and 0.954 on facts stated in the text, in our 999-question test (per-kind numbers for
+jevos-v4 are not published; its overall score on the set is 78.9%).
 
 The operating pattern is on [content moderation with a local LLM](content-moderation-with-a-local-llm.md):
 act on the confident ends, and send the middle band to a moderator.
@@ -140,7 +141,7 @@ layered design.
   [model card on Hugging Face](https://huggingface.co/meta-llama/Llama-Guard-3-8B), fetched
   2026-09-29.
 - jevos latency and accuracy by kind: our own measurements, see the
-  [jev README](https://github.com/feder-cr/jev) and our 999-question test set on `jevos-q4_k_m`.
+  [jev README](https://github.com/feder-cr/jev) and our 999-question test set, measured on the first jevos.
 
 ---
 

@@ -117,8 +117,8 @@ A small model is a first screen, not a security control. Four reasons:
    model "is itself an LLM and is itself susceptible to prompt injection" and should be treated
    "as one layer in a defense-in-depth design". The same applies to a screen that reads email.
 3. **It is not measured on phishing.** We have not measured jevos on a phishing set. What we
-   measured is a spread by kind of question: on 999 questions written after training, intent was
-   right 0.859 of the time and stated facts 0.954. Build your own set from reported messages
+   measured is a spread by kind of question: on 999 questions written after training, the first jevos got
+   intent right 0.859 of the time and stated facts 0.954 (per-kind numbers for jevos-v4 are not published). Build your own set from reported messages
    before you rely on any threshold.
 4. **English only.** jevos reads English. Phishing in other languages needs another tool.
 
@@ -152,7 +152,7 @@ and [combining yes/no answers with AND, OR and NOT](combining-yes-no-answers-and
 
 - Our measurements: three questions about 66 ms vs 49 ms for one, from the
   [jev README](https://github.com/feder-cr/jev); accuracy by kind of question from our
-  999-question test set on `jevos-q4_k_m`. No phishing measurement exists; none is claimed.
+  999-question test set, measured on the first jevos. No phishing measurement exists; none is claimed.
 - CISA, [recognize and report phishing](https://www.cisa.gov/secure-our-world/recognize-and-report-phishing),
   fetched 2026-09-29.
 - RFC 7489, [Domain-based Message Authentication, Reporting, and Conformance (DMARC)](https://www.rfc-editor.org/rfc/rfc7489),

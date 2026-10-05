@@ -62,7 +62,8 @@ The formula treats P(yes) as the real chance that the answer is yes. If the mode
 only 65 percent of the time on your data, a threshold of 0.8 buys less safety than it claims.
 
 For jevos, the relevant measurement is the direction of its errors on 999 yes/no questions
-written after the model was finished: 152 said yes when the answer was no, 91 said no when the
+written after the model was finished, measured on the first jevos (per-kind numbers for jevos-v4,
+78.9% overall on the same questions, are not published): 152 said yes when the answer was no, 91 said no when the
 answer was yes. The lean sits mostly on questions that need a computation. On arithmetic
 questions whose answer was no, the mean P(yes) was 0.59; on dates and times, 0.53. On tone and
 negation it was 0.16 and 0.17.
@@ -76,7 +77,7 @@ Three consequences for an asymmetric threshold:
   answer is no get an average P(yes) above one half, and no threshold separates them cleanly. Compute the date or the total in
   code and ask the model only what the text says. The detail is on
   [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md).
-- **Trust a no more than a yes.** On that set, a no from the model was the more reliable answer.
+- **Trust a no more than a yes.** On that set with the first jevos, a no from the model was the more reliable answer.
 
 ## Examples in both directions
 
@@ -138,7 +139,7 @@ automating it.
 ## Sources
 
 - Our measurements: 152 wrong yeses vs 91 wrong noes and mean P(yes) by kind of question on the
-  999-question set, `jevos-q4_k_m`. The refund value 0.93 is the README example of the
+  999-question set, first jevos (`jevos-q4_k_m`). The refund value 0.93 is the README example of the
   [jev repository](https://github.com/feder-cr/jev).
 - The cost-ratio table is arithmetic from the formula, not a measurement.
 - Elkan (2001), [The Foundations of Cost-Sensitive Learning](https://cseweb.ucsd.edu/~elkan/rescale.pdf),

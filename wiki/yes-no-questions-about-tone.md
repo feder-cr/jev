@@ -9,10 +9,11 @@ nav_order: 9
 
 **Ask about one emotion or one quality of tone per question, name whose tone you mean, and
 keep tone separate from what the writer wants: "Is the customer angry?" and "Does the customer
-threaten to cancel?" are different questions with different uses.** Tone is one of the kinds
-of question jevos answers best. On our 999-question test set it was right on 0.938 of the tone
-questions, and when the correct answer was no, its average P(yes) was 0.16, the lowest of any
-kind of question we measured.
+threaten to cancel?" are different questions with different uses.** Tone was one of the kinds
+of question the first jevos answered best. On our 999-question test set it was right on 0.938 of
+the tone questions, and when the correct answer was no, its average P(yes) was 0.16, the lowest
+of any kind of question we measured. Per-kind numbers for jevos-v4 are not published (78.9%
+overall on the same set).
 
 The catch is that tone is easy to read and easy to misuse. A furious message can ask for
 nothing, and a calm one can announce that the customer is leaving. Systems that route on anger
@@ -44,7 +45,7 @@ One emotion, one subject, plain words:
 ```
 
 "Is the customer upset?" is the README's own tone question, and the README's run answers it
-0.73 on this text. Three habits carry over from the general rules on
+0.83 on this text. Three habits carry over from the general rules on
 [how to write yes/no questions an LLM answers well](how-to-write-yes-no-questions-for-an-llm.md):
 
 - **Name the person.** In a thread with a customer and an agent, "Is the tone rude?" is two
@@ -60,7 +61,7 @@ One emotion, one subject, plain words:
 
 The test set: 999 yes/no questions written after the model was finished, over 10 scenarios with
 10 texts each of 40 to 150 words (emails, tickets, logs, reviews, forms), exactly half of the
-answers yes. 32 of the questions were about tone, and jevos `q4_k_m` answered 0.938 of them
+answers yes. 32 of the questions were about tone, and the first jevos (`q4_k_m`) answered 0.938 of them
 correctly.
 
 Two honest qualifications. 32 questions is a small group: two or three different answers would
@@ -122,7 +123,7 @@ Tone questions are good modifiers and weak triggers. In practice:
 
 ## Short answers to the questions that lead here
 
-**Can a small LLM detect anger in a message?** On our test set jevos answered 0.938 of 32 tone
+**Can a small LLM detect anger in a message?** On our test set the first jevos answered 0.938 of 32 tone
 questions correctly, with an average P(yes) of 0.16 when the answer was no. Test on your own
 texts before relying on it.
 
@@ -143,8 +144,8 @@ angry message and an urgent one are not always the same.
 ## Sources
 
 - 0.938 on 32 tone questions, 0.954 on stated facts, and the mean P(yes) values on no-answer
-  questions: our 999-question test set, `jevos-q4_k_m`.
-- The "upset" question and its 0.73 answer: the [jev README](https://github.com/feder-cr/jev).
+  questions: our 999-question test set, first jevos (`jevos-q4_k_m`).
+- The "upset" question and its 0.83 answer: the [jev README](https://github.com/feder-cr/jev).
 
 ---
 

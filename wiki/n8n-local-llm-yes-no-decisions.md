@@ -25,13 +25,13 @@ sketches to adapt; field names are from the n8n docs as fetched on 2026-09-29.
 ## Start the decision server next to n8n
 
 Download `jev-linux-x64.tar.gz` (or the Windows or macOS archive) and
-`jevos-v2-openvino-int8.zip` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v2),
+`jevos-v4-openvino-int8.zip` from the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v4),
 then:
 
 ```bash
 tar -xzf jev-linux-x64.tar.gz
 cd jev
-unzip ../jevos-v2-openvino-int8.zip     # creates model/
+unzip ../jevos-v4-openvino-int8.zip     # creates model/
 ./jev serve --threads 8
 ```
 
@@ -84,8 +84,8 @@ splits the workflow in two. For anything with a cost, split it in three instead:
 The numbers 0.9 and 0.1 are placeholders, not a recommendation. Where to put them depends on
 what a wrong yes costs you and on your own labelled cases; the reasoning is on
 [human in the loop AI with a review band](human-in-the-loop-ai-with-a-review-band.md). Keep the
-band honest about the model's lean: on our 999-question set wrong answers were 152 "said yes, was
-no" against 91 the other way, mostly on arithmetic and dates. If your question needs a sum or a
+band honest about the model's lean: on our 999-question set the first jevos made 152 wrong answers of the kind "said yes, was
+no" against 91 the other way, mostly on arithmetic and dates (not measured per kind on jevos-v4). If your question needs a sum or a
 date comparison, compare the raw fields in the workflow itself, for example with an If node, and ask the model only
 what has to be read from the text.
 
@@ -149,7 +149,7 @@ and [Home Assistant automations with local LLM decisions](home-assistant-local-l
 
 - Server command, defaults, endpoints, `JEV_API_KEY`, `422` and `Server-Timing`: the
   [jev README](https://github.com/feder-cr/jev) and the jev source.
-- Latencies, memory and the 152 to 91 error split: the README and our 999-question test set.
+- Latencies, memory and the 152 to 91 error split (first jevos): the README and our 999-question test set.
 - [n8n HTTP Request node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
   and its [common issues](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/common-issues.md),
   fetched 2026-09-29.

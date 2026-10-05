@@ -34,14 +34,14 @@ shortened placeholders.
   "state_sha256": "9c1e...",
   "state_tokens": 27,
   "questions": {"billing": "Is this a billing problem?"},
-  "answers": {"billing": 0.9},
+  "answers": {"billing": 0.94},
   "rule": "billing > 0.5",
   "action": "queue:billing",
-  "model": "jevos-v2",
+  "model": "jevos-v4",
   "model_file_sha256": "e41b...",
-  "jev_release": "jevos-v2",
-  "inference_ms": 50,
-  "total_ms": 54
+  "jev_release": "jevos-v4",
+  "inference_ms": 24,
+  "total_ms": 28
 }
 ```
 

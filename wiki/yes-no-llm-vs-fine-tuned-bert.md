@@ -42,7 +42,7 @@ A yes/no model needs a question. For jevos, that is a request:
 }
 ```
 
-The README's answer to that request is `"noul": 0.9`. No dataset, no training, no GPU: the model
+The README's answer to that request is `"noul": 0.94`. No dataset, no training, no GPU: the model
 runs on a CPU with about 1 GB of memory. What it does need is a question worded well, which is
 its own skill; see [how to write yes/no questions an LLM answers well](how-to-write-yes-no-questions-for-an-llm.md).
 
@@ -75,8 +75,9 @@ If all four describe your situation, train the classifier.
 - **Probabilities per condition.** Each question returns its own P(yes), so a failure tells you
   which condition failed, and a review band on uncertain answers is a threshold, not a new model.
 
-Questions also have a measured weak spot: computation. On our 999-question set, jevos was right
-0.954 of the time on facts stated in the text and 0.584 on arithmetic, so a label that depends on
+Questions also have a measured weak spot: computation. On our 999-question set, the first jevos was right
+0.954 of the time on facts stated in the text and 0.584 on arithmetic (per-kind numbers for
+jevos-v4 are not published; its overall score there is 78.9%), so a label that depends on
 a sum or a date should be computed in code whichever approach you use.
 
 ## The cost of changing your mind
@@ -126,7 +127,7 @@ full public dataset. If you have only a handful per class, look at
 
 **Can I add a label without retraining?** With yes/no questions, yes: add a question.
 
-**Is a yes/no model slower?** Usually per prediction, yes. jevos took 26 to 112 ms per request on
+**Is a yes/no model slower?** Usually per prediction, yes. jevos took 28 ms for a short request and 130 ms for a long one on
 a laptop CPU; a small encoder is typically cheaper.
 
 **Can I use both?** Yes. Start with questions, collect human decisions from the review band, and
@@ -143,8 +144,8 @@ train once a task is stable.
 - The fine-tuning recipe (IMDb, `id2label`, number of labels): Hugging Face,
   [text classification guide](https://huggingface.co/docs/transformers/tasks/sequence_classification),
   fetched 2026-09-29.
-- The billing example and its 0.9, memory and latency: the [jev README](https://github.com/feder-cr/jev).
-- Accuracy by kind (0.954 facts, 0.584 arithmetic): our 999-question test set on `jevos-q4_k_m`.
+- The billing example and its 0.94, memory and latency: the [jev README](https://github.com/feder-cr/jev).
+- Accuracy by kind (0.954 facts, 0.584 arithmetic): our 999-question test set on the first jevos, `jevos-q4_k_m`.
 
 ---
 

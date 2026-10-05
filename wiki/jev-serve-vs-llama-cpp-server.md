@@ -19,7 +19,7 @@ foundation to build on.
 Conflict of interest, in one line: we build jev; the llama-server facts are from its README in
 the llama.cpp repository, fetched 2026-09-29.
 
-The two are not rivals in the usual sense. jev compiles in llama.cpp's tokenizer, and the jevos-v2
+The two are not rivals in the usual sense. jev compiles in llama.cpp's tokenizer, and the jevos-v4
 release also ships the model as GGUF files that llama-server can load, so the question is how much
 of the layer above the model you want to own.
 
@@ -101,22 +101,21 @@ there, step 2 above is your code. The general reason this route still costs a de
 - **Provenance.** `GET /health` reports the served model; every successful response carries a
   `Server-Timing` header.
 - **A model built for yes/no questions**, not a general chat model prompted into answering
-  them, with calibration measured on held-out questions (0.009 on 6,397 natural yes/no
-  questions).
+  them, with calibration measured on held-out questions (an earlier jevos had 0.009 on 6,397
+  natural yes/no questions; not remeasured for jevos-v4).
 - **Server-free batch use.** `jev decide` answers a request file, the same body as
   `POST /v1/systemone`, with no server, and prints the answers as indented JSON.
 
 What it does not add: generation, chat, embeddings or other models. `score` questions are
-answered, but early: the most probable level is right 54% of the time on 2,350 held-out
-questions, and weak where the level is a sum of points.
+answered, but early: the most probable level is right 58.5% of the time on 2,350 held-out
+questions, and weak where the level is a sum of points (Fraud points 0.50).
 
 ## When llama-server is the better choice
 
 - You want a different or larger model, or several.
 - You need generation, embeddings or reranking from the same process.
-- You need parallel slots for many concurrent users; jev reads small requests arriving together
-  in one model call and reached 10.1 requests/s with 8 clients on our reference laptop (median
-  780 ms), a capacity figure, not a latency one, a distinction made on
+- You need parallel slots for many concurrent users; we have not measured jev under concurrent
+  load, and capacity is a different figure from latency, a distinction made on
   [throughput vs latency for a decision server](throughput-vs-latency-for-a-decision-server.md).
 - You want to own every line of the prompt and the probability logic.
 
@@ -125,14 +124,14 @@ questions, and weak where the level is a sum of points.
 **Can llama.cpp server do classification?** Yes, with your own prompt and code that reads token
 probabilities from `n_probs`. It gives the parts, not the classifier.
 
-**Does jev serve use llama-server?** No. It is one native binary that runs jevos-v2 with 8-bit
+**Does jev serve use llama-server?** No. It is one native binary that runs jevos-v4 with 8-bit
 weights through OpenVINO, uses llama.cpp only as its tokenizer, and exposes its own endpoint.
 
 **How do I get a yes/no probability from llama-server?** Generate one token with `n_probs` set,
 then add up the probabilities of the tokens that mean yes and those that mean no, and normalise.
 
-**Which one is faster?** We have not measured llama-server with a comparable setup. jevos took 26
-and 112 ms on our short and long requests, read from scratch, on an Intel Core Ultra 7 255H.
+**Which one is faster?** We have not measured llama-server with a comparable setup. jevos took 28
+and 130 ms on our short and long requests, read from scratch, on an Intel Core Ultra 7 255H.
 
 **Can I run both?** Yes; they default to different ports, 8080 and 8017.
 
@@ -149,7 +148,7 @@ and 112 ms on our short and long requests, read from scratch, on an Intel Core U
   fetched 2026-09-29.
 - `jev serve`, `jev decide`, the endpoints, `Server-Timing` and the 422: the
   [jev README](https://github.com/feder-cr/jev); latency figures are our own measurements.
-- Calibration error 0.009: our held-out split, 6,397 natural yes/no questions, `jevos-q8_0`.
+- Calibration error 0.009: our held-out split, 6,397 natural yes/no questions, an earlier jevos.
 
 ---
 

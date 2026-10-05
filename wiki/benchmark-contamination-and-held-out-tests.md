@@ -44,7 +44,7 @@ memorisation. They also report that frontier models showed minimal signs of over
 all models generalised meaningfully to the new problems, so contamination shaves points rather
 than turning a weak model into a strong one.
 
-The same shape appears without any public benchmark involved. On our own model, a test split made
+The same shape appears without any public benchmark involved. On the first jevos, a test split made
 the same way as the material the model learned from scored about ten points higher than questions
 written independently afterwards. That measurement, and why excluding whole topics did not close
 the gap, is on
@@ -82,7 +82,7 @@ have a style of their own, as discussed on
 ## Keeping a private test set clean
 
 1. **Do not publish it.** Not in a repository, not in a blog post, not in a bug report. Publish the
-   method and the numbers; keep the questions. Our own 999-question set stays unpublished for this
+   method and the numbers; keep the questions. Our own 999 hand-written questions stay unpublished for this
    reason.
 2. **Watch where it travels.** A test set pasted into a hosted service goes wherever that service's
    data terms allow. Read them. Evaluating with a local model, such as jevos on a CPU, keeps the set
@@ -100,7 +100,9 @@ have a style of their own, as discussed on
 ## Being straight about what this means for any model's numbers
 
 A published benchmark score, including any we or anyone else report, is an upper estimate for data
-that looks like the benchmark. Your data does not. The practical rule is the same for every model:
+that looks like the benchmark. We say so about our own: of the six tasks in the jevos-v4 comparison,
+five helped choose the released checkpoint, so jevos's scores there may be slightly optimistic; only
+the patent-phrases task did not. Your data does not. The practical rule is the same for every model:
 before relying on it, measure it on a private set of your own cases, split by
 [kind of question](accuracy-by-kind-of-question.md), and plan with that number.
 
@@ -116,7 +118,7 @@ fresh problems in the style of a public benchmark.
 written in the same style, or use an ordering test on its probabilities.
 
 **Is a held-out split of my own data enough?** Not always. A split made the same way as the tuning
-data can still be optimistic; ours was by about ten points.
+data can still be optimistic; ours was by about ten points on the first jevos.
 
 **Should I publish my test set?** Not the questions, if you want to keep using them. Publish the
 method and the results.
@@ -134,7 +136,7 @@ method and the results.
 - BIG-bench README on the canary string,
   [github.com/google/BIG-bench](https://github.com/google/BIG-bench), fetched 2026-09-29.
 - The ten-point gap between our held-out split (0.855) and independent questions (0.757): our
-  measurements of the released jevos.
+  measurements of the first jevos.
 
 ---
 

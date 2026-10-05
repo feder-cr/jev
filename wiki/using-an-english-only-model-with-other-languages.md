@@ -28,8 +28,8 @@ in French, or say it did not understand; the failure is visible. A yes/no model 
 number between 0 and 1 for any input, and a plausible-looking 0.3 on a French complaint looks
 exactly like a correct 0.3 on an English one.
 
-We have measured jevos on English text: 0.954 on stated facts and 0.938 on tone, among other
-kinds, on our 999-question test set, and 0.810 on 2,000 policy questions. None of those texts
+We have measured jevos-v4 on English text: 78.9% on our 999 hand-written yes/no questions, and
+0.95 on the Admission policy yes/no task, among six tasks. None of those texts
 was in another language. We have no result for any other language, good or bad, and this page
 does not guess one.
 
@@ -56,7 +56,7 @@ English text.
 What it costs:
 
 - **Latency and money.** The translation step can easily be slower than the yes/no question
-  itself. On the reference laptop, a request of about 190 tokens takes about 112 ms; a
+  itself. On the reference laptop, a long request takes about 130 ms; a
   translation step can easily cost more than that, locally or over a network.
 - **Privacy.** If the translation is a hosted service, the text leaves your machine, which may
   be the thing you chose a local model to avoid. The trade-off is laid out on
@@ -139,9 +139,9 @@ traffic or for the non-English part behind a language check.
 ## Sources
 
 - English only: our own statement of the model's scope.
-- The 112 ms latency for about 190 tokens and the 0.810 on 2,000 policy questions: the
-  [jev README](https://github.com/feder-cr/jev) and our measurements on the reference laptop.
-- 0.954 on stated facts and 0.938 on tone: our 999-question test set, `jevos-q4_k_m`.
+- The 130 ms latency for a long request, the 0.95 on the Admission policy task and the 78.9%
+  on the 999 questions: the [jev README](https://github.com/feder-cr/jev) and our measurements
+  on the reference laptop.
 - No measurement on other languages exists, and none is claimed on this page.
 
 ---

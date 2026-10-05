@@ -35,7 +35,7 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 
 ```json
 {
-  "model": "jevos-v2",
+  "model": "jevos-v4",
   "answers": {"billing": {"type": "noul", "noul": 0.94}},
   "usage": {"input_tokens": 27, "output_tokens": 0}
 }
@@ -98,7 +98,7 @@ the two is the HTTP layer and the connection, which on `127.0.0.1` should be sma
 network is not. For honest numbers, repeat the call, discard the first runs and take the median
 and p90, as described on
 [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md). On the
-reference laptop the README gives 26 ms for a 30-token request and 112 ms for 191 tokens.
+reference laptop the README gives 28 ms for a short request and 130 ms for a long one.
 
 ## /health and /v1/models
 

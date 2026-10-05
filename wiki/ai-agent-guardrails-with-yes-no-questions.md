@@ -60,8 +60,8 @@ each question is answered separately.
 The draft is polite and on topic, and it breaks the policy. That is the typical guardrail
 catch: a fluent reply that does the one thing it must not do. Asking both "promises_refund" and
 "breaks_policy" is deliberate. The first is a plain reading question; the second applies a rule.
-On our 999-question test set, stated facts were answered right 0.954 of the time and rule
-questions 0.721, so the reading question is the one to lean on, with the rule question as a
+On our 999 hand-written questions, the first jevos answered stated facts right 0.954 of the time
+and rule questions 0.721 (per-kind numbers for jevos-v4 are not published), so the reading question is the one to lean on, with the rule question as a
 second view.
 
 ## Why speed decides where guardrails can run
@@ -70,11 +70,11 @@ A guardrail that takes a second and costs money per call ends up on the final an
 that runs locally in tens of milliseconds can run on every input, every retrieved document and
 every step.
 
-The numbers from our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU): about 26 ms
-for a 30-token request, about 112 ms for a 191-token one read from scratch, and about 22 ms when
+The numbers from our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU): about 28 ms
+for a short request, about 130 ms for a long one read from scratch, and about 22 ms when
 the same text is asked about again. Extra questions on the same text are cheaper than the first:
 three questions took about 66 ms against 49 ms for one. For a hosted service the network alone sets a floor; the hosted Jev took about
-344 ms on the short request from Europe, almost all of it round trip. The reasons are on
+311 ms on the short request, almost all of it round trip. The reasons are on
 [why a hosted LLM API cannot answer in 50 ms](why-a-hosted-llm-api-cannot-answer-in-50-ms.md).
 
 Latency grows with the text, so a long retrieved document is the expensive case. Check the
@@ -117,7 +117,7 @@ including the ones that passed, so you can find the misses later.
 - **Standard safety categories.** For violence, self-harm, sexual content and the like, a model
   built for a fixed safety taxonomy is the specialist; see
   [jevos vs Llama Guard](jevos-vs-llama-guard.md). Your own policy questions sit next to it.
-- **Anything that needs a sum or a date.** Arithmetic questions scored 0.584 on our test. Compute
+- **Anything that needs a sum or a date.** Arithmetic questions scored 0.584 on the first jevos. Compute
   in code.
 - **Facts about the world.** "Is this claim true?" is not in the text. "Is this claim supported
   by the passage?" is.
@@ -148,7 +148,7 @@ and [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md).
 
 - Our measurements: latency, repeated-text and three-question timings on the reference
   laptop, and the hosted Jev timing, from the [jev README](https://github.com/feder-cr/jev);
-  accuracy by kind of question from our 999-question set.
+  accuracy by kind of question from our 999 hand-written questions, measured on the first jevos.
 - OWASP GenAI Security Project, [LLM01 Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/),
   fetched 2026-09-29.
 

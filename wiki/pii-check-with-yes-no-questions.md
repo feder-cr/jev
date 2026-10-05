@@ -77,8 +77,8 @@ Each question returns its own `noul`. The phone number is not asked about: the o
 it, and a regex would find it in the text.
 
 Reading questions like these are the strong side of a small model. On 999 yes/no questions
-written after training, stated facts were answered right 0.954 of the time and questions about
-whether the text states something at all 0.847. We have not measured jevos on a personal-data
+written after training, the first jevos answered stated facts right 0.954 of the time and questions about
+whether the text states something at all 0.847 (per-kind numbers for jevos-v4 are not published). We have not measured jevos on a personal-data
 set, so those numbers describe the kind of question, not this task.
 
 ## Layering the checks
@@ -101,7 +101,7 @@ person" should be low, not 0.5.
 ## Long documents
 
 jevos reads up to 8,192 tokens per question, the text plus that question, and latency grows with length: a 191-token text
-read from scratch took 112 ms on our reference laptop. A long document should be split into passages, each
+read from scratch took 130 ms on our reference laptop (jevos long request). A long document should be split into passages, each
 passage asked the same questions, and the answers combined with OR, since one passage with
 health data makes the document contain health data. The method is on
 [yes/no questions about long documents](yes-no-questions-about-long-documents.md).
@@ -143,8 +143,7 @@ than an extra look. Choose it on labelled examples from your own data.
 
 ## Sources
 
-- Our measurements: accuracy by kind of question from our 999-question test set on
-  `jevos-q4_k_m`; context and latency from the [jev README](https://github.com/feder-cr/jev). No
+- Our measurements: accuracy by kind of question from our 999-question test set, measured on the first jevos; context and latency from the [jev README](https://github.com/feder-cr/jev). No
   personal-data measurement exists; none is claimed.
 - Microsoft, [Presidio repository](https://github.com/microsoft/presidio), detection methods,
   entity types and its stated limitation, fetched 2026-09-29.

@@ -15,7 +15,7 @@ which answer it gives. It fixes a model that is uniformly too sure or too shy. I
 model that leans in one direction on some kinds of question.
 
 That second sentence is the reason for this page. When we fitted a temperature and a bias on
-our development split and applied them to 999 new questions, accuracy moved from 0.757 to
+our development split (first jevos) and applied them to 999 new questions, accuracy moved from 0.757 to
 0.759. The model's problem on those questions was not its confidence level; it was a lean
 toward yes on questions it could not compute, and a global correction cannot reach that.
 
@@ -70,18 +70,19 @@ steeper for underconfidence.
 
 ## What it cannot repair: a lean in one direction
 
-On 999 yes/no questions written after the model was finished, `jevos-q4_k_m` made 152 errors
+On 999 yes/no questions written after the model was finished, the first jevos made 152 errors
 saying yes when the answer was no and 91 the other way. The lean is not spread evenly: the mean
 P(yes) on questions whose answer is no is 0.59 for arithmetic and 0.53 for dates, but 0.17 for
 negation and 0.16 for tone.
 
-A temperature cannot fix that, because it treats a wrong 0.7 on a sum and a right 0.7 on a
+These per-kind numbers were measured on the first jevos; per-kind numbers for jevos-v4 (78.9%
+overall on the same 999 questions) are not published. A temperature cannot fix that, because it treats a wrong 0.7 on a sum and a right 0.7 on a
 fact the same way. A bias term shifts every answer at once, so a shift large enough to fix the
 sums starts saying no to facts the model had right. What we measured:
 
 | Correction | Accuracy on the 999 questions |
 |---|---|
-| none | 0.757 |
+| none (first jevos) | 0.757 |
 | temperature and bias fitted on dev | 0.759 |
 | best bias chosen on the 999 set itself (cheating on purpose) | 0.763 |
 | fitted on half the scenarios, tested on the other half | no gain |
@@ -141,8 +142,8 @@ labelled cases is a reasonable start, and more if you fit per kind of question.
 
 ## Sources
 
-- Our measurements: the 999-question set on `jevos-q4_k_m` (accuracy, 152 vs 91 errors, mean
-  P(yes) by kind) and the recalibration experiments on it.
+- Our measurements: the 999-question set on the first jevos, `jevos-q4_k_m` (accuracy, 152 vs
+  91 errors, mean P(yes) by kind) and the recalibration experiments on it.
 - The T table is illustrative arithmetic, not a measurement.
 - Guo, Pleiss, Sun, Weinberger (2017),
   [On Calibration of Modern Neural Networks](https://arxiv.org/abs/1706.04599), fetched

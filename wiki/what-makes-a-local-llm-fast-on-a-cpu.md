@@ -42,7 +42,7 @@ a gigabyte to a few gigabytes, and a laptop's memory system can move that quickl
 llama.cpp, the usual runtime for GGUF files, supports integer quantization from 1.5 to 8 bits
 "for faster inference and reduced memory use", in its own words. Its quantization README lists
 Q4_K_M at about 4.9 bits per weight and Q8_0 at about 8.5 for the model it uses as an example.
-For jevos the two released GGUF files are 619 MB for `q4_k_m` and 943 MB for `q8_0`; jev itself
+For jevos-v4 the two released GGUF files are `jevos-v4-q4_k_m.gguf` and `jevos-v4-q8_0.gguf`; jev itself
 runs the model with 8-bit (INT8) weights through OpenVINO. The GGUF trade-off, including what we
 have not measured yet, is on [Q4_K_M vs Q8_0: speed and size](q4-k-m-vs-q8-0-speed-and-size.md), and
 what the names mean is on [GGUF quantization types explained](gguf-quantization-types-explained.md).
@@ -68,7 +68,7 @@ generates stays in the phase that CPUs handle best. The two phases are explained
 Once the model and the machine are fixed, the work is set by tokens.
 
 - **Input tokens.** The reading step grows with the prompt. On our reference laptop jevos took
-  26 ms for a request of about 30 tokens and 112 ms for one of about 190, reading each text from
+  28 ms for a request of about 30 tokens and 130 ms for one of about 190, reading each text from
   scratch. The detail, and how to trim the input, is on
   [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 - **Output tokens.** Each one is a full pass. A chat model answering "Yes, this is a billing
@@ -93,12 +93,13 @@ work on slower cores. If speed matters, try a few values on your own machine; mo
 
 | Request | Tokens | jevos, text read from scratch | jevos, same text asked again |
 |---|---|---|---|
-| short | about 30 | 26 ms | 25 ms |
-| long | about 190 | 112 ms | 22 ms |
-| one text, three questions | 95 | about 66 ms (49 ms for one question alone) | 39 ms (24 ms for one) |
+| short | about 30 | 28 ms | not published |
+| long | about 190 | 130 ms | 22 ms |
+| one text, three questions | 95 | about 66 ms (49 ms for one question alone) | 39 ms |
 
-Reference machine: Intel Core Ultra 7 255H, 16 threads, no GPU in use, about 1 GB of extra
-memory with the model loaded. jev keeps texts it has read, so a request on a text it has seen
+Reference machine: Intel Core Ultra 7 255H, 16 threads, no GPU in use, about 1 GB of memory
+with the model loaded. Median of 10 requests after 3 warm-up requests, measured with jevos-v3,
+which has the same size and speed as jevos-v4. jev keeps texts it has read, so a request on a text it has seen
 reads only the question.
 
 Being straight about the limit: this is one laptop. A desktop with more memory bandwidth, an

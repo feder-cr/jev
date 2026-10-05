@@ -54,9 +54,9 @@ A local yes/no decision has a different cost shape:
 - **No per-token bill.** jevos is free to run, and the code is MIT.
 - **No output tokens.** Every response reports `output_tokens: 0`; the answer is a probability,
   not text.
-- **CPU time.** On our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), 26 ms for
-  a short request and 112 ms for a long one read from scratch, and 22 to 25 ms when the same
-  text is asked about again.
+- **CPU time.** On our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU), 28 ms for
+  a short request and 130 ms for a long one read from scratch, and 22 ms for the long one when
+  the same text is asked about again.
 - **Memory.** About 1 GB with the model loaded.
 - **Shared reading.** Several questions about one text are cheaper together: three took about
   66 ms against 49 ms for one alone. Grouping questions per text is the main lever, covered
@@ -77,14 +77,13 @@ Fill this in with your own numbers; nothing below is a measurement.
   for requests of that length, spread over however many cores or servers you give it.
 
 An **illustrative** example: 200,000 decisions a day of 150 tokens each is 30 million tokens a
-day on the bill. Locally, a 150-token request falls between the 26 ms we measured at 30 tokens
-and the 112 ms at 191 tokens, around 90 ms, so the same decisions add up to about 18,000
-seconds, roughly five hours, of one laptop answering one request at a time. Whether that is cheaper depends on your prices and your hardware, which is why
+day on the bill. Locally, a 150-token request falls between the 28 ms we measured at 30 tokens
+and the 130 ms at 191 tokens, around 100 ms, so the same decisions add up to about 20,000
+seconds, roughly five and a half hours, of one laptop answering one request at a time. Whether that is cheaper depends on your prices and your hardware, which is why
 the formula is more useful than the example.
 
 The latency side often matters as much as the bill. A hosted call pays a network round trip on
-every decision; the hosted Jev took about 344 ms on our short request from Europe, almost all of
-it network. The trade-off in general is on
+every decision; the hosted Jev took 311 ms on our short request, against 28 ms locally. The trade-off in general is on
 [local vs hosted LLM decisions](local-vs-hosted-llm-decisions.md).
 
 ## What should stay on the large model
@@ -92,9 +91,9 @@ it network. The trade-off in general is on
 - **Anything generated.** Replies, summaries, extraction into fields, code.
 - **Decisions that need reasoning or knowledge beyond the text.** A small model reads; it does
   not know your domain beyond what you put in the question.
-- **Rules with sums and dates.** On 2,000 yes/no questions from three business policies neither
-  model was tuned on, the hosted Jev was right 0.927 of the time against 0.810 for jevos, and the
-  gap was largest on additive point scores. Either compute those parts in code first, or keep the
+- **Rules with sums and dates.** On the six-task comparison the hosted Jev scored higher on every task, for
+  example 0.69 against 0.50 on fraud points (a sum of rules) and 1.00 against 0.95 on admission
+  policy yes/no rules; the gap was largest on additive point scores. Either compute those parts in code first, or keep the
   decision on the large model.
 - **Languages other than English.** jevos reads English only.
 - **Low-volume, high-stakes decisions.** If a decision runs ten times a day and a mistake is
@@ -108,8 +107,9 @@ uncertain middle to the large model. That is
 
 - **A test set.** Before moving a decision, run the local model on a hundred or more real,
   hand-labelled cases and compare with the current model. On our own set of 999 questions
-  written after training, accuracy ranged from 0.954 on stated facts to 0.584 on arithmetic;
-  your decisions will land somewhere in that spread.
+  written after the first jevos, accuracy ranged from 0.954 on stated facts to 0.584 on
+  arithmetic (per-kind numbers for jevos-v4 are not published; its overall score on those 999
+  is 78.9%); your decisions will land somewhere in a spread like that.
 - **Rewriting the prompt.** A decision prompt usually becomes one or more yes/no questions with
   the rule written in. That is design work, and it pays off in accuracy.
 - **Operations.** A local server is a process to deploy, monitor and update. Pinning the model
@@ -129,8 +129,10 @@ yes/no model produces none.
 **Is a local model free?** Free of per-token charges. It costs CPU time and about 1 GB of
 memory.
 
-**Will accuracy drop?** On hard rule questions, yes: 0.810 for jevos against 0.927 for the hosted
-Jev on our 2,000-question comparison. On reading questions the gap is smaller. Measure yours.
+**Will accuracy drop?** On hard rule questions, yes: 0.50 for jevos-v4 against 0.69 for the hosted
+Jev on fraud points, 0.76 against 0.88 on rules and scenarios (ShARC). Measure yours. Five of
+the six test sets helped choose the released checkpoint, so jevos's scores there may be slightly
+optimistic.
 
 **What should never move?** Generation, reasoning beyond the text, non-English input, and rare
 decisions where a mistake costs more than the calls ever did.
@@ -142,8 +144,8 @@ decisions where a mistake costs more than the calls ever did.
 ## Sources
 
 - Our measurements: latency, memory, the three-question timing, the hosted
-  Jev timing and the 2,000-question accuracy comparison, from the
-  [jev README](https://github.com/feder-cr/jev); accuracy by kind from our 999-question set.
+  Jev timing and the six-task accuracy comparison, from the
+  [jev README](https://github.com/feder-cr/jev); accuracy by kind from our 999-question set (first jevos).
 - OpenAI, [API pricing](https://developers.openai.com/api/docs/pricing), for the structure of
   per-token billing (input and output listed separately), fetched 2026-09-29.
 

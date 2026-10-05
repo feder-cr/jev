@@ -26,9 +26,9 @@ special case of OR across many chunks.
 
 "Is the customer upset and asking for a refund, and not complaining about a wrong item?" has
 three conditions and one answer. If the answer is 0.4, you cannot tell which part pulled it
-down, and the model has to hold the logic, the negation included, in one reading. On 999 new
-yes/no questions, jevos scored 0.858 on questions involving negation, against 0.954 on plain
-stated facts; every extra clause in a question is another chance to misread it. The general
+down, and the model has to hold the logic, the negation included, in one reading. On 999 hand-written
+yes/no questions, the first jevos scored 0.858 on questions involving negation, against 0.954 on plain
+stated facts (per-kind numbers for jevos-v4 are not published); every extra clause in a question is another chance to misread it. The general
 advice is on [one condition per question](one-condition-per-question.md), and negation in
 particular on [negation in yes/no questions](negation-in-yes-no-questions.md).
 
@@ -85,7 +85,7 @@ asking for a refund; a message about a missing parcel is less likely to be about
   formula too high for OR. With many conditions the product shrinks fast: five conditions at 0.9
   each give 0.59 if independent, while the true value could be anywhere from 0.5 to 0.9.
 - **Calibration matters for every formula.** Products and sums of probabilities are only as
-  good as the inputs. On new kinds of question jevos leans toward yes, most of all on arithmetic
+  good as the inputs. On new kinds of question the first jevos leaned toward yes, most of all on arithmetic
   and dates, so an AND of two leaning answers inherits both leans. See
   [LLM calibration explained](llm-calibration-explained.md).
 
@@ -140,8 +140,8 @@ which is read once.
 
 - The inputs 0.93, 0.83 and 0.04, and the 66 ms vs 49 ms timing, are from the README of the
   [jev repository](https://github.com/feder-cr/jev); the combinations are arithmetic.
-- Our measurement: 0.858 on negation and 0.954 on stated facts, 999-question set,
-  `jevos-q4_k_m`.
+- Our measurement: 0.858 on negation and 0.954 on stated facts, 999 hand-written questions,
+  measured on the first jevos.
 - [Frechet inequalities](https://en.wikipedia.org/wiki/Fr%C3%A9chet_inequalities) on
   Wikipedia, as a secondary pointer for the bounds, fetched 2026-09-29.
 - The 20-chunk example is illustrative.

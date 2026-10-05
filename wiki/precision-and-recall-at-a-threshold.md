@@ -82,7 +82,7 @@ second time!", `refund` came back at 0.93. That clears a routing threshold easil
 set at 0.95 would still hold it for a person, which is the design working as intended.
 
 A measured reason to set the payout bar high: on 999 yes/no questions written after the model
-was finished, jevos made 152 wrong yeses against 91 wrong noes. On that set its mistakes cost
+was finished, the first jevos made 152 wrong yeses against 91 wrong noes (not measured per kind on jevos-v4). On that set its mistakes cost
 more precision than recall, and a payout decision needs precision most.
 
 ## Precision depends on how common yes is
@@ -136,7 +136,7 @@ production than in your test set.
 
 ## Sources
 
-- Our measurements: 152 wrong yeses vs 91 wrong noes, 999-question set, `jevos-q4_k_m`. The
+- Our measurements: 152 wrong yeses vs 91 wrong noes, 999-question set, measured on the first jevos. The
   refund value 0.93 is the README example of the [jev repository](https://github.com/feder-cr/jev).
 - The ten-case table is illustrative, invented for this page.
 - [scikit-learn precision_recall_curve](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_curve.html),

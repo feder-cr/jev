@@ -116,10 +116,12 @@ tell you.
 ## Limits worth stating
 
 - **We have not measured jevos on ticket routing.** The question kinds it needs are among its
-  better ones on our 999-question test set (intent 0.859, stated facts 0.954), but only your
-  history tells you the routing accuracy.
+  better ones on our 999-question test set (intent 0.859, stated facts 0.954, measured on the
+  first jevos; per-kind numbers for jevos-v4 are not published), but only your history tells you
+  the routing accuracy.
 - **Rules inside routing.** "Refund requests over 500 go to the finance lead" is an amount
-  compared to a limit; number-against-threshold questions scored 0.654 on the same set. Extract
+  compared to a limit; number-against-threshold questions scored 0.654 on the same set (first
+  jevos). Extract
   the amount and compare in code.
 - **English only.** Tickets in other languages need another path.
 - **Many similar queues.** Twenty queues that differ by product line are twenty questions whose
@@ -129,8 +131,8 @@ tell you.
 For tickets where the local answer is not confident, sending the middle band to a larger hosted
 model is a reasonable second step; the pattern is on
 [a model cascade: small model first, large model on doubt](model-cascade-small-model-first.md).
-Locally, one question costs 25 to 110 ms on our reference laptop depending on length, each
-extra question on the same ticket costs a fraction of that, and ticket text, which often contains customer data, stays on your servers.
+Locally, one question costs about 28 ms for a short ticket and 130 ms for a long one on our
+reference laptop, each extra question on the same ticket costs a fraction of that, and ticket text, which often contains customer data, stays on your servers.
 
 ## Short answers to the questions that lead here
 
@@ -158,7 +160,7 @@ blocked; the target comes from your plan rules in code.
 - The request format, its `422` errors and `jev decide`: the
   [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind of question: our 999-question test set, written after training, run on
-  `jevos-q4_k_m`.
+  the first jevos (`jevos-q4_k_m`); per-kind numbers for jevos-v4 are not published.
 - Thresholds in the code are placeholders; the rollout steps are a suggested practice, not a
   measured result.
 

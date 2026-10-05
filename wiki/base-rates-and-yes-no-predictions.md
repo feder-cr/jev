@@ -62,7 +62,7 @@ Two caveats make this a guide rather than a recipe. It assumes only the proporti
 the texts themselves, which is rarely exactly true. And it needs the old base rate, which for a
 model you did not calibrate yourself you may not know. This page does not state the share of yes
 among the held-out questions behind jevos's calibration figure (ECE 0.009 on 6,397 natural
-yes/no questions), so do not apply the formula to it blindly; refit on your own mix instead, for
+yes/no questions, measured on an earlier jevos), so do not apply the formula to it blindly; refit on your own mix instead, for
 example with the offset of [Platt scaling](platt-scaling-for-a-yes-no-model.md).
 
 ## The false positive paradox
@@ -80,8 +80,8 @@ threats, legal risk, urgent escalations. They are also where this effect bites h
 ## Measure on your real mix, not only on a balanced test
 
 Balanced test sets are useful. Our own 999-question set has exactly half yes, which makes it
-easy to compare kinds of question and to see that errors lean toward yes (152 wrong yeses
-against 91 wrong noes). What a balanced set cannot tell you is the precision you will see in a
+easy to compare kinds of question and to see that the first jevos's errors lean toward yes (152 wrong yeses
+against 91 wrong noes; not published for jevos-v4). What a balanced set cannot tell you is the precision you will see in a
 stream where the answer is yes one time in fifty.
 
 So:
@@ -130,7 +130,8 @@ at your threshold and ask whether you can live with it.
 ## Sources
 
 - Our measurements: the 999-question set (exactly half yes; 152 wrong yeses vs 91 wrong noes),
-  `jevos-q4_k_m`; ECE 0.009 on 6,397 natural yes/no held-out questions, `jevos-q8_0`.
+  measured on the first jevos; ECE 0.009 on 6,397 natural yes/no held-out questions, measured on
+  an earlier jevos.
 - Both tables are illustrative arithmetic, not measurements.
 - [Base rate fallacy](https://en.wikipedia.org/wiki/Base_rate_fallacy) on Wikipedia, as a
   secondary pointer for the definition and the 40 vs 2 percent example, fetched 2026-09-29.

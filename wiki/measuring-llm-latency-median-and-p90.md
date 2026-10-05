@@ -40,7 +40,7 @@ the rest.
 
 The opposite mistake is also common: a benchmark that only ever sends one identical request can
 look faster than real traffic if anything is reused between calls. jev keeps states asked about
-again, so on jev it does: our long request (about 190 tokens) takes 112 ms with its text read from
+again, so on jev it does: our long request (about 190 tokens) takes 130 ms with its text read from
 scratch and 22 ms asked again. Vary the inputs across a realistic set, start the server with
 `--state-cache 0` to time reading from scratch, or at least say which one you measured.
 
@@ -118,7 +118,7 @@ call, or an indexing job in the background.
 
 When comparing systems, run them in turn on the same idle machine, with the same requests, and
 say so. Our three-way comparison used the same two requests on the same laptop for all three:
-jevos at 26 and 112 ms, Laya at 104 and 449 ms, and the hosted Jev at 344 and 345 ms.
+jevos at 28 and 130 ms, Laya at 129 and 480 ms, and the hosted Jev at 311 and 314 ms.
 
 ## What to report
 

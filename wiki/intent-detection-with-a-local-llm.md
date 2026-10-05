@@ -11,8 +11,9 @@ nav_order: 9
 the user want to change their delivery address?"), all of them go in one request, and code
 picks the intents whose P(yes) clears a threshold, or hands off when none does.** Adding an
 intent means adding a question, with no retraining and no example utterances to collect. Intent
-questions scored 0.859 on our test set of 999 new yes/no questions, which is good enough for
-routing and suggestions, and not good enough to trigger irreversible actions without a check.
+questions scored 0.859 for the first jevos on our test set of 999 new yes/no questions
+(per-kind numbers for jevos-v4 are not published; its overall score on the set is 78.9%), which
+is good enough for routing and suggestions, and not good enough to trigger irreversible actions without a check.
 
 The shift from a trained intent classifier is that intents stop competing. A classifier trained
 on ten intents must put every message in one of them; independent questions can say that a
@@ -101,8 +102,9 @@ to find.
 
 ## What the 0.859 does and does not cover
 
-Intent scored 0.859 on 71 questions in our set of 999 written after training, and negation,
-which appears in intents such as "does not want a refund", 0.858. Those are measurements on our
+The first jevos scored 0.859 on the 71 intent questions in our set of 999 written after
+training, and 0.858 on negation, which appears in intents such as "does not want a refund".
+Those are measurements on our
 texts (emails, tickets, logs, reviews, forms), not on chat messages, and not on your catalogue.
 They are the reason to use thresholds with a confirm step rather than acting on the top intent
 alone.
@@ -117,7 +119,7 @@ question, and route them to a person; the retention case is worked through on
 
 The 8,192-token context applies to the text plus each question, not to all the questions
 together, so a few dozen intents with a chat message fit easily. Cost grows with the total tokens read: on our reference laptop a
-30-token request took 26 ms and a 191-token one 112 ms, and questions are tokens too. For a catalogue of hundreds of intents, ask in
+short request took 28 ms and a long one 130 ms, and questions are tokens too. For a catalogue of hundreds of intents, ask in
 two stages: a handful of coarse questions first (orders, account, billing), then only the
 detailed intents under the winning area. The same idea, used for choosing between models, is on
 [an LLM router with yes/no questions](llm-router-with-yes-no-questions.md).
@@ -125,8 +127,8 @@ detailed intents under the winning area. The same idea, used for choosing betwee
 ## Where local matters for intents
 
 Intent detection sits inside a conversation turn, so its latency is added to every reply. On
-our reference laptop a short request takes about 26 ms, well inside a chat turn, while the
-hosted Jev API measured from Europe took about 344 ms on the same short request, mostly network.
+our reference laptop a short request takes about 28 ms, well inside a chat turn, while the
+hosted Jev API took about 311 ms on the same short request, mostly network.
 The user's messages, which often contain order numbers and addresses, also stay on your server.
 
 Where local does not help: languages other than English, and assistants that need the model to
@@ -143,7 +145,8 @@ labelled set of messages to check it does not overlap the others.
 **How do I handle messages with several intents?** Keep every intent above the threshold, and
 ask the user to choose when more than one is confident.
 
-**How accurate is it?** Intent questions scored 0.859 on our own test set. Measure on your own
+**How accurate is it?** Intent questions scored 0.859 for the first jevos on our own test set;
+jevos-v4 per-kind numbers are not published. Measure on your own
 messages and catalogue.
 
 **See also:** [semantic routing vs yes/no questions](semantic-routing-vs-yes-no-questions.md),
@@ -152,9 +155,9 @@ and [mainly about: questions for messages with several topics](mainly-about-ques
 
 ## Sources
 
-- Intent 0.859 (71 questions), negation 0.858: our 999-question test set, `jevos-q4_k_m`.
-- Latency 26 ms short (30 tokens) and 112 ms long (191 tokens) read from scratch, hosted Jev
-  344 ms from Europe on the short request, 8,192-token context: the [jev README](https://github.com/feder-cr/jev) and our
+- Intent 0.859 (71 questions), negation 0.858: our 999-question test set, first jevos.
+- Latency 28 ms short and 130 ms long read from scratch, hosted Jev
+  311 ms on the short request, 8,192-token context: the [jev README](https://github.com/feder-cr/jev) and our
   reference-laptop measurements.
 - Thresholds in the code are placeholders.
 

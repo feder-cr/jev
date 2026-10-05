@@ -62,8 +62,8 @@ Two habits carry the design. **Split the goal into its parts**, one question eac
 when every part is a clear yes; "Is the task complete?" as one question hides which part is
 missing, the problem described on [one condition per question](one-condition-per-question.md).
 **Ask what the evidence says, not whether the goal is met in general**: "Does last_result say the
-email was sent?" is a reading question. On our 999-question test set, stated facts were answered
-right 0.954 of the time.
+email was sent?" is a reading question. On our 999-question test set, the first jevos answered stated facts
+right 0.954 of the time (per-kind numbers for jevos-v4 are not published).
 
 ## Is the agent looping?
 
@@ -74,7 +74,7 @@ times, or alternates between two tools. For that, give the checker the last few 
 - "Did the last three results add any information not in earlier results?"
 
 Stop, or change strategy, when the first is high or the second is low. Keep the window short:
-latency grows with the text (on our reference laptop, 26 ms for a 30-token request and 112 ms
+latency grows with the text (on our reference laptop, 28 ms for a 30-token request and 130 ms
 for a 191-token one read from scratch), so three steps summarised in a line each cost far less
 than the full transcript.
 
@@ -90,7 +90,7 @@ A high answer pauses the loop with a question to the user. The same guide from A
 describes agents pausing for human feedback at checkpoints or when they meet blockers; the
 yes/no check is one way to decide when that moment has come. Missing information has its own
 question shape, covered on [ask whether the text says it at all](ask-whether-the-text-says-it.md),
-where jevos scored 0.847 on "not stated" questions in our test.
+where the first jevos scored 0.847 on "not stated" questions in our test.
 
 ## The loop
 
@@ -120,7 +120,7 @@ not tested code. The order is a
 choice: asking the user comes before declaring success, so an agent that "finished" on a guess
 is caught.
 
-A check on every step costs 25 to 110 ms on our reference laptop, usually a small fraction of
+A check on every step costs 28 to 130 ms on our reference laptop, usually a small fraction of
 the step it follows.
 
 ## Where a small model should not be the judge
@@ -148,7 +148,7 @@ own question.
 **When should the agent ask the user?** When the goal depends on information that is not in
 anything the agent has seen, or on a choice the user did not make.
 
-**Is a model check on every step too slow?** On a laptop CPU it adds 25 to 110 ms per step,
+**Is a model check on every step too slow?** On a laptop CPU it adds 28 to 130 ms per step,
 which is usually small next to the step itself.
 
 **See also:** [AI agent guardrails with yes/no questions](ai-agent-guardrails-with-yes-no-questions.md),
@@ -161,7 +161,7 @@ which is usually small next to the step itself.
   on stopping conditions and pausing for human feedback, fetched 2026-09-29.
 - Our measurements: latency on the reference laptop from the
   [jev README](https://github.com/feder-cr/jev); accuracy on fact and "not stated" questions from
-  our 999-question set.
+  our 999-question set (first jevos).
 
 ---
 

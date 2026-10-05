@@ -45,20 +45,21 @@ request names it.
 
 ## What jevos is for
 
-jevos does one thing. A server started with
+jevos does one thing: it answers questions about a text with numbers. A server started with
 
 ```bash
 ./jev serve --threads 16
 ```
 
 listens on 127.0.0.1:8017, loads one model (the `model` folder beside the binary), and answers
-`POST /v1/systemone`: a `state`, which is a text or any JSON object, plus named yes/no questions,
-each answered with its own `noul`, the probability of yes. Nothing is generated, so
+`POST /v1/systemone`: a `state`, which is a text or any JSON object, plus named questions: a
+yes/no question is answered with its own `noul`, the probability of yes, a `choice` with the most
+probable option and a probability per option, and a `score` (early) with an expected level. Nothing is generated, so
 `output_tokens` is 0 and there is no text to parse. The wire format is TypeSafe Jev's, not
 OpenAI's.
 
-On an Intel Core Ultra 7 255H with 16 threads it answered a short request in 26 ms and a long one
-in 112 ms. The idea behind answering without generating is on
+On an Intel Core Ultra 7 255H with 16 threads it answered a short request in 28 ms and a long one
+in 130 ms. The idea behind answering without generating is on
 [why one forward pass beats generating an answer](why-one-forward-pass-beats-generation.md).
 
 ## Where they overlap: serving
@@ -101,7 +102,8 @@ And do not measure latency on one while the other is generating; you will measur
 - **A decision service that must log exactly which model answered:** jevos, whose `/health`
   reports the served model.
 - **Arithmetic or date logic inside the decision:** neither model should do it; compute in code.
-  jevos scored 0.584 on arithmetic questions in our 999-question test.
+  the first jevos scored 0.584 on arithmetic questions in our 999-question test (per-kind
+  numbers for jevos-v4 are not published).
 
 ## Short answers to the questions that lead here
 
@@ -111,7 +113,7 @@ single-purpose yes/no decision server with no interface.
 **Can LM Studio answer yes/no questions?** Yes, with a general model prompted to answer yes or no,
 optionally with a JSON schema for the answer.
 
-**Can I run jevos inside LM Studio?** The jevos-v2 release ships the model as GGUF files for tools
+**Can I run jevos inside LM Studio?** The jevos-v4 release ships the model as GGUF files (`jevos-v4-q4_k_m.gguf`, `jevos-v4-q8_0.gguf`) for tools
 such as LM Studio, but the jev server's endpoint and answers would not be available there.
 
 **Can LM Studio run without the GUI?** Its docs describe `llmster`, a headless daemon started

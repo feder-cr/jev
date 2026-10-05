@@ -32,12 +32,13 @@ The same number can be read three ways, and only one of them is right for a cali
 - **A certainty.** "The model is 90 percent sure." There is no inner feeling being reported. It
   is a number produced by the model for this input, and the only way to know what it is worth is
   to count how often such numbers were right.
-- **A score or intensity.** "The customer is 0.73 upset." This reading is wrong. In the README
-  example, `upset` came back at 0.73 for "The box arrived empty. This is the second time!". That
+- **A score or intensity.** "The customer is 0.83 upset." This reading is wrong. In the README
+  example, `upset` came back at 0.83 for "The box arrived empty. This is the second time!". That
   is the probability that the answer to "Is the customer upset?" is yes, not a measure of how
   angry the customer is. A mildly annoyed customer and a furious one can both get a high P(yes);
   to ask about degree, ask a threshold question such as "is the customer very upset?", covered
-  in [scores as yes/no thresholds](scores-as-yes-no-threshold-questions.md).
+  in [scores as yes/no thresholds](scores-as-yes-no-threshold-questions.md), or use a `score`
+  question, which jevos-v4 answers with an expected level (marked early in the README).
 
 A score that is not calibrated can still be useful for ranking: a higher number means more
 likely yes. But you cannot read it as "nine in ten" until you have checked it.
@@ -48,8 +49,9 @@ On data like the data it was checked on, a calibrated P(yes) lets you plan. If y
 answer above 0.9, you can expect roughly one wrong action in ten or fewer among them; if you
 average the probabilities over a batch, you get a fair estimate of how many are yes.
 
-For jevos, the check we have is this: on 6,397 natural yes/no questions from a held-out split,
-the calibration error (ECE) of `jevos-q8_0` was 0.009. In plain terms, on that data, the numbers
+For jevos, the check we have is this, measured on the first jevos and not repeated on jevos-v4:
+on 6,397 natural yes/no questions from a held-out split, the calibration error (ECE) of
+`jevos-q8_0` was 0.009. In plain terms, on that data, the numbers
 the model gave were very close to the frequencies it achieved. What ECE measures, and how, is on
 [expected calibration error, explained](expected-calibration-error-explained.md).
 
@@ -63,8 +65,8 @@ Two practical consequences:
 
 - **One wrong 0.95 is not evidence of a broken model.** At that level you should expect about
   one in twenty to be wrong. Ten wrong 0.95s in a row is evidence.
-- **The number does not explain itself.** The README refund example returned 0.78 for "Should
-  this customer get a refund?" That is not "78 percent of a refund", and it does not say which
+- **The number does not explain itself.** The README refund example returned 0.93 for "Should
+  this customer get a refund?" That is not "93 percent of a refund", and it does not say which
   part of the policy the model weighed. If you need to know why, split the question into its
   conditions and ask each one; see
   [combining yes/no answers](combining-yes-no-answers-and-or-not.md).
@@ -73,9 +75,9 @@ Two practical consequences:
 
 Calibration is a property of a model on a kind of data, not of the model alone. On 999 yes/no
 questions written from scratch after the model was finished, of new kinds and in new scenarios,
-`jevos-q4_k_m` was right 0.757 of the time, and its probabilities leaned toward yes: on
-arithmetic questions whose true answer was no, the average P(yes) was 0.59. A calibrated model
-would put those near 0. The same model that looks calibrated on familiar data is not calibrated
+the first jevos (`jevos-q4_k_m`) was right 0.757 of the time (jevos-v4 gets 78.9% on the same
+questions), and its probabilities leaned toward yes: on arithmetic questions whose true answer was no, the average P(yes) was 0.59. A calibrated model
+would put those near 0. Per-kind numbers for jevos-v4 are not published. The same model that looks calibrated on familiar data is not calibrated
 on questions it cannot work out. The detail is on
 [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md), and the gap
 between the two test sets on
@@ -123,9 +125,9 @@ P(yes) is the model's estimate for one case.
 
 ## Sources
 
-- Our measurements: ECE 0.009 on 6,397 natural yes/no held-out questions (`jevos-q8_0`); 0.757
+- Our measurements: ECE 0.009 on 6,397 natural yes/no held-out questions (first jevos, `jevos-q8_0`); 0.757
   accuracy and mean P(yes) 0.59 on no-answer arithmetic questions from the 999-question set
-  (`jevos-q4_k_m`).
+  (first jevos, `jevos-q4_k_m`); 78.9% for jevos-v4 on the same 999 questions.
 - The billing, refund and upset values are the README examples of the
   [jev repository](https://github.com/feder-cr/jev).
 - Definition of a well calibrated classifier:

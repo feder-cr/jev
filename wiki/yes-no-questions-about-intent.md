@@ -10,8 +10,8 @@ nav_order: 10
 **Ask about intent with a verb of wanting and a named writer ("Does the customer ask for a
 refund?", "Does the customer say they want to cancel?"), and decide up front whether you mean
 what the writer states or what they only imply.** Stated intent is a reading question and one
-jevos handles well: on the intent questions of our 999-question test set it was right 0.859 of
-the time. Implied intent is a judgment, useful and less reliable, and it deserves its own
+jevos handles well: on the intent questions of our 999-question test set the first jevos was
+right 0.859 of the time. Implied intent is a judgment, useful and less reliable, and it deserves its own
 question and its own threshold rather than being folded into the stated one.
 
 Intent is usually the question a support system actually needs answered. Topic says which
@@ -79,13 +79,14 @@ on [why wording changes the answer](why-wording-changes-the-answer.md).
 
 On the 999 yes/no questions written after the model was finished (10 scenarios, 10 texts each,
 emails, tickets, logs, reviews and forms, exactly half of the answers yes), 71 were intent
-questions. jevos `q4_k_m` answered 0.859 of them correctly, and its average P(yes) on intent
+questions. The first jevos (`q4_k_m`) answered 0.859 of them correctly, and its average P(yes) on intent
 questions whose correct answer was no was 0.28.
 
 For comparison on the same set: stated facts 0.954, tone 0.938, negation 0.858. Intent sits
 with the reading kinds, below the plainest of them. Two things the set does not tell you: how
 the 0.859 splits between stated and implied intent, since we did not label them separately,
-and how it holds on text very different from business writing.
+and how it holds on text very different from business writing. Per-kind numbers for jevos-v4
+are not published; on the whole set it gets 78.9%.
 
 The 0.28 is worth a second look when a wrong yes is expensive. It is about the same as on
 stated facts (0.29) and far from the 0.59 on arithmetic, so intent questions do not carry a strong lean
@@ -111,7 +112,7 @@ the routing that ties the three together is on
 **How do I detect what a customer wants?** Ask one yes/no question per intent, with a verb of
 wanting and the thing wanted: "Does the customer ask for a replacement?".
 
-**How accurate is a small LLM on intent?** On our 999-question test set jevos answered 0.859 of
+**How accurate is a small LLM on intent?** On our 999-question test set the first jevos answered 0.859 of
 71 intent questions correctly.
 
 **Is a complaint the same as a request?** No. Many complaints ask for nothing. Ask both, and act
@@ -130,7 +131,7 @@ and [how to write yes/no questions an LLM answers well](how-to-write-yes-no-ques
 ## Sources
 
 - 0.859 on 71 intent questions, the other accuracies by kind, and the mean P(yes) values on
-  no-answer questions: our 999-question test set, `jevos-q4_k_m`.
+  no-answer questions: our 999-question test set, first jevos (`jevos-q4_k_m`).
 
 ---
 
