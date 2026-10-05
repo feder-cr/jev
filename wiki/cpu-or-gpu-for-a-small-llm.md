@@ -71,8 +71,8 @@ For many teams the deciding argument is that the CPU servers already exist; that
 ## How jev picks a device
 
 It does not pick one: jev runs on the CPU only. It runs jevos-v4 with 8-bit (INT8) weights
-through OpenVINO, on any x86-64 CPU with AVX2 and on Apple silicon, and it is fastest on CPUs
-with AVX-VNNI or AVX-512 VNNI. There is no device option and no GPU build.
+through OpenVINO, on x86-64 (Windows or Linux) and on Apple silicon (macOS). OpenVINO documents a CPU with SSE4.2 as
+its minimum. There is no device option and no GPU build.
 
 Every jevos number we publish was taken on an Intel Core Ultra 7 255H with 16 threads, the
 configuration of the README's benchmark. The release also ships the model as GGUF files for
@@ -118,6 +118,8 @@ or a model too large to run well in system memory.
 [an LLM on a laptop](an-llm-on-a-laptop.md).
 
 ## Sources
+
+- OpenVINO's minimum CPU (SSE4.2): [OpenVINO system requirements](https://github.com/openvinotoolkit/openvino/blob/master/docs/articles_en/about-openvino/release-notes-openvino/system-requirements.rst), fetched 2026-10-05.
 
 - jevos latency, the reference machine and the CPU requirements: our measurements and the
   [jev README](https://github.com/feder-cr/jev).

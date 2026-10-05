@@ -71,7 +71,7 @@ run `unzip jev-windows-x64.zip` instead, and `.\jev.exe serve` in PowerShell for
 ./jev serve
 ```
 
-jev runs on the CPU only (x86-64 with AVX2, or Apple silicon). `--threads` defaults to all
+jev runs on the CPU only (x86-64 (Windows or Linux) or Apple silicon). `--threads` defaults to all
 logical CPUs; set it lower if other heavy programs are running. The server listens on
 `127.0.0.1:8017`.
 

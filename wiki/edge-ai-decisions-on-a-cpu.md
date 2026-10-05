@@ -39,14 +39,13 @@ These are properties of the release, true on any machine that runs it:
 - **Files:** the `jev` folder from `jev-windows-x64.zip`, `jev-linux-x64.tar.gz` (glibc 2.35+,
   for example Ubuntu 22.04+) or `jev-macos-arm64.tar.gz`, with `jevos-v4-openvino-int8.zip`
   unpacked into it as `jev/model`. No Python and no other runtime to install.
-- **Compute:** CPU only, x86-64 with AVX2 or Apple silicon; fastest on CPUs with AVX-VNNI or
-  AVX-512 VNNI. `--threads` defaults to all logical CPUs.
+- **Compute:** CPU only, x86-64 (Windows or Linux) or Apple silicon. `--threads` defaults to all logical CPUs.
 - **Context:** up to 8,192 tokens per question, the text plus that question.
 - **Output:** one probability per question, no generated text, so there is no generation step
   whose length depends on the answer.
 - **Network:** none after the download; the server listens on `127.0.0.1:8017` by default.
 
-A device whose CPU is neither x86-64 with AVX2 nor Apple silicon is out before any timing. The
+A device whose CPU is neither x86-64 nor Apple silicon is out before any timing. The
 release has no Android, iOS or Linux arm64 build, so phones, tablets and ARM boards are out of
 scope for this setup.
 
@@ -120,7 +119,7 @@ answering locally and sending only the doubtful cases upstream is often the bett
 ## Short answers to the questions that lead here
 
 **Can an LLM run on an edge device?** A small one can, if the device has a CPU jev supports:
-x86-64 with AVX2, or Apple silicon. Whether it is fast enough is a measurement you make on that
+x86-64 (Windows or Linux), or Apple silicon. Whether it is fast enough is a measurement you make on that
 device.
 
 **Does jevos run on a Raspberry Pi?** Not with jev: the release has no Linux arm64 build, and
