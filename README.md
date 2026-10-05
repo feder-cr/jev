@@ -1,6 +1,6 @@
 # jevos
 
-**Yes/no decisions on a laptop CPU in 25–110 ms.** Send a text and a yes/no question, get back
+**Yes/no decisions on a laptop CPU in 28–130 ms.** Send a text and a yes/no question, get back
 P(yes).
 
 <p align="center">
@@ -26,19 +26,18 @@ themselves, from the datasets' annotators or from experts.
 - **Patent phrases** ([Patent Phrase Similarity](https://huggingface.co/datasets/tasksource/patent-phrase-similarity),
   score): how close two phrases from patents are in meaning, on five levels, as rated by experts.
 
-All but the patent phrases are among the held-out sets used to choose jevos-v4 among its training runs; none of
-their texts was trained on.
+None of these texts was used to train jevos. Five of the six sets were used to choose which jevos-v4
+checkpoint to release, so its scores on them may be slightly optimistic; the patent phrases were not used for
+that.
 
-jevos-v4 answers 87.0% of 821 hand-written yes/no questions written by another model family (jevos-v3
-86.5%, jevos-v2 82.7%) and 78.9% of the original 999 (jevos-v3 80.8%, the first jevos 75.8%), with the same
-size and speed. It learned from a wider mix than jevos-v3, adding structured records, long policies and public
-decision tasks, and gains most on choices and scores. On the 999 jevos-v3 stays ahead, and it is still
-available in its release. The latencies here were measured with jevos-v3: every version has the same
-architecture and size.
+Against jevos-v3, jevos-v4 is ahead on scores (the right level on 58.5% of 2,350 held-out questions, against
+56.5%), level on choices (79.2% against 78.8%) and on 821 hand-written yes/no questions (87.0% against
+86.5%), and behind on the original 999 (78.9% against 80.8%). jevos-v3 stays available in its release.
 
 Latency is the median of 10 requests through the HTTP API, after 3 warm-up requests, on an Intel Core
-Ultra 7 255H laptop with 16 threads, each request reading its text from scratch (a new reference number in
-front of every text, so no cache can reuse it). By default the server keeps the texts it has read, so asking
+Ultra 7 255H laptop with 16 threads. Each request reads its text from scratch: a new reference number in
+front of every text keeps the cache from reusing it. The jevos numbers were measured with jevos-v3, which
+has the same size as jevos-v4 and runs at the same speed. With the cache on, as it is by default, asking
 about the same text again takes 22 ms for the long request.
 
 ### When a fact is missing
@@ -194,8 +193,8 @@ from uniform, 0, to certain, 1):
 ```
 
 jevos answers yes/no questions, so a choice is asked as one yes/no question per option, each listing all
-the options ("... Among the candidates, is it this one? Candidate: shipping"), the way the model saw
-choices in training. The option's probability is its P(yes) divided by the sum over the options.
+the options ("... Among the candidates, is it this one? Candidate: shipping").
+The option's probability is its P(yes) divided by the sum over the options.
 All of them are read as a prefix tree: what the option questions have in common, the state, the
 instructions and the list of options, is read once, and each option then costs only its last line,
 also when the request asks other questions beside the choice. A request whose questions fit in up to
@@ -231,7 +230,7 @@ too), and `confidence` 0 says so: route answers like this one to a person or to 
 
 A score is asked as one yes/no question per level above the lowest, "is it at this level or higher?"
 ("... Scale from lowest to highest: calm < annoyed < angry < furious. Is the answer at the following
-level or higher? Level: angry"), as in training. P(level ≥ k) is made non-increasing where the separate
+level or higher? Level: angry"). P(level ≥ k) is made non-increasing where the separate
 answers are not (pool adjacent violators, 19% of held-out questions), and P(level = k) is
 P(≥ k) − P(≥ k + 1). The `confidence` is Jev's: how concentrated the probabilities are around the most
 probable level, from 0 for a uniform spread to 1.
