@@ -11,8 +11,8 @@ nav_order: 1
 the metric, the hardware and the request.** For a yes/no decision the metric that matters is
 the time from sending the question to having the answer, and a model that returns a probability
 instead of writing text has an advantage there, because it never has to generate a token. On
-our reference laptop, jevos answered a short request in 26 ms and a long one in 112 ms, the
-fastest of the three systems we measured on those two requests.
+our reference laptop, jevos answered a short request in 28 ms and a long one in 130 ms, the
+fastest of the four systems we measured on those two requests.
 
 The non-obvious point is that most "fastest LLM" rankings measure something else: how many
 tokens per second a model writes once it has started. That number is useful for chat and
@@ -69,19 +69,23 @@ prompt processing and nothing else. The mechanics are on
 ## What we measured, and on what
 
 Two requests, the same for every system, on one laptop: an Intel Core Ultra 7 255H with 16
-threads and no GPU in use.
+threads and no GPU in use. Each figure is the median of 10 requests through the HTTP API after 3
+warm-up requests, with each text read from scratch. They were measured with jevos-v3, which has
+the same size and speed as jevos-v4.
 
-| | short request (about 30 tokens) | long request (about 190 tokens) |
+| | short request | long request |
 |---|---|---|
-| jevos (jev, CPU, 8-bit weights, text read from scratch) | 26 ms | 112 ms |
-| Laya, English checkpoint (PyTorch, CPU) | 104 ms | 449 ms |
-| Jev, hosted API from Europe, network included | 344 ms | 345 ms |
+| jevos (jev, CPU, 8-bit weights, text read from scratch) | 28 ms | 130 ms |
+| Laya | 129 ms | 480 ms |
+| Jev, hosted API, network included | 311 ms | 314 ms |
+| Qwen3.5-4B | 3,060 ms | 4,761 ms |
 
 Being straight about the limits: two requests, one machine, one location. The hosted numbers
 would be lower from a server closer to the provider, and the local numbers would change on a
-different CPU. Accuracy is a separate question with a different winner: on 2,000 policy
-questions none of them was tuned on, Jev was right 0.927 of the time against 0.810 for jevos.
-The full comparison, both directions, is on [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
+different CPU. Accuracy is a separate question with a different winner: on all six tasks we
+tested, Jev scored higher than jevos-v4, for example 1.00 against 0.95 on Admission policy
+(yes/no rules) and 0.69 against 0.50 on Fraud points (sums). The full comparison, both
+directions, is on [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md).
 
 To reproduce numbers like these, see
 [measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md).
@@ -95,8 +99,8 @@ Three costs disappear when the answer is a probability instead of a word.
 - **No parsing.** There is no "Yes.", "yes, because..." or "I cannot determine" to map back to
   a boolean, and no retry when the format is wrong.
 - **No network, when it runs locally.** A round trip to a hosted API costs time before any
-  model runs; on our measurement the hosted time barely moved between a 30-token and a
-  190-token request, which is the signature of a fixed cost. Why that floor exists is on
+  model runs; on our measurement the hosted time barely moved between the short and the long
+  request (311 and 314 ms), which is the signature of a fixed cost. Why that floor exists is on
   [why a hosted LLM API cannot answer in 50 ms](why-a-hosted-llm-api-cannot-answer-in-50-ms.md).
 
 Size matters too; see [what makes a local LLM fast on a CPU](what-makes-a-local-llm-fast-on-a-cpu.md)
@@ -105,23 +109,23 @@ and, against generating even one word,
 
 ## When something else is faster for you
 
-- **Long documents.** Local latency grows with the text, from 26 ms for 30 tokens to 112 ms for
-  191 on our laptop, while a hosted model's time was nearly flat. On long inputs the gap narrows and can
+- **Long documents.** Local latency grows with the text, from 28 ms for the short request to 130 ms
+  for the long one on our laptop, while a hosted model's time was nearly flat. On long inputs the gap narrows and can
   reverse; see [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 - **Many requests at once.** Capacity is a throughput question. A serving stack that batches
-  many users' requests, usually on a GPU, is built for it; one laptop is not. jev reads small
-  requests that arrive together in one model call, and on our laptop that levels off at about
-  10 requests per second.
+  many users' requests, usually on a GPU, is built for it; one laptop is not. We did not measure
+  jev under concurrent load.
 - **Hard reasoning.** If the small model gets the answer wrong, it was not fast, it was early.
   Arithmetic and multi-step rules are its weak spot, measured on
   [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md).
 - **Anything that is not English yes/no or multiple choice.** jevos reads English only, and its
-  `score` answers are early: right 54% of the time on 2,350 held-out score questions and within one level 82%, weak on points to add up.
+  `score` answers are early: the most probable level was right on 58.5% of 2,350 held-out score
+  questions and within one level on 86%, weak on points that add up (Fraud points 0.50 against 0.69 for Jev).
 
 ## Short answers to the questions that lead here
 
 **What is the fastest AI model?** There is no answer without a task, a metric and hardware. For
-yes/no decisions on a laptop CPU, jevos was the fastest of the three systems we measured on our
+yes/no decisions on a laptop CPU, jevos was the fastest of the four systems we measured on our
 two requests.
 
 **What is the fastest LLM for classification?** For single yes/no labels, one that returns a
@@ -134,8 +138,8 @@ decision has no text to write, so what matters is time to the complete answer.
 **Is a local model always faster than an API?** No. On short inputs from our laptop it was, by
 a wide margin. On long documents, or against an API in your own region, measure.
 
-**Is the fastest model also the most accurate?** Not here. On our 2,000 policy questions the
-hosted Jev was more accurate than jevos.
+**Is the fastest model also the most accurate?** Not here. On all six of our tasks the hosted
+Jev scored higher than jevos-v4.
 
 **See also:** [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md),
 [latency budgets: where a 200 ms model fits](latency-budgets-for-llm-decisions.md) and
@@ -143,8 +147,8 @@ hosted Jev was more accurate than jevos.
 
 ## Sources
 
-- Latency and accuracy of jevos, Jev and Laya, and the reference laptop: our own measurements,
-  published in the [jev README](https://github.com/feder-cr/jev).
+- Latency and accuracy of jevos, Jev, Qwen3.5-4B and Laya, and the reference laptop: our own
+  measurements, published in the [jev README](https://github.com/feder-cr/jev).
 - Definitions of time to first token, end-to-end latency and throughput:
   [NVIDIA NIM benchmarking metrics](https://docs.nvidia.com/nim/benchmarking/llm/latest/metrics.html),
   fetched 2026-09-29.

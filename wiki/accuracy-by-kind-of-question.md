@@ -9,8 +9,9 @@ nav_order: 10
 
 **One accuracy number is an average over whatever mix of questions the test happened to contain,
 so it describes your application only if your questions come in the same mix.** On our
-999-question test set jevos scored 0.757 overall, but 0.954 on questions about a fact stated in
-the text and 0.584 on questions that need arithmetic. Tag each test question with the kind of
+999 hand-written yes/no questions the first jevos scored 0.757 overall, but 0.954 on questions
+about a fact stated in the text and 0.584 on questions that need arithmetic (jevos-v4 scores
+78.9% overall on the same set; per-kind numbers for jevos-v4 are not published). Tag each test question with the kind of
 reasoning it needs, report accuracy per tag, and the failures that the average hid become a list
 of what to route to the model and what to keep in code.
 
@@ -24,17 +25,17 @@ needs, and what to do with the result.
 
 ## How much can the mix move the number?
 
-The per-kind accuracies below are measured on our set; the application mixes are hypothetical, and
+The per-kind accuracies below were measured on the first jevos on our set; the application mixes are hypothetical, and
 the resulting numbers are arithmetic, not measurements.
 
 | Hypothetical application | Mix of questions | Expected accuracy |
 |---|---|---|
 | support triage that asks what customers say | 90% stated fact, 10% arithmetic | 0.9 times 0.954 + 0.1 times 0.584 = 0.917 |
-| our test set as written | ten kinds, 32 to 221 questions each | 0.757 (measured) |
+| our test set as written | ten kinds, 32 to 221 questions each | 0.757 (measured, first jevos) |
 | order checks that ask the model to compute | 50% arithmetic, 50% dates | 0.5 times 0.584 + 0.5 times 0.598 = 0.591 |
 
 The same model, the same weights, and a spread from about 0.59 to about 0.92, purely from which
-questions are asked. So "the model is 76% accurate" is not a property of the model. The per-kind
+questions are asked. So "the model is 76% accurate" (the first jevos's overall figure) is not a property of the model. The per-kind
 numbers are closer to one, and the full table of all ten kinds, with example shapes, is on
 [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md).
 
@@ -88,10 +89,10 @@ Grow the kinds near your decision boundary first. If a kind sits clearly above 0
 ## What to do with per-kind accuracy
 
 - **Route by kind.** Reading kinds go to the model. Computing kinds go to code, with the model
-  asked only about the words. On our set every reading kind was above 0.84 and every computing kind
+  asked only about the words. On the first jevos every reading kind was above 0.84 and every computing kind
   below 0.73.
 - **Set thresholds by kind.** A kind where the model is often wrong toward yes needs a higher bar
-  to act on yes; our per-kind mean P(yes) on no-answer questions ranged from 0.16 to 0.59, detailed
+  to act on yes; the first jevos's per-kind mean P(yes) on no-answer questions ranged from 0.16 to 0.59, detailed
   on [why a small LLM says yes](why-a-small-llm-says-yes.md).
 - **Decide model size by kind.** If the questions you cannot move to code are mostly in weak kinds,
   a small model is the wrong tool for them. The checklist is on
@@ -105,7 +106,7 @@ Grow the kinds near your decision boundary first. If a kind sits clearly above 0
 different mix of kinds. With our per-kind figures, a mix heavy on stated facts gives about 0.92 and
 a mix of sums and dates about 0.59.
 
-**What kinds of question do small LLMs get wrong?** In our measurement, the ones that need computing:
+**What kinds of question do small LLMs get wrong?** In our measurement on the first jevos, the ones that need computing:
 arithmetic 0.584, dates 0.598, numbers against a threshold 0.654. Reading kinds were all above 0.84.
 
 **How do I tag my own questions?** Use a short list of kinds with a one-line test each, and tag by the
@@ -124,7 +125,8 @@ rewrite those questions as reading questions.
 ## Sources
 
 - Per-kind accuracy, question counts per kind, and mean P(yes) on no-answer questions: our
-  999-question test set, written after training, run on `jevos-q4_k_m`.
+  999 hand-written yes/no questions, measured on the first jevos (released 2026-09-27).
+  Per-kind numbers for jevos-v4 are not published; its overall figure on the set is 78.9%.
 - The expected accuracies for hypothetical mixes are weighted averages of those figures, not
   measurements on such mixes.
 

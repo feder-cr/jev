@@ -1,6 +1,6 @@
 ---
 title: "An LLM on a laptop: what it can do in real time"
-description: "On an Intel Core Ultra 7 255H laptop, jevos answers yes/no questions in 25 to 110 ms. What that allows in real time, and what we did not measure."
+description: "On an Intel Core Ultra 7 255H laptop, jevos answers yes/no questions in 22 to 130 ms. What that allows in real time, and what we did not measure."
 parent: "Local and private AI"
 nav_order: 10
 ---
@@ -8,12 +8,12 @@ nav_order: 10
 # An LLM on a laptop: what it can do in real time
 
 **On a laptop with an Intel Core Ultra 7 255H, 16 threads and no GPU, jevos answers a yes/no
-question about a short text in 26 ms and about a 191-token text in 112 ms, fast enough to sit
+question about a short text in 28 ms and a long text in 130 ms, fast enough to sit
 inside a user action, a chat message or a game loop.** It runs on the CPU with 8-bit weights
 through OpenVINO, and generates no text, so the time does not depend on the length of an answer. Real time here means one decision per event, a few per second: not
 a stream of tokens, and not a video frame rate.
 
-The useful way to read those numbers is as a budget. At 25 to 110 ms, the model fits inside
+The useful way to read those numbers is as a budget. At 22 to 130 ms, the model fits inside
 anything a person waits for, but a design that asks it dozens of questions per keystroke, or
 feeds it long documents in a tight loop, will not feel instant.
 
@@ -28,9 +28,9 @@ warm-up requests:
 
 | Request | Text read from scratch | Same text asked again |
 |---|---|---|
-| one question, 30 tokens | 26 ms | 25 ms |
-| one question, 191 tokens | 112 ms | 22 ms |
-| one question on the README's example (68 tokens) | 49 ms | 24 ms |
+| one question, short request | 28 ms | not measured |
+| one question, long request | 130 ms | 22 ms |
+| one question on the README's example | 49 ms | not measured |
 | three questions on the README's example (95 tokens) | 66 ms | 39 ms |
 
 Two rules of thumb follow. Time grows with the text read from scratch, as explained on
@@ -39,7 +39,7 @@ And extra questions about the same text are cheap, because the text is read once
 asked about again is kept, so the next question reads only the question; the reason is on
 [many questions about one text](many-questions-about-one-text.md).
 
-## What does 25 to 110 ms allow?
+## What does 22 to 130 ms allow?
 
 Measured against what people and programs wait for:
 
@@ -64,7 +64,7 @@ is on [latency budgets: where a 200 ms model fits](latency-budgets-for-llm-decis
 
 A loop that asks the model something every few steps cannot pretend the answer is instant. The
 honest design pauses the loop, or holds the last decision, until the answer comes back, and shows
-the time per decision. At 25 to 110 ms that means a few decisions per second, about slow-changing
+the time per decision. At 22 to 130 ms that means a few decisions per second, about slow-changing
 things, with the per-frame work left to code. That is the pattern for any real-time use of a
 model: the loop is built around the decision time, not the other way round, and how to split the
 work is on [gating AI agent tool calls](gating-ai-agent-tool-calls.md), which uses the same
@@ -103,8 +103,8 @@ other. The method is on
 
 ## Short answers to the questions that lead here
 
-**Can a laptop run an LLM in real time?** A small one, for decisions: jevos answers in 25 to
-110 ms on an Intel Core Ultra 7 255H without a GPU. Generating long text is a different job.
+**Can a laptop run an LLM in real time?** A small one, for decisions: jevos answers in 22 to
+130 ms on an Intel Core Ultra 7 255H without a GPU. Generating long text is a different job.
 
 **How much memory does it take?** Measure it on your machine with the server running: the model
 stays loaded between requests.

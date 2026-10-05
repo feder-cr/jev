@@ -11,7 +11,7 @@ nav_order: 1
 small local model, with the route chosen in code from the probabilities.** "Does the user ask
 for code?", "Does the message ask for a calculation?", "Is it only a greeting?": each comes back
 as its own P(yes), and a few lines of code turn them into "small model", "large model" or "a
-person". The router adds 25 to 110 ms on a laptop CPU and sends nothing off the machine.
+person". The router adds 28 to 130 ms on a laptop CPU and sends nothing off the machine.
 
 The non-obvious part is which questions to ask. "Does this request need a large model?" sounds
 like the right question and is the weakest one, because it asks the small model to judge the
@@ -48,8 +48,9 @@ Route on properties you can point to in the text, then map properties to models 
 
 The left column asks for a judgement about models. The right column asks what the text says,
 and each answer is a fact you can label by hand when you build a test set. That matters,
-because on our set of 999 questions written after training, stated facts were answered right
-0.954 of the time and questions that need arithmetic 0.584. A router built from reading
+because on our set of 999 hand-written questions, the first jevos answered stated facts right
+0.954 of the time and questions that need arithmetic 0.584 (per-kind numbers for jevos-v4 are not
+published; its overall score is 78.9%). A router built from reading
 questions sits at the top of that range. The general advice is on
 [how to write yes/no questions an LLM answers well](how-to-write-yes-no-questions-for-an-llm.md).
 
@@ -97,8 +98,8 @@ The two mistakes are not equal, and the thresholds should say so.
   agent, a wrong answer early can send every later step the wrong way.
 
 So a router should be tuned to be wrong in the cheap direction. Our measurements add a reason:
-when a small model is wrong on yes/no questions, it is wrong toward yes more often (152 wrong
-yeses against 91 wrong noes on the 999-question set). If "yes" means "easy, send it to the
+when the first jevos was wrong on yes/no questions, it was wrong toward yes more often (152 wrong
+yeses against 91 wrong noes on the 999-question set; not published for jevos-v4). If "yes" means "easy, send it to the
 small model", that lean pushes traffic in the expensive direction. Phrase the question so that
 a wrong yes sends the request to the capable model, or raise the yes bar, as described on
 [thresholds when a wrong yes costs more than a wrong no](thresholds-when-a-wrong-yes-costs-more.md).
@@ -139,7 +140,7 @@ request, usually to save cost and latency on easy requests.
 directly. Ask about observable properties of the request instead, and map those to models in
 code.
 
-**How fast is a yes/no router?** On a laptop CPU, 26 ms for a short request and 112 ms for a
+**How fast is a yes/no router?** On a laptop CPU, 28 ms for a short request and 130 ms for a
 long one, measured on an Intel Core Ultra 7 255H with 16 threads.
 
 **What if the router is down?** Send the request to the capable model. A router should fail
@@ -154,7 +155,7 @@ and [logging LLM decisions for audit](logging-llm-decisions-for-audit.md).
 ## Sources
 
 - Our measurements: latency on the reference laptop and accuracy by kind of question and error
-  direction on the 999-question set, from the
+  direction on the 999-question set (first jevos), from the
   [jev README](https://github.com/feder-cr/jev) and our own test runs.
 - RouteLLM: Ong et al., [RouteLLM: Learning to Route LLMs with Preference Data](https://arxiv.org/abs/2406.18665),
   arXiv 2406.18665, fetched 2026-09-29.

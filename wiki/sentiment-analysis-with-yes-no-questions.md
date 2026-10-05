@@ -12,7 +12,7 @@ is the writer unhappy, and, when you care about the why, is the writer unhappy w
 aspect such as delivery or price.** Positive and negative are asked separately, so a review
 that praises the product and hates the courier can say yes to both, which is the honest answer
 and the one a single polarity score hides. Tone was one of the strongest kinds of question on
-our test set, 0.938, on a small sample.
+our test set for the first jevos, 0.938, on a small sample.
 
 Aspect questions are where this approach earns its keep. "Overall negative" tells a product
 team that something is wrong. "Unhappy with delivery: 0.8, unhappy with quality: 0.1" tells them
@@ -64,7 +64,7 @@ alone on our reference laptop, so aspects are cheap to add.
 
 Phrase aspect questions positively and flip in code if you need the other direction. Negated
 wording ("Is the reviewer not unhappy with...") adds a step the model can get wrong; negation
-questions scored 0.858 on the same test set, and the advice is on
+questions scored 0.858 on the same test set (first jevos), and the advice is on
 [negation in yes/no questions](negation-in-yes-no-questions.md).
 
 ## From probabilities to labels and to a dashboard
@@ -87,10 +87,10 @@ def aspect_rates(all_answers, aspects=("quality", "delivery", "price")):
     return {a: sum(x["unhappy_" + a] for x in all_answers) / n for a in aspects}
 ```
 
-For a dashboard, average the probabilities rather than counting thresholded labels. On data like
-its training data the model's calibration error was 0.009, so a mean P(unhappy with delivery)
+For a dashboard, average the probabilities rather than counting thresholded labels. On natural yes/no questions
+in a held-out split the first jevos's calibration error was 0.009, so a mean P(unhappy with delivery)
 of 0.2 over a month's reviews is a reasonable estimate of the share of unhappy-with-delivery
-reviews. On new kinds of text calibration carries over less well, which is why a quarterly
+reviews. On new kinds of text calibration may carry over less well (not measured on jevos-v4), which is why a quarterly
 check against a hand-labelled sample is worth the hour; the idea is on
 [LLM calibration explained](llm-calibration-explained.md).
 
@@ -106,8 +106,8 @@ real queue; that case is closer to
 
 ## How far to trust the 0.938
 
-Being straight about the number: tone scored 0.938 on 32 questions in a set of 999 we wrote
-after training. Thirty-two is a small sample; the true rate on your data could be noticeably
+Being straight about the number: the first jevos scored 0.938 on tone, on 32 questions in a set of 999 we wrote
+after it was finished (per-kind numbers for jevos-v4 are not published). Thirty-two is a small sample; the true rate on your data could be noticeably
 lower. And the known hard cases are still hard:
 
 - **Sarcasm.** "Great, another week without hot water" reads as pleased to a literal reader.
@@ -140,7 +140,7 @@ on both is mixed.
 **What is aspect-based sentiment analysis?** Sentiment toward specific parts of an experience,
 such as price or delivery. With yes/no questions, each aspect is one question.
 
-**Is it accurate?** On our own test set, tone questions scored 0.938 on a small sample of 32. Check
+**Is it accurate?** On our own test set, the first jevos scored 0.938 on tone questions, on a small sample of 32. Check
 on your own labelled texts before relying on it.
 
 **See also:** [review moderation with a local LLM](review-moderation-with-a-local-llm.md),
@@ -149,8 +149,8 @@ on your own labelled texts before relying on it.
 
 ## Sources
 
-- Tone 0.938 (32 questions) and negation 0.858: our 999-question test set, `jevos-q4_k_m`.
-- Calibration error 0.009: our held-out split, 6,397 natural yes/no questions, `jevos-q8_0`.
+- Tone 0.938 (32 questions) and negation 0.858: our 999-question test set, first jevos.
+- Calibration error 0.009: our held-out split, 6,397 natural yes/no questions, first jevos.
 - Three questions in about 66 ms against 49 ms: the [jev README](https://github.com/feder-cr/jev).
 
 ---

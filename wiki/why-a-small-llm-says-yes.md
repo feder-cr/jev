@@ -1,6 +1,6 @@
 ---
 title: "Why a small LLM says yes when the answer is no"
-description: "On 999 new yes/no questions, a 1B LLM gave 152 wrong yeses and 91 wrong noes. Where the yes-bias lives, and why recalibrating does not fix it."
+description: "On 999 new yes/no questions, the first jevos gave 152 wrong yeses and 91 wrong noes. Where the yes-bias lives, and why recalibrating does not fix it."
 parent: "Measurements"
 nav_order: 1
 ---
@@ -9,7 +9,7 @@ nav_order: 1
 
 **A small language model asked yes/no questions it cannot work out does not answer at random:
 it leans toward yes.** On 999 questions written after training, half with the answer yes and
-half no, jevos made 152 mistakes by saying yes when the answer was no, and 91 by saying no when
+half no, the first jevos made 152 mistakes by saying yes when the answer was no, and 91 by saying no when
 it was yes. The lean is not spread evenly. It sits almost entirely on questions that need a
 computation, dates and sums, and on those the average P(yes) for a question whose answer is no
 is above one half.
@@ -28,7 +28,9 @@ per scenario of 40 to 150 words (emails, tickets, logs, reviews, forms), 10 ques
 text. Each question is labelled with the kind of reasoning it needs, and exactly
 half of the answers are yes. Nothing in the set was used to tune anything.
 
-On it, `jevos-q4_k_m` is right 0.757 of the time.
+On it, the first jevos (`jevos-q4_k_m`, released 2026-09-27) is right 0.757 of the time. All
+per-kind numbers on this page were measured on that first jevos; per-kind numbers for jevos-v4
+are not published, which gets 78.9% on the same 999 questions.
 
 ## The errors are not symmetric
 
@@ -92,7 +94,7 @@ model had right.
 
 A calibration measurement on familiar data is no help here either. On the natural yes/no
 questions of our held-out split the model's calibration error is 0.009, which is very good, and
-it does not predict this: that split resembles the training data, and the 999 questions do not.
+it does not predict this: that split resembles the data it was checked on, and the 999 questions do not.
 The gap between the two is the subject of [our held-out benchmark said 0.855](held-out-benchmark-too-optimistic.md).
 
 ## What to do about it in an application
@@ -100,7 +102,7 @@ The gap between the two is the subject of [our held-out benchmark said 0.855](he
 - **Do not ask the model to compute.** Extract dates, totals and counts and compare them in
   code. This is the single change that removes most of the bias, and it is covered on
   [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md).
-- **Trust a no more than a yes.** On this set the model's no is the more reliable answer. If a
+- **Trust a no more than a yes.** On this set the first jevos's no was the more reliable answer. If a
   wrong yes is the expensive mistake, require more than 0.5 to act on yes, and treat the band
   from 0.5 to about 0.7 as "check".
 - **Measure on your own questions.** The bias depends on the kind of question. A set of a
@@ -117,7 +119,7 @@ work out the answer, mostly on arithmetic and dates. On questions it can read, i
 **Is it a threshold problem?** No. A temperature and bias fitted on held-out data moved accuracy
 from 0.757 to 0.759; the best possible bias, chosen on the test set, reached 0.763.
 
-**Is the model badly calibrated?** On data like its training data it is well calibrated
+**Is the model badly calibrated?** On familiar data the first jevos was well calibrated
 (calibration error 0.009). On new kinds of questions, calibration does not carry over.
 
 **Which questions are safe?** Facts stated in the text (0.954), tone (0.938), negation (0.858),
@@ -132,10 +134,11 @@ and [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md).
 
 ## Sources
 
-- All numbers on this page are our own measurements: the 999-question set on
-  `jevos-q4_k_m` for accuracy, error counts and mean probabilities (recomputed from the
+- All numbers on this page are our own measurements: the 999-question set on the first jevos,
+  `jevos-q4_k_m`, for accuracy, error counts and mean probabilities (recomputed from the
   per-question results for this page), and the recalibration experiments run on the same set.
-- Held-out calibration error: 6,397 natural yes/no questions, `jevos-q8_0`.
+- Held-out calibration error: 6,397 natural yes/no questions, first jevos, `jevos-q8_0`.
+- jevos-v4, 78.9% on the same 999 questions: the jev README.
 
 ---
 

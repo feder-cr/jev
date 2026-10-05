@@ -35,7 +35,10 @@ on [jevos vs bart-large-mnli](jevos-vs-bart-large-mnli.md), and with a few label
 class on [jevos vs SetFit](jevos-vs-setfit.md).
 
 The cost is that the probabilities are independent. They do not sum to 1, and two of them can
-both be high. The code below deals with that explicitly.
+both be high. The code below deals with that explicitly. If you want exactly one label, jevos-v4
+also answers a `choice` question: you give the options in `criteria` and get back the most
+probable option, a probability per option and a `confidence`; with `confidence` 0 it cannot place
+the answer, and you route it to a person.
 
 ## The request
 
@@ -113,7 +116,8 @@ question per boundary:
 
 The level is the highest boundary answered yes. Boundary questions have one clear answer each,
 where "is it medium?" has two ways to be wrong, and a scale of n levels needs only n minus 1
-questions.
+questions. jevos-v4 can also answer a `score` question directly (levels in `criteria`, lowest
+first), but scores are marked early, so boundary questions are the safer start.
 
 ## How much it costs
 
@@ -128,8 +132,8 @@ leaves room for long documents and many labels before it matters.
 
 ## Where it works and where it does not
 
-On 999 yes/no questions written after training, the question kinds a classifier needs are the
-model's strongest: 0.954 on facts stated in the text, 0.938 on tone, 0.893 on paraphrases and
+On 999 yes/no questions written after training, the question kinds a classifier needs were the
+first jevos's strongest (per-kind numbers for jevos-v4 are not published): 0.954 on facts stated in the text, 0.938 on tone, 0.893 on paraphrases and
 0.859 on intent. Topic routing, sentiment, urgency and "does this message ask for X" all live
 there.
 
@@ -167,7 +171,7 @@ win on accuracy.
 - Timing for several questions about one text, and the 8,192-token context: the
   [jev README](https://github.com/feder-cr/jev).
 - Accuracy by question kind: our 999-question test set, written after training and never used
-  for tuning, run on `jevos-q4_k_m`.
+  for tuning, run on the first jevos, `jevos-q4_k_m`.
 
 ---
 

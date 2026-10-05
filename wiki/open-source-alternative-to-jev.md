@@ -13,15 +13,16 @@ TypeSafe's API.** The request body, the `jev-latest` model name and the shape of
 the same, for `choice` and `score` questions too. Two things do not: `score` answers are early
 (54% on held-out score questions, 82% within one level), and on a yes/no question Jev's optional
 `criteria` field is optional and checked but not read, so the rule has to live in `instructions`
-(`choice` and `score` questions require `criteria`, and use it). Whether the switch is worth it depends on how a local 1B model does on your questions, not on the
+(`choice` and `score` questions require `criteria`, and use it). Whether the switch is worth it depends on how a local model does on your questions, not on the
 code.
 
 Conflict of interest, in one line: we build jevos, and we are not affiliated with TypeSafe AI,
 which builds Jev.
 
 The code change is the easy part of a migration. The part that deserves a day of work is
-checking accuracy on your own cases, because on 2,000 rule questions neither model had been
-tuned on, Jev was right 0.927 of the time and jevos 0.810. For some applications that gap is
+checking accuracy on your own cases, because on six tasks built from rules, annotators or experts, jevos-v4 scored below Jev on all
+of them (admission policy 0.95 against 1.00, rental policy 0.76 against 0.91, fraud points 0.50
+against 0.69). For some applications that gap is
 irrelevant; for others it is the whole decision.
 
 This page is what stays the same, the switch step by step, what the local server refuses or
@@ -40,7 +41,7 @@ Jev's shape. The `usage` block is there too, with
 
 The model name also carries over. `jev-latest` is accepted, and so is any other `jev-*` name, so a
 client pinned to a Jev version string does not need editing. The response always names the model
-that actually answered, `jevos-v2`, which is how you tell the two apart in logs.
+that actually answered, `jevos-v4`, which is how you tell the two apart in logs.
 
 Authentication works the same way when you want it. Start the server with the `JEV_API_KEY`
 environment variable set and every call except `/health` requires `Authorization: Bearer <key>`,
@@ -49,14 +50,14 @@ with a `401` otherwise, which is the header TypeSafe's API reference documents f
 ## The switch, step by step
 
 1. Download the archive for your machine (`jev-linux-x64.tar.gz`, `jev-windows-x64.zip` or
-   `jev-macos-arm64.tar.gz`), `jevos-v2-openvino-int8.zip` and `SHA256SUMS.txt` from the
-   [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2) and check the hashes.
+   `jev-macos-arm64.tar.gz`), `jevos-v4-openvino-int8.zip` and `SHA256SUMS.txt` from the
+   [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v4) and check the hashes.
 2. Unpack the binary and the model, and start the server:
 
 ```bash
 tar -xzf jev-linux-x64.tar.gz
 cd jev
-unzip ../jevos-v2-openvino-int8.zip     # creates model/
+unzip ../jevos-v4-openvino-int8.zip     # creates model/
 ./jev serve --threads 16
 ```
 
@@ -124,9 +125,10 @@ before-and-after latency comparison possible without a separate benchmark harnes
 
 Keep Jev, or keep it for part of the traffic, when:
 
-- **Accuracy on hard rules matters most.** 0.927 against 0.810 on our 2,000 policy questions,
-  with the gap largest on additive point scores, where several signals are summed and compared
-  with a cut-off.
+- **Accuracy on hard rules matters most.** Jev leads on all six of our tasks, for example
+  0.69 against 0.50 on fraud points, where several signals are summed and compared with a cut-off,
+  and 1.00 against 0.95 on admission-policy yes/no rules. Five of the six sets helped choose the
+  released jevos checkpoint, so its scores there may be slightly optimistic.
 - **You need `score` answers past jevos's early ones.**
 - **Your texts are not in English.**
 - **You do not want to operate anything.** A local server is a folder and a port, and
@@ -149,11 +151,11 @@ Code that relies on `criteria` on a `noul` needs the change in the table above.
 not read it. Put the
 definition of yes into `instructions`.
 
-**Is it faster?** From a laptop in Europe, on our two requests: 26 and 112 ms locally against 344
-and 345 ms for the hosted API, network included.
+**Is it faster?** From a laptop in Europe, on our two requests: 28 and 130 ms locally against 311
+and 314 ms for the hosted API, network included.
 
-**Is it as accurate?** No. On our 2,000 policy questions Jev was right 0.927 of the time and jevos
-0.810. Measure on your own cases before moving everything.
+**Is it as accurate?** No. On our six tasks Jev scored higher on every one (for example 1.00
+against 0.95 on admission policy). Measure on your own cases before moving everything.
 
 **See also:** [jevos vs Jev vs Laya for yes/no decisions](jevos-vs-jev-vs-laya.md),
 [securing a local LLM server with an API key](securing-a-local-llm-server-with-an-api-key.md) and
@@ -164,7 +166,7 @@ and 345 ms for the hosted API, network included.
 - Wire format compatibility, the `jev-*` aliases, the `choice` and `score` answers, the
   `criteria` behaviour, `/health`, `/v1/models`, `Server-Timing` and `JEV_API_KEY`: the
   [jev README](https://github.com/feder-cr/jev) and the jev source.
-- Latency (26/112 ms against 344/345 ms) and accuracy (0.927 against 0.810): our own
+- Latency (28/130 ms against 311/314 ms) and the six-task accuracy table: our own
   measurements, published in the README.
 - Jev's base URL, the Bearer header and the SDK's `base_url`, `TYPESAFE_BASE_URL` and
   `TYPESAFE_API_KEY`: [TypeSafe API reference](https://docs.typesafe.ai/api.md) and

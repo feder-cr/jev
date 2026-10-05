@@ -100,9 +100,10 @@ of four answers contributes noise, not evidence.
   the bin's mean looks perfect.
 - **It says nothing about accuracy.** A model that answers 0.5 to everything on a half-yes set
   has an ECE of zero.
-- **It describes one mix of data.** On the natural yes/no questions of our held-out split,
-  `jevos-q8_0` had an ECE of 0.009. On 999 new questions, the mean P(yes) given to arithmetic
-  questions whose answer was no was 0.59. Both are true; the first does not predict the second.
+- **It describes one mix of data.** On the natural yes/no questions of our held-out split, an
+  earlier jevos had an ECE of 0.009. On 999 new questions, the first jevos gave a mean P(yes) of
+  0.59 to arithmetic questions whose answer was no. Both are true; the first does not predict
+  the second.
   Compute ECE per kind of question, as on
   [accuracy by kind of question](accuracy-by-kind-of-question.md).
 - **Small samples inflate or deflate it.** With 200 answers and 15 bins, several bins hold a
@@ -124,8 +125,9 @@ model that always says 0.5 has an ECE of zero on half-yes data but a Brier score
 **Does a low ECE mean the model is accurate?** No. A model that always says 0.5 on balanced data
 has an ECE of zero.
 
-**What ECE does jevos have?** 0.009 on 6,397 natural yes/no held-out questions and 0.018 on the
-dev split. On new kinds of question it leans toward yes, which those numbers do not show.
+**What ECE does jevos have?** An earlier jevos had 0.009 on 6,397 natural yes/no held-out
+questions and 0.018 on the dev split; the ECE of jevos-v4 is not published. On new kinds of
+question the first jevos leaned toward yes, which those numbers do not show.
 
 **See also:** [LLM calibration explained](llm-calibration-explained.md),
 [temperature scaling for LLM probabilities](temperature-scaling-for-llm-probabilities.md) and
@@ -133,9 +135,9 @@ dev split. On new kinds of question it leans toward yes, which those numbers do 
 
 ## Sources
 
-- Our measurements: ECE 0.009 (held-out, 6,397 natural yes/no questions) and 0.018 (dev),
-  `jevos-q8_0`; mean P(yes) 0.59 on no-answer arithmetic questions, 999-question set,
-  `jevos-q4_k_m`.
+- Our measurements on earlier jevos versions, not remeasured for jevos-v4: ECE 0.009 (held-out,
+  6,397 natural yes/no questions) and 0.018 (dev); mean P(yes) 0.59 on no-answer arithmetic
+  questions, 999-question set, first jevos.
 - The worked example table is illustrative and invented for this page.
 - Guo, Pleiss, Sun, Weinberger (2017),
   [On Calibration of Modern Neural Networks](https://arxiv.org/abs/1706.04599): ECE and MCE

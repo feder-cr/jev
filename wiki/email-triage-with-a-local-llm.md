@@ -25,7 +25,7 @@ answers, the band you look at yourself, why local matters for mail, and the limi
 ## Building the state from a raw email
 
 Latency grows with the text: on our reference laptop, a text read for the first time takes
-26 ms for a short request and 112 ms for one of about 190 tokens. A long thread pasted whole
+28 ms for a short request and 130 ms for a long one. A long thread pasted whole
 can be thousands of tokens and still fit in the 8,192-token context, but it costs far more and
 buries the new message. Before calling the model:
 
@@ -91,7 +91,8 @@ clearly no. In an inbox the person reviewing is you, and the cost of a wrong ans
 but real. A wrong "later" can hide a request for a week. So the rule of thumb is that the model
 may move mail up (flag, "reply today") freely and may move mail down (archive, "later") only
 above a high bar. That asymmetry follows from the model's own error direction: on our
-999-question test set it said yes wrongly 152 times and no wrongly 91 times. The general version
+999 hand-written questions the first jevos said yes wrongly 152 times and no wrongly 91 times
+(not published for jevos-v4). The general version
 of this argument is on
 [thresholds when a wrong yes costs more than a wrong no](thresholds-when-a-wrong-yes-costs-more.md).
 
@@ -118,7 +119,7 @@ covers what local solves and what it does not.
 - **Hidden context.** The model does not know your projects, your boss or your deadlines unless
   they are in the state.
 - **Not measured on email.** We have not run jevos on an email dataset. The questions above are
-  intent and stated-fact questions, which scored 0.859 and 0.954 on our 999-question set, but
+  intent and stated-fact questions, which the first jevos scored 0.859 and 0.954 on in our 999-question set, but
   your mail is your mail: label a hundred messages and check.
 
 ## Short answers to the questions that lead here
@@ -141,9 +142,9 @@ and [phishing email screening with a local LLM](phishing-email-screening-with-a-
 
 ## Sources
 
-- Latency, 26 and 112 ms, 8,192-token context, default bind to 127.0.0.1: the
+- Latency, 28 and 130 ms, 8,192-token context, default bind to 127.0.0.1: the
   [jev README](https://github.com/feder-cr/jev) and our reference-laptop measurements.
-- Error direction and accuracy by kind of question: our 999-question test set, `jevos-q4_k_m`.
+- Error direction and accuracy by kind of question: our 999 hand-written questions, measured on the first jevos.
 - Folder rules and thresholds in the code are illustrative.
 
 ---

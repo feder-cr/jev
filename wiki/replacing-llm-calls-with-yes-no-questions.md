@@ -106,7 +106,7 @@ is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-
 |---|---|
 | yes or no about something stated in the text | yes |
 | a label from a fixed list | yes, as a `choice` question or one question per label |
-| a score from 1 to 5 | as boundary questions ("is it at least 4?"), see [scores as yes/no thresholds](scores-as-yes-no-threshold-questions.md) |
+| a score from 1 to 5 | a `score` question (early), or boundary questions ("is it at least 4?"), see [scores as yes/no thresholds](scores-as-yes-no-threshold-questions.md) |
 | yes or no that needs a sum or a date | compute in code first, then ask what is left |
 | a reason or explanation | no, that is generated text |
 | fields extracted into JSON | no, use structured output; see [structured output vs a probability](structured-output-vs-a-probability.md) |
@@ -123,8 +123,9 @@ is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-
 5. **Shadow in production.** Call both for a while, act on the old one, log both, and switch when
    the logs agree with your test.
 
-Be straight with yourself about the result. On our own set of 999 questions written after
-training, jevos was right 0.954 of the time on stated facts and 0.584 on arithmetic. Decisions
+Be straight with yourself about the result. On our own set of 999 questions, the first jevos was right 0.954 of the time on stated facts
+and 0.584 on arithmetic (per-kind numbers for jevos-v4 are not published; it scores 78.9% overall
+on those 999). Decisions
 that are reading will usually move well; decisions that were quietly doing maths will not, and
 the comparison is how you find out which is which.
 
@@ -152,7 +153,7 @@ against each other.
 
 - The billing request and its answer (0.9, 27 input tokens, 0 output tokens), the `choice`
   question type and the English-only limit: the [jev README](https://github.com/feder-cr/jev).
-- Accuracy by kind of question: our 999-question test set on `jevos-q4_k_m`.
+- Accuracy by kind of question: our 999-question test set, first jevos.
 - No outside sources are used on this page.
 
 ---

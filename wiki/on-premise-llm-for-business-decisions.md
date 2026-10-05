@@ -41,8 +41,8 @@ those platforms we have timed is a separate question, answered next.
 
 We do not know, and neither does anyone who has not run it there. Every latency figure we
 publish comes from one machine, a laptop with an Intel Core Ultra 7 255H, 16 threads, no GPU,
-with the text read from scratch: 26 ms for a request of about 30 tokens, 112 ms for about 190
-tokens. Server CPUs differ in cores, clock, cache and memory bandwidth, and
+with the text read from scratch: 28 ms for a short request, 130 ms for a long one (about 190
+tokens). Server CPUs differ in cores, clock, cache and memory bandwidth, and
 have other workloads on them. The number that matters is yours, measured like this:
 
 1. Take a sample of real inputs, at their real length.
@@ -86,9 +86,11 @@ three places, and each needs an owner:
   mistake costs more. Write down who chose it and why, as on
   [thresholds when a wrong yes costs more](thresholds-when-a-wrong-yes-costs-more.md).
 - **The rule.** Anything that is really a policy ("refund if reported within 30 days") should
-  be computed in code from facts the model reads, not left to the model. On 2,000 yes/no
-  questions about business policies none of the models was tuned on, jevos was right 0.810 of
-  the time; the hosted Jev, 0.927. That is a good first reader, not a final judge. The pattern
+  be computed in code from facts the model reads, not left to the model. On six tasks
+  built from rules, annotators or experts, jevos-v4 scored 0.95 on admission-policy yes/no rules
+  against 1.00 for the hosted Jev, and 0.50 against 0.69 on fraud points, which are sums
+  (five of the six sets helped choose the released checkpoint, so its scores there may be slightly
+  optimistic). That is a good first reader, not a final judge. The pattern
   is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
 ## What does change control look like for a model?
@@ -104,8 +106,8 @@ The model is a file, so it can be controlled like one.
   and run old and new models on it before any change. A hundred real cases is a start; see
   [building a yes/no test set](building-a-yes-no-test-set.md).
 - **Treat the weights as a model change.** jev runs 8-bit (INT8) weights. The GGUF files in
-  the release are the same model for other tools, and on 215 parity cases jev's answers are
-  within 0.056 of the `q8_0` GGUF's. Do not swap one runtime for another without measuring on
+  the release (`jevos-v4-q4_k_m.gguf`, `jevos-v4-q8_0.gguf`) are the same model for tools built on
+  llama.cpp; we publish no parity figure against them for jevos-v4. Do not swap one runtime for another without measuring on
   yours.
 
 ## Short answers to the questions that lead here
@@ -113,8 +115,8 @@ The model is a file, so it can be controlled like one.
 **Can an LLM run on premise without a GPU?** A small one can. jevos runs on the CPU through
 OpenVINO and needs about 1 GB of memory with the model loaded.
 
-**How many requests per second will our server handle?** Unmeasured on any server. On the
-reference laptop, one client got 8.7 requests per second and eight clients 10.1; time your own
+**How many requests per second will our server handle?** Unmeasured on any server, and not
+measured on jevos-v4 at all. One short request takes about 28 ms on the reference laptop; time your own
 hardware with your own inputs.
 
 **Does on-premise mean compliant?** No. It keeps the text inside your network; access control,
@@ -134,9 +136,9 @@ a person for the uncertain middle.
 ## Sources
 
 - Requirements, options, endpoints and the wire format: the [jev README](https://github.com/feder-cr/jev).
-- Release platforms: the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
-- Latency, requests per second, the 215 parity cases and the 2,000-question comparison: our
-  measurements on an Intel Core Ultra 7 255H laptop.
+- Release platforms: the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v4).
+- Latency and the six-task comparison: our
+  measurements, latency on an Intel Core Ultra 7 255H laptop.
 
 ---
 

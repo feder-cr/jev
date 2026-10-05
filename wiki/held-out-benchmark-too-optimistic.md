@@ -8,7 +8,7 @@ nav_order: 3
 # Our held-out benchmark said 0.855, new questions said 0.757
 
 **A test split that comes out of the same process as the training data is not held out enough,
-even when whole topics are kept aside.** Our held-out split for jevos excluded three business
+even when whole topics are kept aside.** Our held-out split for the first jevos (released 2026-09-27) excluded three business
 policies and three workflows entirely, and the model scored 0.855 on it. On 999 questions
 written from scratch after training, by a different process, it scored 0.757. The ten points
 between the two are the part of the first number that measured familiarity with our own way of
@@ -17,7 +17,7 @@ writing questions, not the ability to answer them.
 This matters beyond our model. Anyone fine-tuning a model on generated or templated data and
 testing on a split of the same data is likely to be reporting the optimistic number.
 
-This page is the four measurements from most familiar to least, why excluding topics was not
+This page is the four measurements, all taken on early jevos versions, from most familiar to least, why excluding topics was not
 enough, and how we build tests now.
 
 ## Four numbers, from most familiar to least
@@ -26,7 +26,7 @@ enough, and how we build tests now.
 |---|---|---|
 | development split, 12,320 questions | nothing but the specific texts | 0.915 |
 | held-out split, 27,274 questions | three policies and three workflows never seen | 0.855 |
-| 2,000 questions on the held-out policies, answers computed by code | the policies, and a separate question set | 0.810 |
+| 2,000 questions on the held-out policies, answers computed by code (jevos-v2) | the policies, and a separate question set | 0.810 |
 | 999 questions written after training | everything: texts, questions, phrasing, author | 0.757 |
 
 Each step away from the training data costs accuracy, and the biggest step is the last one,
@@ -34,8 +34,8 @@ where nothing was produced by the same pipeline. The held-out split feels like a
 since whole domains are missing from training, and it still sits closer to the development
 number than to the independent one.
 
-One caveat, stated so it can be weighed: the first two rows were measured on the `q8_0` build
-and the last on `q4_k_m`. We have not run both builds on the same set for this page, so some part
+One caveat, stated so it can be weighed: the first two rows were measured on the 8-bit (`q8_0`)
+build and the last on the 4-bit (`q4_k_m`) build of the first jevos. We have not run both builds on the same set for this page, so some part
 of the gap could be quantization. The ordering of the middle rows, and the size of the last step,
 do not depend on it.
 
@@ -51,7 +51,7 @@ Holding out a policy removes its rules from training. It does not remove:
   from the same place.
 
 A model can learn all three, and a test that shares them rewards it for doing so. The 999
-questions share none of them, and on those the model's weaknesses show up that the held-out
+questions share none of them, and on those the first jevos showed weaknesses that the held-out
 split had hidden: arithmetic at 0.584 and a lean toward yes that the held-out calibration
 (0.009 error on its natural questions) gave no hint of. Both are measured on
 [why a small LLM says yes](why-a-small-llm-says-yes.md) and
@@ -80,11 +80,13 @@ hand-written set on arithmetic and dates within two points.
 
 ## What the right number is
 
-For jevos, the number to plan with is the independent one, 0.757 overall, together with its
-breakdown: above 0.84 on everything that is reading, 0.58 to 0.72 on everything that is
-computing or applying a rule. The README reports the 2,000-question comparison, 0.810, because
-the same questions were put to Jev and Laya and the comparison is fair; this page is the
-context for reading it.
+For the first jevos, the number to plan with was the independent one, 0.757 overall, together
+with its breakdown: above 0.84 on everything that is reading, 0.58 to 0.72 on everything that is
+computing or applying a rule. Per-kind numbers for jevos-v4 are not published; on the same 999
+questions jevos-v4 gets 78.9%. The README now reports six tasks, with the same questions put to
+Jev, Qwen3.5-4B and Laya so the comparison is fair, and says that five of the six sets helped
+choose the released checkpoint, so jevos's scores there may be slightly optimistic; this page is
+the context for reading that caveat.
 
 ## Short answers to the questions that lead here
 
@@ -110,9 +112,10 @@ code. They have no labelling errors and reproduced our hardest cases.
 
 ## Sources
 
-- All four accuracies are our own measurements of the released jevos: development and held-out
-  splits on `jevos-q8_0`, the 2,000-question comparison as reported in the
-  [jev README](https://github.com/feder-cr/jev), and the 999-question set on `jevos-q4_k_m`.
+- All four accuracies are our own measurements of early jevos versions: development and held-out
+  splits on the first jevos (8-bit GGUF), the 2,000-question comparison (jevos-v2) as reported
+  in an earlier [jev README](https://github.com/feder-cr/jev), and the 999-question set on the
+  first jevos (4-bit GGUF). jevos-v4 scores 78.9% on the same 999 questions.
 
 ---
 

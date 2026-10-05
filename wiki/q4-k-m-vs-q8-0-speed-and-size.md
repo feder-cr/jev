@@ -1,6 +1,6 @@
 ---
 title: "Q4_K_M vs Q8_0: speed and size for a small model"
-description: "jevos ships as a 619 MB q4_k_m and a 943 MB q8_0 GGUF file for llama.cpp and other tools; jev itself runs 8-bit weights. Accuracy of the two on one set is not yet measured."
+description: "jevos-v4 ships as q4_k_m and q8_0 GGUF files for llama.cpp and other tools; jev itself runs 8-bit weights. Accuracy of the two is not measured on one set."
 parent: "Speed"
 nav_order: 11
 ---
@@ -8,7 +8,8 @@ nav_order: 11
 # Q4_K_M vs Q8_0: speed and size for a small model
 
 **Of the two GGUF files of jevos, `q4_k_m` is the smaller one and the one to start with in
-llama.cpp, Ollama, LM Studio or another tool that reads GGUF: 619 MB against 943 MB.** `jev`
+llama.cpp, Ollama, LM Studio or another tool that reads GGUF: about 4.9 bits per weight against
+8.5.** `jev`
 itself reads neither file: it runs the model with 8-bit (INT8) weights through OpenVINO. What we
 cannot tell you yet is how much accuracy, if any, the smaller file gives up, because the two
 builds have not been measured on the same question set. Until they are, the honest choice is
@@ -25,26 +26,26 @@ mean is on [GGUF quantization types explained](gguf-quantization-types-explained
 
 ## Which file should I download?
 
-| | `jevos-v2-q4_k_m.gguf` | `jevos-v2-q8_0.gguf` |
+| | `jevos-v4-q4_k_m.gguf` | `jevos-v4-q8_0.gguf` |
 |---|---|---|
-| File size | 619 MB | 943 MB |
+| Bits per weight (llama.cpp's figures) | about 4.9 | about 8.5 |
 | Accuracy on the same set as the other | not measured | not measured |
 | Read by `jev` itself | no | no |
 
-Start with `q4_k_m`. The latencies on this wiki (26 ms short, 112 ms long, 66 ms for three
+Start with `q4_k_m`. The latencies on this wiki (28 ms short, 130 ms long, 66 ms for three
 questions on one text) were taken with `jev`, which runs the INT8 model, not with either GGUF
 file. Move to `q8_0` only if you have tested both on your own questions and the larger file is
 measurably better for you, and the extra time fits your budget.
 
-Both files are on the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2) with a
-`SHA256SUMS.txt`; check the hash after downloading, as described on
+Both files are on the [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v4); check the hash after
+downloading, as described on
 [offline AI for decisions](offline-ai-for-decisions.md).
 
 ## What the measurement says
 
-`jev` runs 8-bit (INT8) weights through OpenVINO, not a GGUF quantization. On the 215 parity
-cases its answers are within 0.056 of the `q8_0` file's, so `q8_0` is the GGUF file closest to
-what `jev` answers.
+`jev` runs 8-bit (INT8) weights through OpenVINO, not a GGUF quantization. By bit width,
+`q8_0` is the GGUF file closest to what `jev` runs, but how closely its answers match has not been
+measured for jevos-v4.
 
 How fast each GGUF file is depends on the tool that runs it and on your CPU. Measure it there,
 as described below, rather than taking a factor from someone else's machine.
@@ -66,17 +67,13 @@ CPU side of it on [what makes a local LLM fast on a CPU](what-makes-a-local-llm-
 
 ## What we have not measured
 
-Being straight about the limit: the accuracy numbers we publish were taken on different builds
-and different sets, and they cannot be compared to decide between the files.
-
-- The held-out split (0.855 overall, 0.874 on natural yes/no questions, calibration error 0.009)
-  was run on `q8_0`.
-- The 999 questions written after the model was finished (0.757) were run on `q4_k_m`.
-
-Those are different question sets, and the second is much harder; the gap between them is the
-subject of [our held-out benchmark said 0.855](held-out-benchmark-too-optimistic.md). Reading
-the two numbers as "q8_0 is 0.1 more accurate" would be wrong. A comparison of the two files on
-one set is the missing measurement.
+Being straight about the limit: the accuracy numbers we publish for jevos-v4 (87.0% of 821
+hand-written yes/no questions, 78.9% of 999) were taken through `jev`'s own 8-bit model, not
+through either GGUF file. Earlier measurements on the first jevos were run on different builds
+and different sets, and they cannot be compared to decide between the files; the gap between a
+held-out split and fresh questions is the subject of
+[our held-out benchmark said 0.855](held-out-benchmark-too-optimistic.md). A comparison of the two
+files on one set is the missing measurement.
 
 The same README warns that quantization "may introduce some accuracy loss". Whether it does
 here, and by how much, is exactly what has not been tested.
@@ -98,7 +95,7 @@ third column to compare the two files against.
 
 ## Short answers to the questions that lead here
 
-**Is Q4_K_M or Q8_0 better?** For jevos, `q4_k_m` is a third smaller. Which is faster depends
+**Is Q4_K_M or Q8_0 better?** For jevos, `q4_k_m` is the smaller file. Which is faster depends
 on your tool and CPU, and which is more accurate has not been measured on the same set. `jev`
 itself runs 8-bit weights and reads neither file.
 
@@ -120,9 +117,8 @@ INT8 OpenVINO model that `jev` runs.
 
 ## Sources
 
-- File sizes, latencies, memory, the 215 parity cases and the accuracy figures with the build
-  each was run on: our own measurements and the
-  [jev release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
+- Latencies, memory and the accuracy figures with the build each was run on: our own
+  measurements and the [jev release page](https://github.com/feder-cr/jev/releases/tag/jevos-v4).
 - Bits per weight, the example benchmark table and the size and accuracy caveats:
   [llama.cpp quantize README](https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md),
   fetched 2026-09-29. Its hardware is not stated there.

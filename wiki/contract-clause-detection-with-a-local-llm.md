@@ -37,8 +37,8 @@ Questions about whether the text says something, one clause per question:
 Each question describes what the clause does, not its name. Contracts rarely use the same
 heading twice, and "Does this section contain a limitation of liability clause?" leans on the
 label, while "Does this section limit or cap the amount one party can be liable for?" asks about
-the content. On our 999-question test set written after training, stated facts were answered
-right 0.954 of the time and paraphrase questions 0.893. Clause detection is mostly those two
+the content. On our 999 hand-written questions, the first jevos answered stated facts
+right 0.954 of the time and paraphrase questions 0.893 (per-kind numbers for jevos-v4 are not published). Clause detection is mostly those two
 skills: the clause is stated, in words that differ from yours.
 
 ## The request for one section
@@ -67,7 +67,7 @@ than one, because the section is read once.
 
 Each question's prompt, the text plus that question, holds at most 8,192 tokens by default, and
 on our reference laptop latency grows with the text:
-about 26 ms for 30 tokens, 112 ms for 191 tokens read from scratch. A long agreement with schedules will not fit, and even when it fits, one
+about 28 ms for a short request, 130 ms for a long one read from scratch. A long agreement with schedules will not fit, and even when it fits, one
 question about a hundred pages is worse than the same question about each section.
 
 Split on the contract's own structure (numbered sections or clauses), ask every clause question
@@ -86,8 +86,8 @@ If the first job is to tell a contract from an invoice or a letter, do that firs
   unusual for a software contract?" These need legal knowledge, jurisdiction and context the
   text does not contain.
 - **Numbers and dates.** "Is the notice period longer than 30 days?" "Does the cap exceed the
-  annual fees?" Extract the figure and compare in code. On the same test set, number against
-  threshold questions were right 0.654 of the time and dates 0.598.
+  annual fees?" Extract the figure and compare in code. On the same test set, the first jevos got number against
+  threshold questions right 0.654 of the time and dates 0.598.
 - **Absence in one go.** "Does this contract lack a liability cap?" is a negated question about
   a whole document. Ask the positive question per section and conclude absence in code when no
   section says yes. Why negation needs care is on
@@ -149,7 +149,7 @@ own storage and access rules still apply.
 
 - Our measurements: context and latency from the
   [jev README](https://github.com/feder-cr/jev); accuracy by kind of question from our
-  999-question test set on `jevos-q4_k_m`. No contract measurement exists; none is claimed.
+  999 hand-written questions, measured on the first jevos. No contract measurement exists; none is claimed.
 - OWASP GenAI Security Project,
   [LLM09:2025 Misinformation](https://genai.owasp.org/llmrisk/llm092025-misinformation/),
   overreliance and human oversight, fetched 2026-09-29.

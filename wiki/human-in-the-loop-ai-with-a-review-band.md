@@ -85,8 +85,8 @@ model found hard. More on the format is on
 
 ## Why the band is often lopsided
 
-On 999 yes/no questions written after the model was finished, jevos made 152 errors by saying yes
-when the answer was no, and 91 the other way. Its no was the more reliable answer. For a band,
+On 999 yes/no questions written after the model was finished, the first jevos made 152 errors by saying yes
+when the answer was no, and 91 the other way (not published for jevos-v4). Its no was the more reliable answer. For a band,
 that suggests an asymmetric shape: a low edge close to 0.5 is safer than a high edge close to
 0.5, so the yes side of the band usually needs to extend further up than the no side extends
 down.
@@ -141,7 +141,7 @@ regularly, and track the error rate over time.
 
 ## Sources
 
-- Our measurements: 152 wrong yeses vs 91 wrong noes on the 999-question set, `jevos-q4_k_m`.
+- Our measurements: 152 wrong yeses vs 91 wrong noes on the 999-question set, first jevos.
   The `/health` fields and the `Server-Timing` header are documented in the
   [jev repository](https://github.com/feder-cr/jev).
 - The band table and the reviewer-hours example are illustrative and invented for this page.

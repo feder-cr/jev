@@ -13,9 +13,9 @@ boundary answered yes.** A scale with n levels needs n minus 1 questions. Each b
 clear answer, where "Is the urgency medium?" can be wrong in two directions, and the answers
 come back as probabilities you can threshold, compare and log.
 
-This is also how jevos answers the `score` question type of the wire format it speaks: one yes/no
-question per level above the lowest ("is it at this level or higher?"), the answers made
-non-increasing where they are not, and their differences the probability of each level. Boundary questions are not a workaround, though. They are the same idea statisticians
+jevos-v4 also answers a `score` question directly (levels in `criteria`, lowest first; early),
+and you can build the same kind of score yourself from yes/no questions when you want control of
+the boundaries. Boundary questions are not a workaround, though. They are the same idea statisticians
 use for ordered outcomes, and they often make a better score than asking for a number.
 
 This page is the idea behind boundary questions, the request, how to read a level and an
@@ -101,14 +101,14 @@ for x in p:
 ## Where this is weak
 
 **Scores that are sums.** A score made by adding points ("2 points for a missing item, 3 for a
-repeat, refund above 4") is arithmetic, not judgment. On 2,000 questions from three business
-policies, the gap between jevos and the hosted Jev was largest on exactly these additive point
+repeat, refund above 4") is arithmetic, not judgment. On the fraud points task (a score from six rules), jevos-v4 scored 0.50 and the hosted Jev 0.69, and
+the model was confidently wrong, so the gap was largest on exactly these additive point
 scores. Ask the model for each signal as its own question and add the points in code, as
 described on [one condition per question](one-condition-per-question.md).
 
 **Numbers in the text.** "Is the order value at least high?" when the text says "EUR 480" is a
-number against a threshold, and on our 999-question test set those questions scored 0.654,
-against 0.954 for facts stated in the text. If the number is in your data, compare it in code;
+number against a threshold, and on our 999-question test set the first jevos scored 0.654 on those questions,
+against 0.954 for facts stated in the text (per-kind numbers for jevos-v4 are not published). If the number is in your data, compare it in code;
 the details are on [small LLMs and arithmetic](small-llm-arithmetic-yes-no-questions.md).
 
 **Fine scales.** A 1-to-10 scale is nine boundaries, and the difference between "at least 6"
@@ -134,8 +134,9 @@ the expected level, and it sorts a queue well.
 minimum, log the inversion, and consider a review band for those cases.
 
 **Does jevos support the `score` question type?** Yes, early: on 2,350 held-out score questions
-the most probable level is right 54% of the time and within one level 82%; on rubrics 69%, on
-points to add up barely better than always the most common level.
+the most probable level is right 58.5% of the time and within one level 86%; on 329 everyday
+ratings 63% and 97% within one level; on rubrics (jevos-v2) 69%; on points to add up (jevos-v2)
+34%, barely above the most common level.
 
 **See also:** [zero-shot text classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md),
 [urgency detection in customer messages](urgency-detection-in-customer-messages.md) and
@@ -143,11 +144,10 @@ points to add up barely better than always the most common level.
 
 ## Sources
 
-- How jevos answers `score` questions, and their accuracy on 2,350 held-out questions: the
+- The `score` question type and its accuracy on 2,350 held-out questions: the
   [jev README](https://github.com/feder-cr/jev).
-- The 2,000-question comparison (accuracies in the jev README) and where the gap to Jev was
-  largest: our own measurement on those questions.
-- 0.654 and 0.954 by kind of question: our 999-question test set, `jevos-q4_k_m`.
+- The six-task comparison (fraud points 0.50 against 0.69 for Jev): the jev README.
+- 0.654 and 0.954 by kind of question: our 999-question test set, first jevos.
 - Cumulative thresholds in ordinal models:
   [Ordinal regression on Wikipedia](https://en.wikipedia.org/wiki/Ordinal_regression), fetched
   2026-09-29.
@@ -155,4 +155,4 @@ points to add up barely better than always the most common level.
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), which answers yes/no, multiple-choice
-and score questions, and gets its scores by asking several yes/no ones.*
+and score questions, and lets you build scores from yes/no ones.*

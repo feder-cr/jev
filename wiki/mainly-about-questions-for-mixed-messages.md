@@ -111,8 +111,9 @@ label drives an automatic action that cannot be done twice.
 ## Where this is measured, and where it is not
 
 Topic questions are reading questions, which is where jevos is strongest: on our 999-question
-test set, questions about facts stated in the text scored 0.954 and questions about intent
-0.859. We have not measured "mainly" questions on mixed messages as their own group, so we have
+test set, the first jevos scored 0.954 on questions about facts stated in the text and 0.859 on
+intent (per-kind numbers for jevos-v4 are not published; its overall score on that set is
+78.9%). We have not measured "mainly" questions on mixed messages as their own group, so we have
 no number for how often jevos picks the same dominant topic a person would. On your own data,
 this is easy to test: label 30 mixed messages by hand and compare, as described on
 [building a yes/no test set for your own data](building-a-yes-no-test-set.md). For the routing
@@ -140,7 +141,7 @@ tagging, or send close pairs to a person.
 
 ## Sources
 
-- 0.954 on stated facts and 0.859 on intent: our 999-question test set, `jevos-q4_k_m`.
+- 0.954 on stated facts and 0.859 on intent: our 999-question test set, measured on the first jevos. jevos-v4 overall: 78.9%.
 - Definition of multi-label classification and binary relevance:
   [Multi-label classification on Wikipedia](https://en.wikipedia.org/wiki/Multi-label_classification),
   fetched 2026-09-29.

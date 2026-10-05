@@ -31,7 +31,9 @@ as a decision layer that avoids asking an LLM to choose the route.
 
 In a yes/no router, each route is a question: "Does the customer ask to cancel their
 subscription?". The model reads the message with the question and returns P(yes), and code picks
-the route from the probabilities.
+the route from the probabilities. jevos-v4 also has a `choice` question that returns the most
+probable of several options with a probability per option and a `confidence`; one yes/no question
+per route is still the way when a message can match several routes.
 
 | | Semantic routing | Yes/no questions |
 |---|---|---|
@@ -60,8 +62,8 @@ the route from the probabilities.
   pause" share most of their words and topic. Similarity measures closeness of meaning overall;
   a question asks about one condition. Test these pairs on your own router before trusting
   either approach. The question-side advice is on
-  [negation in yes/no questions](negation-in-yes-no-questions.md), where jevos scored 0.858 on
-  negation questions in our 999-question test.
+  [negation in yes/no questions](negation-in-yes-no-questions.md), where the first jevos scored 0.858 on
+  negation questions in our 999-question test (per-kind numbers for jevos-v4 are not published).
 - **Routes that depend on a rule.** "Is this a refund request for an item delivered within 30
   days?" is not a topic, and no set of example utterances captures it. Put the rule in the
   question, and the computation of the 30 days in code.
@@ -96,7 +98,7 @@ is on [an LLM router with yes/no questions](llm-router-with-yes-no-questions.md)
 - **We did not benchmark the two on the same set.** Nothing on this page is a measured
   comparison of routing accuracy. The only jevos numbers here are latency on our reference laptop
   and accuracy by kind of question on our own test set.
-- **A yes/no router is not free at scale.** At 26 ms for a short request on a laptop CPU, a single
+- **A yes/no router is not free at scale.** At 28 ms for a short request on a laptop CPU, a single
   server answers a limited number of messages per second. For very high volume, similarity first
   is the cheaper design.
 - **Similarity cut-offs and probability thresholds both need tuning.** Neither is right out of
@@ -135,8 +137,8 @@ and [LLM decisions vs keyword rules and regex](llm-decisions-vs-keyword-rules.md
 
 - Semantic Router: the [aurelio-labs/semantic-router README](https://github.com/aurelio-labs/semantic-router)
   on GitHub, for `Route` objects, utterances, encoders and the `None` result, fetched 2026-09-29.
-- Our measurements: the three-question timing and the 26 ms short-request latency from the
-  [jev README](https://github.com/feder-cr/jev); the 0.858 on negation from our 999-question set.
+- Our measurements: the three-question timing and the 28 ms short-request latency from the
+  [jev README](https://github.com/feder-cr/jev); the 0.858 on negation from our 999-question set (first jevos).
 
 ---
 

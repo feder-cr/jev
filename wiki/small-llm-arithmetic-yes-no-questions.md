@@ -1,6 +1,6 @@
 ---
 title: "Small LLMs and arithmetic in yes/no questions"
-description: "A 1B LLM answers 0.95 of reading questions right and 0.58 of questions that need a sum. Measured on two test sets, and how to design around it."
+description: "A small LLM answers 0.95 of reading questions right and 0.58 of sum questions (first jevos). Measured on two test sets, and how to design around it."
 parent: "Measurements"
 nav_order: 2
 ---
@@ -8,12 +8,13 @@ nav_order: 2
 # Small LLMs and arithmetic in yes/no questions
 
 **A small language model that answers in one pass is good at reading a text and poor at
-computing from it.** On 999 yes/no questions written after training, jevos answered 0.954 of
+computing from it.** On 999 yes/no questions written after the first jevos was finished, it answered 0.954 of
 the questions about a fact stated in the text correctly, and 0.584 of the 221 questions that
 needed a sum, a difference or a product. Questions that compare a number with a threshold
 (0.654) and questions about dates and durations (0.598) sit in between, closer to the bottom.
 
-A second test, built so that every answer is computed by code, reproduces the same shape. So
+These per-kind numbers belong to the first jevos; per-kind numbers for jevos-v4 are not published
+(it is right on 78.9% of the 999 overall). A second test, built so that every answer is computed by code, reproduces the same shape. So
 this is a property of the model, not of one set of questions, and the practical conclusion is
 the same either way: do not ask the model to calculate.
 
@@ -23,7 +24,7 @@ questions and split work so the weakness never reaches your results.
 ## Measured on 999 new questions
 
 Each question in the set is labelled with the reasoning it needs. Grouped from easiest to
-hardest:
+hardest, as measured on the first jevos:
 
 | Kind | Example of the shape | Questions | Accuracy |
 |---|---|---|---|
@@ -50,7 +51,8 @@ no, the average P(yes) is 0.59, as measured on [why a small LLM says yes](why-a-
 
 ## Measured again, with answers computed by code
 
-A hand-written test can be wrong in its own way, so we built a second one where no person
+A hand-written test can be wrong in its own way, so we built a second one (run on an earlier
+jevos, not on jevos-v4) where no person
 decides the answer: 1,000 yes/no questions generated from templates over orders, leave requests,
 servers, loans, courses, shipments, rentals, prescriptions and bookings, with every answer
 computed by code from the numbers in the text.
@@ -73,14 +75,14 @@ How to build one for your own data is on [generating test questions with code](g
 
 ## Why one pass cannot carry a sum
 
-jevos reads the text and the question and produces one number, without writing anything out.
+jevos reads the text and the question and answers with a probability, without writing anything out.
 A person checking "do 89.90 and 25.00 come to more than 110?" does the addition first and then
 compares. A model that answers in a single pass has to do both inside one computation, with no
 place to hold the intermediate total.
 
 Large models asked to reason step by step get around this by writing the steps as text and
 reading them back. That is exactly the generation jevos does not do, and it is the reason it
-answers in 25 to 110 ms on a CPU instead of seconds. The trade is deliberate, and it means the
+answers in 28 to 130 ms on a CPU instead of seconds. The trade is deliberate, and it means the
 arithmetic has to happen somewhere else. The same reading-versus-computing split is the thread
 of [small language models explained](small-language-models-explained.md).
 
@@ -114,8 +116,8 @@ answers well. Whether the two are the same question depends on your use.
 
 ## Short answers to the questions that lead here
 
-**Can a small LLM do arithmetic?** Not reliably in one pass. jevos is right on 0.584 of our
-arithmetic yes/no questions against 0.954 on stated facts.
+**Can a small LLM do arithmetic?** Not reliably in one pass. the first jevos was right on 0.584 of our
+arithmetic yes/no questions against 0.954 on stated facts (not measured per kind on jevos-v4).
 
 **Why is an LLM bad at maths?** A model that answers without writing intermediate steps has
 nowhere to hold a partial result. Larger models asked to reason step by step compensate by
@@ -137,9 +139,9 @@ and [zero-shot text classification with yes/no questions](zero-shot-text-classif
 
 ## Sources
 
-- Our 999-question test set, written after training and never used for tuning, run on
-  `jevos-q4_k_m`; per-kind accuracies recomputed from the per-question results for this page.
-- Our generated 1,000-question set with answers computed by code, run on the released jevos.
+- Our 999-question test set, written after the first jevos was finished, run on
+  the first jevos; per-kind accuracies recomputed from the per-question results for this page.
+- Our generated 1,000-question set with answers computed by code, run on an earlier jevos.
 
 ---
 

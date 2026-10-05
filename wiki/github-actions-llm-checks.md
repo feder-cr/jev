@@ -37,16 +37,16 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: jev
-          key: jevos-v2-openvino-int8-linux-x64
+          key: jevos-v4-openvino-int8-linux-x64
       - name: Binary and model
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ ! -x jev/jev ]; then
-            gh release download jevos-v2 --repo feder-cr/jev \
-              -p 'jev-linux-x64.tar.gz' -p 'jevos-v2-openvino-int8.zip'
+            gh release download jevos-v4 --repo feder-cr/jev \
+              -p 'jev-linux-x64.tar.gz' -p 'jevos-v4-openvino-int8.zip'
             tar -xzf jev-linux-x64.tar.gz
-            (cd jev && unzip ../jevos-v2-openvino-int8.zip)
+            (cd jev && unzip ../jevos-v4-openvino-int8.zip)
           fi
       - name: Decide
         run: |
@@ -89,7 +89,7 @@ because a cached file is reused silently for as long as the cache lives.
 10 GB of cache per repository and remove entries "that have not been accessed in over 7 days", so
 the `jev/` folder with its model fits, and a repository with rare pull requests will
 sometimes download again. Put everything that changes the files into the key: the release
-(`jevos-v2`), the model format (`openvino-int8`) and the platform. When you move to a newer
+(`jevos-v4`), the model format (`openvino-int8`) and the platform. When you move to a newer
 release, change the key.
 
 ## Assertions that do not flap
@@ -100,7 +100,7 @@ change. Three habits keep CI signal useful:
 - **Assert with a margin.** Expect a yes above, say, 0.8 and a no below 0.2, and keep the cases in
   between out of the blocking set.
 - **Prefer reading questions.** "Does the reply mention a refund?" is stable. "Is the total in the
-  reply correct?" is arithmetic, where our 999-question test put a small model at 0.584; compute
+  reply correct?" is arithmetic, where the first jevos scored 0.584 on our 999-question test (per-kind numbers for jevos-v4 are not published); compute
   totals in the test script instead, as
   [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md) argues.
 - **Report, then block.** Run the checks as non-blocking for a while, look at the distribution of
@@ -112,8 +112,8 @@ patterns on [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md).
 
 ## What we have not measured
 
-We have not timed jevos on a GitHub-hosted runner. Our latency figures, 26 ms for a 30-token
-request and 112 ms for 191 tokens, are from an Intel Core Ultra 7 255H with 16 threads; a
+We have not timed jevos on a GitHub-hosted runner. Our latency figures, 28 ms for a short
+request and 130 ms for a long one, are from an Intel Core Ultra 7 255H with 16 threads; a
 4-CPU runner is likely slower, by an amount we do not know. We have also not timed the model load,
 which every `jev decide` call pays. For more than a few dozen files, start `jev serve` in the
 background in one step and post the requests to it in the next, so the model loads once.
@@ -124,7 +124,7 @@ background in one step and post the requests to it in the next, so the model loa
 documents have no GPU listed, and jevos is built for the CPU.
 
 **What does the job download?** Two release assets: `jev-linux-x64.tar.gz`, with the binary
-and its libraries, and `jevos-v2-openvino-int8.zip`, the model.
+and its libraries, and `jevos-v4-openvino-int8.zip`, the model.
 
 **Does it need secrets?** Only `GITHUB_TOKEN` for `gh`, which GitHub provides. Nothing is sent to
 a model provider.
@@ -143,7 +143,7 @@ piece; adapt it and run it on a branch first.
 
 - The release assets and their layout, `jev decide` and `--output`: the
   [jev README](https://github.com/feder-cr/jev) and the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2). Latencies: the README.
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v4). Latencies: the README.
 - [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners),
   [dependency caching](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching)
   and [using GitHub CLI in workflows](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-github-cli),

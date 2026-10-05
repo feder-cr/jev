@@ -28,8 +28,9 @@ between unsupported and contradicted, how to score, and what the check misses.
 joined by AND, and a model answering it in one pass has to find the one weak link among many
 strong ones. Splitting it turns one hard question into several easy ones, each of which is a
 plain reading task: does this text say this thing? That is the kind of question small models
-answer best. On our 999 test questions jevos was right 0.954 of the time on stated facts and
-0.893 on paraphrases, against 0.721 on applying a rule. The general argument is on
+answer best. On our 999 test questions the first jevos was right 0.954 of the time on stated facts and
+0.893 on paraphrases, against 0.721 on applying a rule (per-kind numbers for jevos-v4 are not
+published). The general argument is on
 [one condition per question](one-condition-per-question.md).
 
 This is also how published metrics define it. Ragas computes faithfulness as the number of claims
@@ -101,8 +102,8 @@ and count the two cells separately in reports.
 
 The fourth row is a free consistency check. A claim that scores high on both questions is one
 the judge does not understand, and those are worth collecting: they are usually claims with
-numbers, dates or a negation buried in them. Negation is a known trap; on our test set jevos
-scored 0.858 on negation questions, and phrasing advice is on
+numbers, dates or a negation buried in them. Negation is a known trap; on that test set the first
+jevos scored 0.858 on negation questions, and phrasing advice is on
 [negation in yes/no questions](negation-in-yes-no-questions.md).
 
 ## From claims to a faithfulness score
@@ -111,8 +112,8 @@ scored 0.858 on negation questions, and phrasing advice is on
   Ragas definition. Add a hard fail if any claim is contradicted.
 - **Per system:** the mean per-answer score over a test set, plus the rate of answers with at
   least one contradicted claim. The second number is the one users feel.
-- **Threshold:** raise the bar for "supported" above 0.5. jevos leans toward yes on questions it
-  cannot work out, measured on [why a small LLM says yes](why-a-small-llm-says-yes.md), and a
+- **Threshold:** raise the bar for "supported" above 0.5. the first jevos leaned toward yes on questions it
+  could not work out, measured on [why a small LLM says yes](why-a-small-llm-says-yes.md), and a
   lenient bar turns that lean into inflated faithfulness.
 
 ## What the check misses
@@ -152,7 +153,7 @@ measures consistency with the sources, not with the world.
 ## Sources
 
 - Accuracy by kind of question (stated fact, paraphrase, rule, negation) and the yes/no error
-  split: our 999-question test set, run on `jevos-q4_k_m`.
+  split: our 999-question test set, run on the first jevos.
 - Ragas faithfulness metric definition,
   [docs.ragas.io](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/),
   fetched 2026-09-29.

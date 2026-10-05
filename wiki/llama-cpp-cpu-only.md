@@ -92,14 +92,14 @@ alternative `mlock` pins the model in RAM so it cannot be swapped out; the docs 
 improve performance but trades away some of the advantages of memory-mapping by requiring more
 RAM to run and potentially slowing down load times."
 
-For the jevos GGUF files the numbers are small: the q4_k_m file is 619 MB and memory use grows by
-about 1.2 GB with it loaded in llama.cpp, with a context of up to 8,192 tokens. That fits
+For jevos the numbers are small: jev needs about 1 GB with the model loaded, up to 1.4 GB with
+the text cache full, with a context of up to 8,192 tokens. That fits
 alongside normal work on most machines, which is what makes CPU-only practical for it.
 
 ## What CPU only gives and what it costs
 
-On the CPU, jev on the reference laptop answers a short request (about 30 tokens) in 26 ms and a
-long one (about 190 tokens) in 112 ms, each read from scratch. Cost grows with the length of the
+On the CPU, jev on the reference laptop answers a short request in 28 ms and a
+long one in 130 ms, each read from scratch. Cost grows with the length of the
 text, so the CPU is comfortable for messages, tickets and records, and slower for long
 documents.
 
@@ -132,7 +132,8 @@ cores holding up each step, or other programs using the same cores.
 ## Sources
 
 - Our own measurements and facts: latency, tokens, memory and context of jevos on the reference
-  laptop with 16 threads, and the `--threads` guidance and default, from the
+  laptop with 16 threads (latency measured with jevos-v3, same size and speed as jevos-v4), and
+  the `--threads` guidance and default, from the
   [jev README](https://github.com/feder-cr/jev).
 - [llama-server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md),
   fetched 2026-09-29: `--threads`, `--threads-batch`, `--device`, `-ngl`, `--list-devices`,

@@ -14,9 +14,9 @@ compares any amounts and dates against your own criteria, and a person makes the
 gets a meeting. The model saves the reading, not the judgment.
 
 The trap in lead scoring is asking the model for the score. A lead score is usually points
-added up across several signals and compared with a cut-off. On our comparison of 2,000
-policy questions, that shape, additive point scores, was where jevos fell furthest behind the
-hosted Jev. Ask the model for each signal, and add the points in code.
+added up across several signals and compared with a cut-off. On the fraud-points task, where
+a score is added up from six rules, jevos-v4 got 0.50 right against 0.69 for the hosted Jev.
+Ask the model for each signal, and add the points in code.
 
 This page is the questions, why "not stated" is the most common answer, where numbers go, how
 code turns signals into a queue, why a person decides, and what local changes for sales data.
@@ -54,9 +54,9 @@ something you do not offer is visible at once.
 
 Real inbound messages are short. "Hi, can we get a demo?" states no budget, no timeline and no
 role. A good qualification pass must say no to all of those, not guess. Questions of the form
-"does the text say X at all" scored 0.847 on our 999 new yes/no questions, and on the ones
-whose answer was no the mean P(yes) was 0.23, low enough to trust as a "not stated". The design
-of such gate questions is on [ask whether the text says it at all](ask-whether-the-text-says-it.md).
+"does the text say X at all" scored 0.847 on the first jevos's 999 new yes/no questions (per-kind
+numbers for jevos-v4 are not published). The design of such gate questions is on
+[ask whether the text says it at all](ask-whether-the-text-says-it.md).
 
 "Not stated" is information, not a failure. It tells the salesperson which questions to ask on
 the first call.
@@ -65,8 +65,9 @@ the first call.
 
 "Roughly 40k budgeted" is a number. Whether 40k clears your minimum deal size, whether March is
 within your sales cycle, and whether 51 to 200 employees is in your target segment are
-comparisons. On our test set, number-against-threshold questions scored 0.654 and arithmetic
-0.584, with a lean toward yes when the model cannot work it out; the measurement is on
+comparisons. On the first jevos's test set, number-against-threshold questions scored 0.654 and
+arithmetic 0.584, with a lean toward yes when the model cannot work it out (per-kind numbers for
+jevos-v4 are not published); the measurement is on
 [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md).
 
 So the model answers "is a budget mentioned?" and your code extracts the amount with a pattern,
@@ -106,8 +107,8 @@ to keep it that way:
 
 - **The model reads; it does not know your market.** A lead with no budget stated can be the
   biggest deal of the year.
-- **Errors lean toward yes.** On our 999-question set, wrong yeses outnumbered wrong noes 152
-  to 91. A wrong "decides: yes" sends a salesperson after someone who cannot sign.
+- **Errors lean toward yes.** On the first jevos's 999-question set, wrong yeses outnumbered
+  wrong noes 152 to 91. A wrong "decides: yes" sends a salesperson after someone who cannot sign.
 - **Decisions about people.** Filtering people out automatically may have legal rules attached
   where you operate. The design pattern of a human review step is discussed on
   [GDPR and automated decision-making with an LLM](gdpr-and-automated-decision-making.md);
@@ -122,8 +123,8 @@ five minutes are worth the most, and sizing it is covered on
 Lead messages contain names, companies, budgets and plans that the writer shared with you, not
 with a model provider. A local model reads them where they already are, costs nothing per lead,
 and a message of this length is answered in a fraction of a second on our reference laptop
-(26 ms for a short request, 112 ms for about 190 tokens). Seven questions share one reading of
-the message.
+(28 ms for a short request, 130 ms for a long one). Seven questions share one reading of the
+message.
 
 What local does not fix: jevos reads English only, it has not been measured on sales leads, and
 it will not know that "our CFO" means a longer cycle at that company. Those are for the person
@@ -136,7 +137,7 @@ reading the queue.
 team.
 
 **Should the model give a lead score?** No. Ask for each signal and add the points in code;
-summed scores were the model's weakest shape in our comparison.
+summed scores were the model's weakest shape (0.50 vs 0.69 for the hosted Jev on fraud points).
 
 **How does it handle leads that say almost nothing?** It should answer no to "is a budget
 mentioned?" and similar questions. That tells the salesperson what to ask.
@@ -150,11 +151,11 @@ and [intent detection with a local LLM](intent-detection-with-a-local-llm.md).
 
 ## Sources
 
-- The 2,000-question policy comparison (jevos 0.810, Jev 0.927) and latency 26 and 112 ms: the
-  [jev README](https://github.com/feder-cr/jev). That the gap is largest on additive point
-  scores is our own breakdown of the same comparison.
-- Not stated 0.847, mean P(yes) 0.23 on its no-answers, number 0.654, arithmetic 0.584, error
-  direction 152 vs 91: our 999-question test set, `jevos-q4_k_m`.
+- The six-task comparison (fraud points 0.50 vs 0.69; five of the six sets helped choose the
+  released checkpoint) and latency 28 and 130 ms (measured with jevos-v3, same size and speed as
+  jevos-v4): the [jev README](https://github.com/feder-cr/jev).
+- Not stated 0.847, number 0.654, arithmetic 0.584, error direction 152 vs 91: our 999-question
+  test set, measured on the first jevos.
 - Points and thresholds in the code are illustrative.
 
 ---

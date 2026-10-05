@@ -112,8 +112,8 @@ also where the judge itself is least reliable. Choosing the two numbers from lab
 than guessing them, is the subject of
 [how to choose a threshold for P(yes)](how-to-choose-a-threshold-for-p-yes.md).
 
-Make the bands asymmetric where the error costs are. jevos leans toward yes on questions it cannot
-work out, so an expected-yes check deserves a higher pass bar than an expected-no check deserves a
+Make the bands asymmetric where the error costs are. The first jevos leaned toward yes on questions it
+could not work out (per-kind numbers are not published for jevos-v4), so an expected-yes check deserves a higher pass bar than an expected-no check deserves a
 low one.
 
 ## Why LLM tests are flaky, and what to do
@@ -176,8 +176,8 @@ one `jev serve` per job may be simpler. Measure both on your runner.
 
 - `jev decide`, `--output`, `/health` and `SHA256SUMS.txt`: the
   [jev README](https://github.com/feder-cr/jev) and the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
-- The lean toward yes: our 999-question test set, `jevos-q4_k_m`.
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v4).
+- The lean toward yes: our 999-question test set, measured on the first jevos.
 - The shell and Python snippets are sketches written for this page, not tested scripts.
 
 ---

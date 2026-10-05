@@ -79,9 +79,9 @@ carries the missing information.
 ## Speed and size
 
 A Sentence Transformer with a classification head is a light model. SetFit's zero-shot page
-reports about 0.46 ms per sentence for its example model, on its own setup. jevos is a 1B-class
-model with 8-bit weights on the CPU: 26 ms for a request of about 30 tokens and 112 ms for one of
-about 190, on an Intel Core Ultra 7 255H with 16 threads.
+reports about 0.46 ms per sentence for its example model, on its own setup. jevos is a language
+model with 8-bit weights on the CPU: 28 ms for a short request and 130 ms for a long one, on an
+Intel Core Ultra 7 255H with 16 threads.
 The hardware differs, so do not divide one by the other, but the class is clear: per text, an
 embedding classifier costs far less compute.
 
@@ -124,7 +124,7 @@ practical start.
 with a template, per its zero-shot guide.
 
 **Is SetFit faster than jevos?** Per text, an embedding classifier needs far less compute than a
-1B-class model. We have not measured both on the same hardware.
+language model. We have not measured both on the same hardware.
 
 **Which supports other languages?** SetFit, through multilingual checkpoints. jevos is English only.
 

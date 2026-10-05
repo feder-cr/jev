@@ -8,8 +8,8 @@ nav_order: 12
 # Throughput vs latency for a decision server
 
 **Latency is how long one decision takes; throughput is how many decisions a server completes
-per second, and one does not tell you the other.** Our published jevos figures, 26 ms for a
-short request and 112 ms for a long one on a laptop CPU, are latency: one request at a time, on
+per second, and one does not tell you the other.** Our published jevos figures, 28 ms for a
+short request and 130 ms for a long one on a laptop CPU, are latency: one request at a time, on
 an idle machine. They say nothing about what happens when a hundred requests arrive together,
 which depends on how the server schedules work, how long the queue gets, and how many copies of
 it you run.
@@ -21,8 +21,8 @@ changing.
 
 This page is the two definitions, the one law that connects them, how jev serve handles
 concurrent requests, the kinds of batching, and how to measure capacity for your own traffic.
-The one concurrency measurement of jevos here is from one laptop: a starting point for yours,
-not a capacity figure.
+The one concurrency measurement here is from one laptop and from an earlier jevos version (it
+was not repeated on jevos-v4): a starting point for yours, not a capacity figure.
 
 ## Two numbers, two questions
 
@@ -61,7 +61,8 @@ is only the model's work. So under load, a growing gap between `total` and `infe
 queue, visible per response.
 
 We measured it with one-question requests from our 999-question set, on the reference laptop
-(Intel Core Ultra 7 255H, 16 threads):
+(Intel Core Ultra 7 255H, 16 threads), with an earlier jevos version; the numbers for jevos-v4
+are not published, and its single-request latency is the 28 ms and 130 ms above:
 
 | Concurrent clients | Requests per second | Median latency |
 |---|---|---|
@@ -127,9 +128,10 @@ throughput is how many requests a system completes per second under load.
 **Does low latency mean high throughput?** Not by itself. It sets a ceiling when requests are
 served one at a time; batching and more copies raise throughput beyond it.
 
-**How many requests per second can jevos handle?** On our laptop, one process answered about 9
-to 10 one-question requests per second, with the median latency growing from 110 ms at one
-client to 780 ms at eight. Measure with your traffic.
+**How many requests per second can jevos handle?** With an earlier jevos version on our laptop,
+one process answered about 9 to 10 one-question requests per second, with the median latency
+growing from 110 ms at one client to 780 ms at eight; not measured on jevos-v4. Measure with
+your traffic.
 
 **Does jev serve process requests in parallel?** Partly. Small requests that arrive together are
 read in one model call; the others wait, and the wait is included in the `total` duration of
@@ -144,8 +146,8 @@ or machines once one is saturated.
 
 ## Sources
 
-- Single-request latencies, the three-question timing, the concurrent-client measurement,
-  memory, and the `Server-Timing` header: our measurements and the
+- Single-request latencies, the three-question timing, the concurrent-client measurement
+  (earlier jevos version), memory, and the `Server-Timing` header: our measurements and the
   [jev README](https://github.com/feder-cr/jev). Requests read together and queue time counted
   in `total`: the jev source.
 - Little's law: [Little's law, Wikipedia](https://en.wikipedia.org/wiki/Little%27s_law), fetched

@@ -67,9 +67,11 @@ As single conditions, with the numbers left to code:
 
 The 30-day window and the 20-dollar floor are no longer questions at all. Your system has the
 delivery date and the order total as fields, and code compares them exactly. That matters
-because a rule question is where a small model is weaker: 0.721 on applying a stated rule on
-our 999-question set, against 0.954 on reading a stated fact, and 0.584 when the question
-needs arithmetic. Splitting moves each condition toward the reading end of that range. The
+because a rule question is where a small model is weaker. On the first jevos, our 999-question
+set gave 0.721 on applying a stated rule, against 0.954 on reading a stated fact, and 0.584 when
+the question needs arithmetic (per-kind numbers for jevos-v4 are not published). The same gap
+shows in the six-task results: 0.95 for jevos-v4 on admission-policy yes/no rules, and 0.50 against
+0.69 for the hosted Jev on fraud points, which are sums. Splitting moves each condition toward the reading end of that range. The
 wider version of this argument is on
 [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
@@ -135,7 +137,7 @@ once.
 
 ## Sources
 
-- Accuracy on rule, fact and arithmetic questions: our 999-question test set, `jevos-q4_k_m`.
+- Accuracy on rule, fact and arithmetic questions: our 999-question test set, measured on the first jevos; the six-task results: the jev README.
 - The 66 ms and 49 ms timings: the [jev README](https://github.com/feder-cr/jev).
 - Definition and examples of double-barreled questions:
   [Double-barreled question on Wikipedia](https://en.wikipedia.org/wiki/Double-barreled_question),

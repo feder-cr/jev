@@ -69,9 +69,9 @@ they tested. Their conservative fix is to call the judge twice with the order sw
 a win only when an answer is preferred in both orders.
 
 A yes/no judge adds a second, related effect. A question of the form "is the first better than the
-second?" has a yes and a no, and jevos leans toward yes on questions it cannot work out: on our
-999-question test set it made 152 wrong yeses against 91 wrong noes. Without a swap, that lean
-would read as a preference for whichever answer sits first. We have not measured jevos on
+second?" has a yes and a no, and the first jevos leaned toward yes on questions it could not work out: on our
+999-question test set it made 152 wrong yeses against 91 wrong noes (not measured per kind on jevos-v4). Without a swap, that lean
+would read as a preference for whichever answer sits first. We have not measured jevos-v4 on
 pairwise comparisons, so treat both effects as present until your own swap test says otherwise.
 
 ## Combining the two orders
@@ -154,7 +154,7 @@ English, it is worth testing with the swap. We have not measured it ourselves.
   [arXiv:2306.05685](https://arxiv.org/abs/2306.05685) and its
   [HTML version](https://arxiv.org/html/2306.05685v4), fetched 2026-09-29: position bias
   measurement, the swap-and-agree approach, verbosity bias.
-- The yes/no error split (152 against 91): our 999-question test set, `jevos-q4_k_m`.
+- The yes/no error split (152 against 91): our 999-question test set, measured on the first jevos.
 - The swap formula and its cancellation argument are arithmetic, not a measurement.
 
 ---

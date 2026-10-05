@@ -38,23 +38,25 @@ read.
 
 ## What a yes/no model is good at
 
-Reading. On our 999 questions written after training, jevos was right 0.954 of the time on facts
-stated in the text, 0.938 on tone, 0.859 on intent and 0.858 on negation. "Does the customer say
+Reading. On our 999 questions written after training, the first jevos was right 0.954 of the time
+on facts stated in the text, 0.938 on tone, 0.859 on intent and 0.858 on negation (per-kind
+numbers for jevos-v4, 78.9% overall, are not published). "Does the customer say
 the item was missing?" is exactly that kind of question, and it works on text that no keyword
 list would cover.
 
-It is weaker exactly where the engine is strong. On the same set: 0.721 on applying a rule, 0.654
-on comparing a number with a threshold, 0.598 on dates and 0.584 on arithmetic. On 2,000 questions
-about three business policies, jevos reached 0.810 against 0.927 for TypeSafe's hosted Jev,
-and the gap was widest on additive point scores, where several signals are summed and compared
-with a cut-off. That is a rules engine's home ground.
+It is weaker exactly where the engine is strong. On the same set, first jevos: 0.721 on applying
+a rule, 0.654 on comparing a number with a threshold, 0.598 on dates and 0.584 on arithmetic. On
+the six-task comparison, jevos-v4 reached 0.95 against 1.00 for TypeSafe's hosted Jev on yes/no
+admission rules, and 0.50 against 0.69 on fraud points, where several signals are summed and
+compared with a cut-off (five of the six sets helped choose the released checkpoint, so the
+scores may be slightly optimistic). Sums and cut-offs are a rules engine's home ground.
 
 ## The split, with the README's refund case
 
 The README asks the model a single question with the policy inside it: "Our policy refunds items
 reported missing within 30 days of delivery. Should this customer get a refund?" about a wireless
 mouse delivered 5 days ago, whose customer wrote "The box arrived empty. This is the second
-time!" The answer was 0.78. That is a reasonable answer, and it mixes two jobs: reading the
+time!" The answer was 0.93. That is a reasonable answer, and it mixes two jobs: reading the
 complaint and checking the date.
 
 Split, the model gets only the reading:
@@ -97,7 +99,7 @@ An engine wants booleans; the model gives probabilities. Three habits bridge the
 - **Two thresholds, not one.** Above the upper one the fact is true, below the lower one false,
   and in between it is "unknown", which the rules route to a person. The band is the subject of
   [human in the loop AI with a review band](human-in-the-loop-ai-with-a-review-band.md).
-- **Stricter bars for expensive yeses.** On our 999-question set the model's errors leaned toward
+- **Stricter bars for expensive yeses.** On our 999-question set the first jevos's errors leaned toward
   yes, 152 wrong yeses against 91 wrong noes, so a fact that triggers a payment deserves a higher
   bar than one that triggers a reply.
 - **Positive facts.** Ask "does the customer say the item was missing?", not "is the item not
@@ -105,7 +107,7 @@ An engine wants booleans; the model gives probabilities. Three habits bridge the
 
 ## What the split does for audits
 
-With everything in one question, the audit trail is "the model said 0.78". With the split, it is
+With everything in one question, the audit trail is "the model said 0.93". With the split, it is
 the text, each question and its probability, the thresholds, the computed fields and the rule that
 fired. A policy change is visible as a changed rule rather than a changed prompt, and a disputed
 decision can be traced to the fact that was misread or the rule that applied. What to log is on
@@ -114,7 +116,7 @@ decision can be traced to the fact that was misread or the rule that applied. Wh
 ## Short answers to the questions that lead here
 
 **Can an LLM replace a rules engine?** No. The engine is exact on structured facts; a small model
-was right 0.721 of the time on rule questions in our test and 0.584 on arithmetic.
+was right 0.721 of the time on rule questions in our test and 0.584 on arithmetic (first jevos).
 
 **Can a rules engine read text?** Not by itself. It needs structured facts, and extracting them
 from free text is what a yes/no model is good at.
@@ -134,11 +136,11 @@ the text. The rules themselves are cheap.
 
 ## Sources
 
-- The refund example and its 0.78: the [jev README](https://github.com/feder-cr/jev).
+- The refund example and its 0.93: the [jev README](https://github.com/feder-cr/jev).
 - Accuracy by kind (fact, tone, intent, negation, rule, number, dates, arithmetic) and the 152 to 91
-  error split: our 999-question test set on `jevos-q4_k_m`.
-- 0.810 against 0.927 on 2,000 policy questions, and the additive point score gap: our own
-  measurement, published in the README.
+  error split: our 999-question test set on the first jevos, `jevos-q4_k_m`.
+- The six-task comparison (0.95 against 1.00, 0.50 against 0.69): our own measurement,
+  published in the README.
 - json-rules-engine description and features: its
   [GitHub repository](https://github.com/CacheControl/json-rules-engine), fetched 2026-09-29.
 

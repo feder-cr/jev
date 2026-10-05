@@ -35,9 +35,10 @@ The useful questions are about what the alert says, not about what the numbers a
 - **Data risk**: "Does the message mention lost, corrupted or exposed data?"
 - **Stated cause**: "Does the error message say what caused the failure?"
 
-These sit in the part of our test results where a small model does well. On 999 yes/no
-questions written after training, over texts that included logs, stated facts were answered
-right 0.954 of the time and "the text does not say" 0.847. The last one matters for alerts:
+These sit in the part of our test results where a small model does well. On 999 hand-written
+yes/no questions, over texts that included logs, the first jevos answered stated facts right
+0.954 of the time and "the text does not say" 0.847 (measured on the first jevos; per-kind
+numbers for jevos-v4 are not published). The last one matters for alerts:
 "Does the error message say what caused the failure?" is a gate that stops the model from
 guessing a cause the log does not contain. The pattern is on
 [ask whether the text says it at all](ask-whether-the-text-says-it.md).
@@ -85,21 +86,21 @@ matched, which you want in the log when someone asks why an alert was down-ranke
 ## What should stay in code?
 
 Anything that is a comparison of numbers or times. Alert data is full of them: error rates,
-latencies, counts per minute, timestamps. On the same 999-question set, questions that
-compared a number with a threshold were right 0.654 of the time, dates and times 0.598, and
+latencies, counts per minute, timestamps. On the same 999-question set, the first jevos got questions that
+compared a number with a threshold right 0.654 of the time, dates and times 0.598, and
 arithmetic 0.584. "Is the error rate above 5%?" is a question for code, and so is "Did this
 start within ten minutes of the last deploy?".
 
-The model also leans toward yes on questions it cannot compute: of its mistakes on that set,
-152 were wrong yeses and 91 wrong noes, and the lean sat mostly on numbers and dates. In alert
+The first jevos also leaned toward yes on questions it could not compute: of its mistakes on that
+set, 152 were wrong yeses and 91 wrong noes, and the lean sat mostly on numbers and dates. In alert
 triage a wrong yes on "known benign" hides a real problem. Give that question a high bar, and
 never let it suppress an alert that your metric rules consider critical. The measurement is on
 [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md).
 
 ## Can it keep up with an alert stream?
 
-On our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU) a short request of about
-30 tokens took 26 ms and a longer one of about 190 tokens 112 ms. Several questions on one alert cost much less than several requests, because the alert
+On our reference laptop (Intel Core Ultra 7 255H, 16 threads, no GPU) a short request
+took 28 ms and a long one 130 ms. Several questions on one alert cost much less than several requests, because the alert
 is read once.
 
 That is comfortable for alerts, which arrive in tens or hundreds per hour after deduplication.
@@ -133,9 +134,9 @@ not silence.
 questions need.
 
 **Should the model decide whether a metric crossed a threshold?** No. Compare numbers in code;
-number and date questions were among the weakest on our test set.
+number and date questions were among the weakest on our test set (first jevos).
 
-**Is it fast enough for real-time alerts?** On a laptop CPU a short request took 26 ms. That fits
+**Is it fast enough for real-time alerts?** On a laptop CPU a short request took 28 ms. That fits
 an alert stream, not a raw log stream.
 
 **Is this a security tool?** No. It helps sort operational alerts. Security detection needs
@@ -149,8 +150,8 @@ dedicated tools and people.
 
 - Our measurements: latency and the reference laptop from the
   [jev README](https://github.com/feder-cr/jev); accuracy by kind of question and the 152 to 91
-  error split from our 999-question test set on `jevos-q4_k_m`. No alert-triage set was
-  measured.
+  error split from our 999-question test set, measured on the first jevos. Latency was measured
+  with jevos-v3 (same size and speed as jevos-v4). No alert-triage set was measured.
 - OWASP, [Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html),
   data to exclude from logs, fetched 2026-09-29.
 

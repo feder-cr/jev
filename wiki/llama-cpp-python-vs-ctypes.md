@@ -41,9 +41,9 @@ under `vendor/llama.cpp`.
 ## What jev does instead
 
 jev takes neither route: it has no Python in it at run time. It is one native binary that runs
-jevos-v2 with 8-bit (INT8) weights through OpenVINO and compiles in llama.cpp's tokenizer, so
-its token ids match the GGUF files. For Python users, the jevos-v2 release also ships the model
-as GGUF files, `jevos-v2-q4_k_m.gguf` and `jevos-v2-q8_0.gguf`, which either approach on this
+jevos-v4 with 8-bit (INT8) weights through OpenVINO and compiles in llama.cpp's tokenizer, so
+its token ids match the GGUF files. For Python users, the jevos-v4 release also ships the model
+as GGUF files, `jevos-v4-q4_k_m.gguf` and `jevos-v4-q8_0.gguf`, which either approach on this
 page can load; jev itself does not read GGUF files.
 
 A thin binding of your own is usually a single Python module, limited to what scoring needs: no
@@ -54,7 +54,7 @@ with a clear message if a symbol is missing, then loads the compute backends tha
 ships as plug-ins next to the library.
 
 That is enough for a decision model such as jevos, which generates nothing: every answer is a
-probability read from the model's forward pass, with `output_tokens` always 0. Why that is
+probability read without generating any text, with `output_tokens` always 0. Why that is
 enough is covered on [why one forward pass beats generating an
 answer](why-one-forward-pass-beats-generation.md).
 
@@ -112,7 +112,7 @@ way. Python only pays for crossing into the library; we have not measured that c
 **Does jev use ctypes?** No. jev is one native binary with no Python at run time; it runs 8-bit
 OpenVINO weights and uses llama.cpp only as its compiled-in tokenizer.
 
-**Can I load jevos with llama-cpp-python?** The jevos-v2 release ships GGUF files, the format
+**Can I load jevos with llama-cpp-python?** The jevos-v4 release ships GGUF files, the format
 llama.cpp loads; you get the model, not jev's decision endpoint.
 
 **What happens if the runtime and the binding do not match?** A missing function is reported by

@@ -75,9 +75,10 @@ What the sweep trades is shown on
 ## One threshold per question
 
 Questions do not behave alike. On 999 new yes/no questions labelled by the kind of reasoning
-they need, `jevos-q4_k_m` ranged from 0.954 on stated facts and 0.938 on tone to 0.598 on dates
+they need, the first jevos ranged from 0.954 on stated facts and 0.938 on tone to 0.598 on dates
 and 0.584 on arithmetic, and the mean P(yes) on questions whose answer was no ranged from 0.16
-to 0.59. A single cut-off for all of them is right for none.
+to 0.59 (per-kind numbers for jevos-v4 are not published; its overall score on the same 999
+questions is 78.9%). A single cut-off for all of them is right for none.
 
 So keep thresholds in a table next to the questions:
 
@@ -112,7 +113,7 @@ A threshold is valid for the inputs it was chosen on. Choose again when:
   one; see [base rates](base-rates-and-yes-no-predictions.md).
 - **The model file changes.** `GET /health` reports the model's fingerprint, a SHA-256 over its files; log it with every
   decision so you know which file a threshold was chosen on. jev runs the 8-bit OpenVINO model;
-  the two GGUF builds in the release, `jevos-q4_k_m` and `jevos-q8_0`, are for other tools and
+  the two GGUF builds in the release, `jevos-v4-q4_k_m` and `jevos-v4-q8_0`, are for other tools and
   have not been compared on the same accuracy set, so treat a switch between any of them as a
   new model and re-check.
 
@@ -140,7 +141,7 @@ model file changes.
 ## Sources
 
 - Our measurements: accuracy and mean P(yes) by kind of question, 999-question set,
-  `jevos-q4_k_m`. The 0.5 rule in the README Python example, and the
+  first jevos. The 0.5 rule in the README Python example, and the
   `/health` fingerprint, are from the [jev repository](https://github.com/feder-cr/jev).
 - [scikit-learn, Tuning the decision threshold](https://scikit-learn.org/stable/modules/classification_threshold.html):
   default of 0.5, never tune and train on the same data, fetched 2026-09-29.

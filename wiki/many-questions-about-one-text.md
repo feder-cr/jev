@@ -28,7 +28,7 @@ them anyway, and what it does to the cost of a pipeline.
 | refund record, one question | 1 | 68 | 49 ms |
 | same record, three questions | 3 | 95 | about 66 ms |
 
-Measured with jevos-v2 on an Intel Core Ultra 7 255H with 16 threads, with the record read from
+Measured with jevos-v3 (the same size and speed as jevos-v4) on an Intel Core Ultra 7 255H with 16 threads, with the record read from
 scratch. The two extra questions added about 17 ms between them, roughly 8.5 ms each, against
 49 ms for the first.
 That per-question figure is arithmetic on these two measurements, not a measurement of its

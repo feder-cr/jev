@@ -84,13 +84,14 @@ is not yet evidence of anything, while the same gap in a bin of 400 is. Practica
 
 ## Draw one diagram per kind of question
 
-On the natural yes/no questions of our held-out split, `jevos-q8_0` had a calibration error of
+On the natural yes/no questions of our held-out split, the first jevos had a calibration error of
 0.009, which means a pooled diagram on that data hugs the diagonal. On 999 new questions,
-labelled by the kind of reasoning they need, the mean P(yes) on questions whose answer is no
+labelled by the kind of reasoning they need, the first jevos's mean P(yes) on questions whose answer is no
 ranged from 0.16 for tone to 0.59 for arithmetic. A pooled diagram of that set mixes a
 well-behaved kind with a leaning one. Split by kind, you would expect the arithmetic and date
 curves to sit below the diagonal, since their no-answers get an average P(yes) of 0.59 and
-0.53, while tone and negation stay much closer to it. The per-kind figures are on
+0.53, while tone and negation stay much closer to it. These per-kind figures were measured on the first jevos; per-kind numbers for jevos-v4 are not
+published. They are on
 [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md), and how to tag
 your own questions by kind is on [accuracy by kind of question](accuracy-by-kind-of-question.md).
 
@@ -131,8 +132,7 @@ not that they are sharp.
 ## Sources
 
 - Our measurements: calibration error 0.009 on 6,397 natural yes/no held-out questions
-  (`jevos-q8_0`); mean P(yes) on no-answer questions by kind, 999-question set
-  (`jevos-q4_k_m`).
+  (first jevos); mean P(yes) on no-answer questions by kind, 999-question set (first jevos).
 - The standard-error table is arithmetic for illustration, not a measurement.
 - [scikit-learn calibration_curve](https://scikit-learn.org/stable/modules/generated/sklearn.calibration.calibration_curve.html)
   and [Probability calibration](https://scikit-learn.org/stable/modules/calibration.html),
@@ -145,6 +145,6 @@ not that they are sharp.
 
 ---
 
-*From the notes of [jev](https://github.com/feder-cr/jev), where a pooled calibration error of
+*From the notes of [jev](https://github.com/feder-cr/jev), where, on the first jevos, a pooled calibration error of
 0.009 did not predict the yes-lean on new kinds of question, which is why this page insists on
 splitting by kind.*

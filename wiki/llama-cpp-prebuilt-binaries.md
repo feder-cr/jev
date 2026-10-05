@@ -12,7 +12,7 @@ ready-made archives for each operating system and backend, so you can run llama.
 compiler by downloading the archive that matches your machine.** For a service, the useful habit
 is to pin one release, record the sha256 of the archive you use, and report the release at
 runtime. jev itself does not load llama.cpp's runtime (it runs 8-bit OpenVINO weights and
-compiles in only llama.cpp's tokenizer), but the jevos-v2 release ships the model as GGUF files,
+compiles in only llama.cpp's tokenizer), but the jevos-v4 release ships the model as GGUF files,
 and those are what you would run on a prebuilt llama.cpp.
 
 Why it matters: a model's answers depend on two things, the GGUF file and the runtime that
@@ -122,7 +122,7 @@ llama.cpp directly.
 
 ## Sources
 
-- Our own facts: what jev runs, and the GGUF files in the jevos-v2 release, from the
+- Our own facts: what jev runs, and the GGUF files in the jevos-v4 release, from the
   [jev repository](https://github.com/feder-cr/jev).
 - [llama.cpp README](https://github.com/ggml-org/llama.cpp) and
   [releases page](https://github.com/ggml-org/llama.cpp/releases), fetched 2026-09-29:

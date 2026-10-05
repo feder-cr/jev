@@ -11,7 +11,7 @@ nav_order: 5
 such as "This text is about politics."; jevos classifies by asking, for each label, a yes/no
 question you write, such as "Is this message mainly about a refund?".** Both are zero-shot and
 both score labels independently when you want them to. The NLI model is smaller (0.4B parameters
-per its card), with a 1,024-position input; jevos is a 1B model with an 8,192-token context and
+per its card), with a 1,024-position input; jevos has an 8,192-token context and
 questions that can carry a rule, not only a topic. For short texts and topic labels the NLI model
 is the lighter tool. For longer texts, or labels that need a condition spelled out, a question is
 the more expressive unit.
@@ -90,8 +90,8 @@ you chunk. Chunking strategy is on
 We have not benchmarked bart-large-mnli, so there is no head-to-head number here. What can be
 said is the class of each. The NLI method scores one premise and hypothesis pair per label, so
 its cost grows with the number of labels times the length of the text. jevos runs on a CPU, one shared reading of the text plus a
-small cost per question: 26 ms for a request of about 30 tokens and 112 ms for about 190 on an
-Intel Core Ultra 7 255H with 16 threads.
+small cost per question: 28 ms for a short request and 130 ms for a long one on an
+Intel Core Ultra 7 255H with 16 threads (measured with jevos-v3, the same size and speed as jevos-v4).
 
 For a third-party reference point, the SetFit documentation reports bart-large-mnli at about 31
 ms per sentence in its own zero-shot example, measured on its setup. That number is theirs, not

@@ -79,8 +79,8 @@ work out who wrote what. That habit of naming the subject is the fourth rule on
 Anything your code can compute exactly, it should compute before the request:
 
 - **Durations, not dates.** `"delivered": "5 days ago"` rather than `"ordered_at"` and
-  `"delivered_at"` timestamps. On our 999-question test set, questions about dates and
-  durations scored 0.598; questions about facts stated in the text scored 0.954.
+  `"delivered_at"` timestamps. On our 999 hand-written questions, the first jevos scored 0.598 on dates and
+  durations and 0.954 on facts stated in the text (per-kind numbers for jevos-v4 are not published).
 - **Results, not ingredients.** `"items_missing": "1 of 3"` rather than two lists to compare.
 - **Flags that are facts.** If your system knows the customer has complained before, send
   `"previous_complaints": "2"`, or better, decide the rule part in code and skip the question.
@@ -110,9 +110,9 @@ nested one with short keys.
 ## What size costs
 
 Every token in the state is read before any question is answered. On the reference laptop
-(Intel Core Ultra 7 255H, 16 threads), with the text read from scratch, that is 26 ms for a
-request of about 30 tokens and 112 ms for one of about 190. A text asked about again is kept,
-so the second question on it reads only the question: 22 ms for the same 191-token request.
+(Intel Core Ultra 7 255H, 16 threads), with the text read from scratch, that is 28 ms for a
+short request and 130 ms for a long one. A text asked about again is kept,
+so the second question on it reads only the question: 22 ms for the same long request.
 Cutting a noisy 400-token record
 to the 100 tokens the questions need is the single largest speed-up available to you, larger
 than any server option. Why latency grows with length is on
@@ -134,8 +134,8 @@ match the words in your questions make the state easier to answer from.
 **Should I send raw timestamps?** No. Compute the duration in code and send it as words, such as
 "5 days ago". Date reasoning is one of the model's weakest kinds of question.
 
-**How much does a bigger state cost?** On the reference laptop, about 26 ms for 30 tokens and
-112 ms for 191 tokens read from scratch. Removing fields no question needs is the cheapest speed-up.
+**How much does a bigger state cost?** On the reference laptop, about 28 ms for a short request and
+130 ms for a long one read from scratch. Removing fields no question needs is the cheapest speed-up.
 
 **Is there a size limit?** 8,192 tokens for the state plus each question, by default, and 256 KB
 for the state.
@@ -146,10 +146,10 @@ for the state.
 
 ## Sources
 
-- The refund and billing examples and their token counts, the 26 ms, 112 ms and 22 ms latencies, and
+- The refund and billing examples and their token counts, the 28 ms, 130 ms and 22 ms latencies, and
   the 8,192-token context: the [jev README](https://github.com/feder-cr/jev) and our
   measurements on the reference laptop.
-- 0.598 on dates and 0.954 on stated facts: our 999-question test set, `jevos-q4_k_m`.
+- 0.598 on dates and 0.954 on stated facts: our 999 hand-written questions, measured on the first jevos.
 
 ---
 

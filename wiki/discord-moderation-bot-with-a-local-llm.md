@@ -66,7 +66,7 @@ the developer portal, and a large bot needs Discord's approval.
 
 Including the message it replies to is cheap and often decisive: "same" means nothing on its
 own. Keep `state` short, though. Latency grows with the text read from scratch on our reference
-laptop, so a chat line with one parent message is near the 26 ms end, not the 112 ms end. The question shapes come from
+laptop, so a chat line with one parent message is near the 28 ms end, not the 130 ms end. The question shapes come from
 [content moderation with a local LLM](content-moderation-with-a-local-llm.md), which covers
 turning rules into questions in more depth.
 
@@ -134,8 +134,9 @@ The same architecture on a workplace chat, with events in and actions on thresho
 - **Slang and in-jokes.** Friendly insults between regulars read as insults. The review band
   catches some of it; exempting trusted roles catches more.
 - **Images and voice.** The model reads text. Screenshots, stickers and voice chat are outside it.
-- **Measured accuracy.** We have not measured jevos on Discord messages. On our 999 new yes/no
-  questions, tone scored 0.938 and intent 0.859, which says insult and advertising questions are
+- **Measured accuracy.** We have not measured jevos on Discord messages. On our 999 hand-written yes/no
+  questions, the first jevos scored 0.938 on tone and 0.859 on intent (per-kind numbers for jevos-v4 are
+  not published), which says insult and advertising questions are
   the model's better kinds, not how your server will go.
 
 ## Short answers to the questions that lead here
@@ -161,9 +162,9 @@ wrong deletion is cheap, and never on messages that suggest someone is at risk.
 - Message content intent, affected fields and exceptions, approval for verified apps:
   [Discord developer documentation, Gateway](https://docs.discord.com/developers/events/gateway),
   fetched 2026-09-29.
-- Latency (26 ms short, 112 ms long, read from scratch), `JEV_API_KEY`, port 8017:
+- Latency (28 ms short, 130 ms long, read from scratch), `JEV_API_KEY`, port 8017:
   the [jev README](https://github.com/feder-cr/jev) and our reference-laptop measurements.
-- Accuracy by kind of question: our 999-question test set, `jevos-q4_k_m`.
+- Accuracy by kind of question: our 999 hand-written questions, measured on the first jevos.
 - The bot design and pseudocode are an untested sketch.
 
 ---

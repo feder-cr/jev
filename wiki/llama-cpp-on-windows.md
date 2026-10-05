@@ -12,7 +12,7 @@ ready-made Windows zips for the CPU (x64 and arm64) and for GPU backends such as
 Vulkan; unzip one and its tools are ready.** `--list-devices` then shows which compute devices
 the build can see, and `--device none` runs the model on the processor whatever else is
 installed. jev needs none of this: `jev-windows-x64.zip` holds one native binary that runs the
-model on the CPU, and the jevos-v2 release ships the model as GGUF files for llama.cpp.
+model on the CPU, and the jevos-v4 release ships the model as GGUF files for llama.cpp.
 
 Building llama.cpp yourself on Windows is supported but heavy: the build guide asks for Visual
 Studio 2022 with the C++ desktop workload, CMake tools, Git, the Clang compiler and the LLVM
@@ -62,7 +62,7 @@ On llama.cpp's tools, `--device` decides where the model runs, separately from w
 unpacked: `--device none` (or `-ngl 0`) keeps every weight on the processor, even in a GPU build.
 
 jev runs on the CPU only (x86-64 with AVX2), with no GPU path, no Python and no download step.
-Unzip `jev-windows-x64.zip`, unpack `jevos-v2-openvino-int8.zip` into the `jev` folder so that
+Unzip `jev-windows-x64.zip`, unpack `jevos-v4-openvino-int8.zip` into the `jev` folder so that
 it creates `jev\model`, and start the server from that folder. The jevos numbers were measured
 on the CPU with no GPU; in PowerShell the command is:
 
@@ -86,7 +86,7 @@ On a laptop, [running llama.cpp CPU only](llama-cpp-cpu-only.md) covers the thre
   not need to reinstall: pass `--device none`.
 
 Being straight about the limit: we have not published Windows-specific timings. The reference
-numbers (26 ms for a short request, 112 ms for a long one) are from one laptop with an Intel
+numbers (28 ms for a short request, 130 ms for a long one) are from one laptop with an Intel
 Core Ultra 7 255H and 16 threads, and apply to that machine.
 
 ## Short answers to the questions that lead here

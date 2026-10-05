@@ -65,8 +65,8 @@ def text_says(text: str, question: str) -> str:
 The tool is passed to an agent the way the docs show, `create_agent(model, tools=[...])`. The
 docstring is doing real work here: it is the only thing the chat model knows about the tool, so
 it states the limits. A large model that thinks the tool can check a sum will ask it to, and a
-small local model is weak at exactly that: on our 999-question test set jevos was right 0.584 of
-the time on arithmetic against 0.954 on facts stated in the text.
+small local model is weak at exactly that: on the fraud-points task, where a score is added up
+from six rules, jevos-v4 got 0.50 right against 0.69 for the hosted Jev.
 
 ## The deterministic pattern: call it in the chain
 
@@ -103,10 +103,10 @@ the number means exactly what it says.
 
 ## When a LangChain tool is the wrong wrapper
 
-- jevos answers yes/no, multiple-choice and (early) score questions in English and nothing else. It is not a chat model and cannot
-  be used as the agent's main model in LangChain.
+- jevos answers yes/no, multiple-choice and (early) score questions in English and nothing else.
+  It is not a chat model and cannot be used as the agent's main model in LangChain.
 - The probability is only as good as the question. Questions the model has to compute, dates and
-  sums, lean toward yes; the measurement is on
+  sums, lean toward yes; that measurement was taken on the first jevos and is on
   [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md).
 - A yes/no check is a filter, not a security boundary. An agent that can call dangerous tools
   needs permissions in the tools themselves, with the check as one layer on top.
@@ -117,7 +117,7 @@ the number means exactly what it says.
 call is all it takes.
 
 **Can I use jevos as the LLM in a LangChain agent?** No. It generates no text; it only returns
-probabilities for yes/no questions.
+probabilities for yes/no, choice and score questions.
 
 **Why return a string from the tool?** The docs' examples return strings, and the chat model
 reads the result as text. In your own code, use the float from the plain function.
@@ -125,7 +125,7 @@ reads the result as text. In your own code, use the float from the plain functio
 **Is the tool deterministic?** The call and your threshold are. Whether an agent calls the tool
 is up to the chat model, which is why fixed checks belong in code.
 
-**How fast is one call?** About 26 ms for a short request and 112 ms for 190 tokens on an Intel
+**How fast is one call?** About 28 ms for a short request and 130 ms for a long one on an Intel
 Core Ultra 7 255H with 16 threads.
 
 **See also:** [AI agent guardrails with yes/no questions](ai-agent-guardrails-with-yes-no-questions.md),
@@ -135,8 +135,8 @@ Core Ultra 7 255H with 16 threads.
 ## Sources
 
 - Request shape and endpoint: the [jev README](https://github.com/feder-cr/jev). Latencies: the
-  README. Accuracy by kind: our 999-question test set,
-  `jevos-q4_k_m`.
+  README, measured with jevos-v3, which has the same size and speed as jevos-v4. Accuracy: the
+  README's six-task table for jevos-v4.
 - [LangChain tools](https://docs.langchain.com/oss/python/langchain/tools): the `@tool` decorator,
   docstrings as descriptions, type hints as schema, and `create_agent(model, tools=[...])`,
   fetched 2026-09-29.

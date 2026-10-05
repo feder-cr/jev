@@ -51,7 +51,7 @@ Ask a chat model "Answer yes or no: is this a billing problem?" and follow the w
 5. **Retry or default** when the parse fails, which costs another full call.
 
 Steps 2 to 5 do not exist when the answer is a number between 0 and 1. On a hosted API, each
-retry also pays the network again: our hosted measurement from Europe was about 344 ms per call,
+retry also pays the network again: our hosted measurement from Europe was about 311 ms per call,
 nearly the same for a short and a long text.
 
 ## No output tokens, no format errors

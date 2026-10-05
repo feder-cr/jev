@@ -100,8 +100,8 @@ is better.
   tokenizer and template cannot drift away from the weights.
 - **You run a GPU serving stack built on PyTorch.** safetensors is the native input there.
 
-jevos ships as GGUF, `jevos-v2-q4_k_m.gguf` (619 MB) and `jevos-v2-q8_0.gguf` (943 MB), for
-llama.cpp and the tools around it, and as `jevos-v2-openvino-int8.zip`, the 8-bit OpenVINO model
+jevos-v4 ships as GGUF, `jevos-v4-q4_k_m.gguf` and `jevos-v4-q8_0.gguf`, for
+llama.cpp and the tools around it, and as `jevos-v4-openvino-int8.zip`, the 8-bit OpenVINO model
 that the jev decision server runs on the CPU. There is no safetensors release to download.
 
 ## Short answers to the questions that lead here
@@ -119,7 +119,7 @@ is converted first, with the `convert_hf_to_gguf.py` script from the same reposi
 it, and you can save the result. It keeps the quantization rounding.
 
 **Does jevos come as safetensors?** No. The release has the two GGUF files, the OpenVINO model
-that jev runs, and a `SHA256SUMS.txt`.
+that jev runs, and the jev binaries.
 
 **See also:** [what is GGUF](what-is-gguf.md),
 [llama.cpp vs Ollama for a classification service](llama-cpp-vs-ollama-for-classification.md)
@@ -127,8 +127,8 @@ and [self-hosted AI for decisions](self-hosted-ai-for-decisions.md).
 
 ## Sources
 
-- Our own facts: the jevos release files and sizes, from the
-  [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
+- Our own facts: the jevos release files, from the
+  [release page](https://github.com/feder-cr/jev/releases/tag/jevos-v4).
 - [safetensors repository README](https://github.com/huggingface/safetensors) and
   [safetensors docs](https://huggingface.co/docs/safetensors/index), fetched 2026-09-29: format,
   constraints, comparison table, list of projects using it.

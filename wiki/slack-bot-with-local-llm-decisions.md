@@ -85,10 +85,9 @@ three times, with `x-slack-retry-num` and `x-slack-retry-reason` headers. In Soc
 acknowledges each envelope by its `envelope_id`. Either way the rule is the same: do not let slow
 work sit between receiving an event and acknowledging it.
 
-A local decision is not the slow part. On an Intel Core Ultra 7 255H it takes 26 ms for a short
-message and 112 ms for a 191-token one. Two things can still make it slow: a burst of messages,
-because the server tops out at about 10 requests per second on that laptop even though small
-requests arriving together are read in one model call, and very long messages. If your workspace is
+A local decision is not the slow part. On an Intel Core Ultra 7 255H it takes 28 ms for a short
+message and 130 ms for a 191-token one. Two things can still make it slow: a burst of messages,
+since each request still takes tens of milliseconds, and very long messages. If your workspace is
 busy, put decisions on a small work queue in the bot so the event handler returns at once.
 
 ## Which questions, and what to do with the answers
@@ -125,8 +124,8 @@ treat it like any other copy of workspace data.
 
 jevos reads English only and answers yes/no, multiple-choice and (early) score questions only. It does not write replies; a bot that
 answers questions in threads needs a generative model. Sarcasm, in-jokes and channel context it
-cannot see are where a small model is weakest; on our 999-question set tone questions were right
-0.938 of the time, which is good and still means mistakes at chat volume. For moderation of a
+cannot see are where a small model is weakest; on our 999-question set the first jevos got tone questions right
+0.938 of the time (per-kind numbers for jevos-v4 are not published), which is good and still means mistakes at chat volume. For moderation of a
 public community the design is closer to
 [a Discord moderation bot with a local LLM](discord-moderation-bot-with-a-local-llm.md).
 
@@ -138,7 +137,7 @@ Mode it needs no public endpoint either.
 **Do I need a public URL?** Not with Socket Mode, which uses an outbound WebSocket and an
 app-level token.
 
-**Is it fast enough for Slack's 3-second limit?** One decision takes 26 to 112 ms on the
+**Is it fast enough for Slack's 3-second limit?** One decision takes 28 to 130 ms on the
 reference laptop. Queue work if message volume is high.
 
 **Which scope reads channel messages?** For public channels, the `message.channels` event and
@@ -152,9 +151,9 @@ the `channels:history` scope.
 
 ## Sources
 
-- Endpoint and request shape: [jev](https://github.com/feder-cr/jev). Latencies and
-  throughput: the README.
-  Tone accuracy: our 999-question test set.
+- Endpoint and request shape: [jev](https://github.com/feder-cr/jev). Latencies:
+  the README.
+  Tone accuracy: our 999-question test set, first jevos.
 - [Slack Events API](https://docs.slack.dev/apis/events-api/) and
   [Using Socket Mode](https://docs.slack.dev/apis/events-api/using-socket-mode), fetched
   2026-09-29.

@@ -43,10 +43,9 @@ which lacked versioning, a way to name the architecture, or both.
 A classifier in production is usually a small service that must be reproducible and boring.
 Three properties of GGUF help directly.
 
-**One artifact to verify.** The jevos release includes the model as two GGUF files, for
-llama.cpp, Ollama, LM Studio and other tools: `jevos-v2-q4_k_m.gguf` (619 MB) and
-`jevos-v2-q8_0.gguf` (943 MB), plus a `SHA256SUMS.txt`. Checking one file against one line of
-that list tells you the whole model arrived intact, which is what makes
+**One artifact to verify.** The jevos-v4 release includes the model as two GGUF files, for
+llama.cpp and tools built on it: `jevos-v4-q4_k_m.gguf` and `jevos-v4-q8_0.gguf`. Computing the
+sha256 of one file and comparing it with a copy you trust tells you the whole model arrived intact, which is what makes
 [offline and air-gapped use](offline-ai-for-decisions.md) practical.
 
 **One artifact to identify.** One sha256 covers the weights, the tokenizer and the template
@@ -114,10 +113,10 @@ Being straight about the limit: GGUF is a container, not a certificate.
 list other local tools that use it, including Ollama and LM Studio. Transformers can load it too, usually by dequantizing it.
 
 **Can I use my own GGUF with jev?** No. jev does not read GGUF files. To run a GGUF, your own
-or the two jevos release files, use llama.cpp, Ollama or LM Studio directly.
+or the two jevos-v4 release files, use llama.cpp or a tool built on it directly.
 
-**How do I check a downloaded GGUF is intact?** Compare its sha256 with the published list. For
-jevos that is `SHA256SUMS.txt` on the release page.
+**How do I check a downloaded GGUF is intact?** Compute its sha256 and compare it with a copy you
+trust, for instance the hash you recorded when you first checked the download.
 
 **Does a GGUF file contain the tokenizer?** Yes. The tokenizer and, usually, the chat template
 are metadata keys inside the file.
@@ -131,8 +130,8 @@ says nothing about the model's own version, which lives in `general.version` if 
 
 ## Sources
 
-- Our own facts: the release file names, sizes and `SHA256SUMS.txt`, from the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); the INT8 model and
+- Our own facts: the release file names, from the
+  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v4); the INT8 model and
   the llama.cpp tokenizer, from the jev source code.
 - [GGUF specification, ggml repository](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md),
   fetched 2026-09-29: layout, goals, metadata keys, naming convention, predecessor formats.
@@ -147,5 +146,4 @@ says nothing about the model's own version, which lives in `general.version` if 
 ---
 
 *From the notes of [jev](https://github.com/feder-cr/jev), which ships its model as an OpenVINO
-build for its own binary and, for other tools, as two GGUF files and a text file with their
-hashes.*
+build for its own binary and, for other tools, as two GGUF files.*

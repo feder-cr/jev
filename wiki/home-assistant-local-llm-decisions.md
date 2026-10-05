@@ -93,8 +93,9 @@ Good ones are about what a text says:
 
 Poor ones are questions Home Assistant can answer itself. "Is the temperature above 25
 degrees?" is a numeric state condition; asking a model to compare numbers is slower and less
-reliable. On our 999-question test set a small model was right 0.954 of the time on facts stated
-in a text and 0.654 on number-against-threshold questions, and the reason is on
+reliable. On our 999-question test set the first jevos was right 0.954 of the time on facts stated
+in a text and 0.654 on number-against-threshold questions (per-kind numbers for jevos-v4 are not
+published), and the reason is on
 [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md). Keep
 every question to one condition; "Is someone at the door and is it after dark?" is two questions,
 and the second one belongs to a time condition, as
@@ -110,7 +111,7 @@ Home Assistant can reach, set `JEV_API_KEY`, and keep the port off the internet;
 has the checklist.
 
 Speed is not a concern for a home. On an Intel Core Ultra 7 255H a short request takes about
-26 ms; a small home server may well be slower, and we have not measured one, but the budget that
+28 ms; a small home server may well be slower, and we have not measured one, but the budget that
 matters is the 10-second default timeout of `rest_command`, which is a very different order of
 size.
 
@@ -147,7 +148,7 @@ conditions do exactly.
 
 - Server defaults, `JEV_API_KEY` and `422`: the [jev README](https://github.com/feder-cr/jev).
   Latency: the README (Intel Core Ultra 7 255H, 16 threads). Accuracy by
-  kind: our 999-question test set.
+  kind: our 999-question test set, measured on the first jevos.
 - [Home Assistant RESTful Command](https://www.home-assistant.io/integrations/rest_command/),
   fetched 2026-09-29.
 - [Home Assistant template functions](https://www.home-assistant.io/template-functions/)

@@ -76,15 +76,15 @@ Let f be the fraction of questions that land in the middle band. Then, per reque
 - expected paid calls are f times what you paid before, since the confident ends cost nothing
   per token.
 
-With our measured numbers for a short request, 26 ms locally and 344 ms for the hosted Jev
+With our measured numbers for a short request, 28 ms locally and 311 ms for the hosted Jev
 from Europe with the network included, the arithmetic looks like this. The escalation fractions
 are **illustrative**, not measurements:
 
 | Escalated fraction f (illustrative) | Mean latency | Paid calls, relative to all-hosted |
 |---|---|---|
-| 0.1 | 26 + 34 = about 60 ms | 0.1 |
-| 0.3 | 26 + 103 = about 129 ms | 0.3 |
-| 0.6 | 26 + 206 = about 232 ms | 0.6 |
+| 0.1 | 28 + 31 = about 59 ms | 0.1 |
+| 0.3 | 28 + 93 = about 121 ms | 0.3 |
+| 0.6 | 28 + 187 = about 215 ms | 0.6 |
 
 Past a certain f the cascade is slower than asking the large model directly, because every
 escalated case pays both. The tail matters too: the slowest requests are the escalated ones,
@@ -95,9 +95,9 @@ before deciding.
 
 A cascade assumes that a wrong answer comes with a middling probability. That holds where the
 model is calibrated. On the natural yes/no questions of our held-out split, the calibration
-error was 0.009, which means confident answers there are right about as often as they claim.
+error was 0.009 (measured on an earlier jevos, not on jevos-v4), which means confident answers there are right about as often as they claim.
 
-It does not hold everywhere. On 999 questions written after training, the model made 152
+It does not hold everywhere. On 999 questions written after training, the first jevos made 152
 mistakes by saying yes when the answer was no, against 91 the other way, and the lean sat on
 arithmetic and dates. On arithmetic questions whose answer was no, the mean P(yes) was 0.59. A
 confident wrong answer does not land in the middle band, so the cascade never escalates it.
@@ -155,9 +155,9 @@ those cluster on arithmetic and dates.
 
 ## Sources
 
-- Our measurements: 26 ms local and 344 ms hosted on the same short request, the 0.009
+- Our measurements: 28 ms local and 311 ms hosted on the same short request; the 0.009
   calibration error on the held-out split, and the error direction and mean P(yes) on the
-  999-question set. Latency figures are in the [jev README](https://github.com/feder-cr/jev).
+  999-question set, were measured on earlier jevos versions, not jevos-v4. Latency figures are in the [jev README](https://github.com/feder-cr/jev).
 - Wire format compatibility and the `score` answers: the jev README.
 - FrugalGPT: Chen, Zaharia and Zou, [FrugalGPT: How to Use Large Language Models While Reducing
   Cost and Improving Performance](https://arxiv.org/abs/2305.05176), arXiv 2305.05176, fetched

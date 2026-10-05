@@ -10,8 +10,9 @@ nav_order: 8
 **A small language model is one with few enough parameters, roughly a billion rather than tens
 or hundreds of billions, to run on ordinary hardware such as a laptop CPU.** What it gives up is
 breadth: it reads well and reasons poorly. On 999 yes/no questions written after it was
-finished, the 1B model jevos was right 0.954 of the time on facts stated in the text and 0.938
-on tone, but 0.584 on questions that needed arithmetic and 0.598 on dates. Small models suit
+finished, the first jevos was right 0.954 of the time on facts stated in the text and 0.938
+on tone, but 0.584 on questions that needed arithmetic and 0.598 on dates (per-kind numbers for jevos-v4
+are not published; it is right on 78.9% of those 999). Small models suit
 narrow tasks where the job is to read, and where computing can be done in code.
 
 "Small" is not a technical category with a fixed boundary. It is a practical one: small enough
@@ -27,8 +28,8 @@ small-model benchmarks deserve suspicion.
 There is no official threshold. In practice people call a model small when it runs without
 specialised hardware: a few hundred million to a few billion parameters, quantized to a few
 bits per weight, in a file of hundreds of megabytes to a few gigabytes. jevos is at the small
-end of that range: about 1 billion parameters, which jev runs with 8-bit (INT8) weights, and its
-4-bit GGUF file is 619 MB.
+end of that range: jev runs it with 8-bit (INT8) weights in about 1 GB of memory, and it also
+ships as 4-bit and 8-bit GGUF files.
 
 Size sets the cost of every token processed. It also sets how much the model can know and how
 many steps of reasoning it can hold together, which is where the trade-off lives.
@@ -36,7 +37,7 @@ many steps of reasoning it can hold together, which is where the trade-off lives
 ## What does a small model do well?
 
 Reading. Questions whose answer is in the text, in some form, are where a small model is
-strongest. From the 999-question set, by kind of question:
+strongest. From the 999-question set, by kind of question, measured on the first jevos:
 
 - stated fact: 0.954 (108 questions)
 - tone: 0.938 (32)
@@ -48,7 +49,7 @@ strongest. From the 999-question set, by kind of question:
 These are the questions most applications actually ask: is this a billing problem, is the
 customer upset, does the email ask for a meeting, does the log line mention a customer-facing
 service. The texts in the set were emails, tickets, logs, reviews and forms of 40 to 150 words,
-and none of the questions was used to tune anything.
+and the questions were written after the first jevos was finished.
 
 ## Where does it fail?
 
@@ -59,7 +60,7 @@ Computing. The same set, the other end:
 - dates and durations: 0.598 (97)
 - arithmetic: 0.584 (221)
 
-The failure has a direction. When the model cannot work out the answer it leans toward yes: 152
+The failure has a direction. When the first jevos could not work out the answer it leaned toward yes: 152
 of its mistakes were a yes that should have been no, against 91 the other way, and on
 arithmetic questions whose answer is no the mean P(yes) was 0.59. A small model is not a random
 guesser on these questions; it is a biased one. The measurement is on
@@ -88,13 +89,15 @@ chatbot can be useful as a component.
 
 ## Small vs large on the same job
 
-On 2,000 yes/no questions about three business policies that none of the models was tuned on,
-with answers computed by code, the hosted Jev was right 0.927 of the time and jevos 0.810. The
-gap was largest on additive point scores, where several signals are summed and compared with a
-cut-off: a computation again.
+On six tasks with the same questions and the same HTTP client for every model, the hosted Jev
+scored higher than jevos-v4 on all of them: 1.00 against 0.95 on admission policy yes/no rules,
+0.91 against 0.76 on rental policy choices, 0.69 against 0.50 on fraud points. The gap was
+largest on additive point scores, where several signals are summed and compared with a cut-off: a
+computation again. Five of the six sets helped choose the released checkpoint, so jevos's scores
+there may be slightly optimistic.
 
-The other side of the trade is speed and place. On the same two requests, jevos took 26 and
-112 ms on a laptop CPU; the hosted API took 344 and 345 ms from Europe, network included. The
+The other side of the trade is speed and place. On the same two requests, jevos took 28 and
+130 ms on a laptop CPU; the hosted Jev took 311 and 314 ms. The
 full comparison is on [jevos vs Jev vs Laya](jevos-vs-jev-vs-laya.md). A small model is the
 cheaper, faster, local first reader; a large one is the better judge of hard cases. The choice
 between them is laid out on [when a small model is enough](when-a-small-model-is-enough.md).
@@ -102,9 +105,9 @@ between them is laid out on [when a small model is enough](when-a-small-model-is
 ## Why small-model benchmarks deserve suspicion
 
 A benchmark built like the data a model was developed on measures familiarity, not
-generalisation. On a held-out split built the usual way, jevos scored 0.855 overall, with a
+generalisation. On a held-out split built the usual way, the first jevos scored 0.855 overall, with a
 calibration error of 0.009 on natural yes/no questions. On the 999 questions written from
-scratch afterwards, it scored 0.757. The gap is the subject of
+scratch afterwards, it scored 0.757 (jevos-v4 scores 78.9% on the same 999). The gap is the subject of
 [our held-out benchmark said 0.855](held-out-benchmark-too-optimistic.md). The lesson applies
 to any small model: trust a test built from your own cases over any published number, including
 ours.
@@ -114,7 +117,7 @@ ours.
 **What is a small language model?** A language model small enough, roughly a billion parameters,
 to run on ordinary hardware without a GPU. There is no fixed cut-off.
 
-**Are small language models accurate?** At reading, fairly: 0.954 on stated facts in our test.
+**Are small language models accurate?** At reading, fairly: 0.954 on stated facts in our test of the first jevos.
 At computing, poorly: 0.584 on arithmetic. The kind of question matters more than the model.
 
 **What are small models used for?** Narrow tasks such as classification, routing, filtering and
@@ -123,7 +126,7 @@ yes/no checks, where the answer is in the text and the output is simple.
 **Can a small model replace a large one?** For many reading decisions, yes. For rules, sums,
 dates, other languages or open-ended answers, keep the large model or move the logic into code.
 
-**Why does a small model say yes when it does not know?** In our measurement it leans toward
+**Why does a small model say yes when it does not know?** In our measurement of the first jevos it leaned toward
 yes on questions it cannot compute. Keep computation out of the question.
 
 **See also:** [run an LLM locally without a GPU](run-an-llm-locally-without-a-gpu.md),
@@ -133,8 +136,8 @@ and [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md).
 ## Sources
 
 - All accuracy, error-direction and calibration figures are our own measurements: the
-  999-question set on `jevos-q4_k_m`, the held-out split on `jevos-q8_0`, and the 2,000-question
-  policy comparison.
+  999-question set and the held-out split on the first jevos, and the six-task comparison on
+  jevos-v4.
 - Latency on the two requests: our measurements, reported in the
   [jev README](https://github.com/feder-cr/jev).
 

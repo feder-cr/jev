@@ -109,7 +109,7 @@ already does.
 
 Nothing about the model changes with the language. The same limits apply: English only, yes/no,
 choice and (early) score questions, and a probability whose reliability depends on the kind of question. On our
-999-question set a small model leaned toward yes on arithmetic and dates, which is why
+999-question set the first jevos leaned toward yes on arithmetic and dates (per-kind numbers for jevos-v4 are not published), which is why
 [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md) says to
 compute numbers in code, and in JavaScript that is one line.
 

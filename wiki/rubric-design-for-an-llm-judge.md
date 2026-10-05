@@ -60,8 +60,9 @@ properties that must be absent:
 
 Phrase negative criteria as the presence of a bad thing, not the absence of a good one, and flip
 them in code (use 1 minus P(yes)) when you add them to a score. "Does the reply fail to mention
-the deadline?" is a negated question, and negation is harder to read: jevos scored 0.858 on
-negation questions against 0.954 on stated facts in our 999-question test set. "Does the reply
+the deadline?" is a negated question, and negation is harder to read: the first jevos scored 0.858 on
+negation questions against 0.954 on stated facts in our 999-question test set (per-kind numbers for
+jevos-v4 are not published). "Does the reply
 mention the deadline?", flipped in code, asks the same thing in the easier form.
 
 ## Put the standard inside the criterion
@@ -107,14 +108,14 @@ Doing the AND of several gates in code, instead of one compound question, is cov
 
 ## What to leave out of a rubric
 
-- **Criteria that need computing.** "Is the refund amount correct?" is arithmetic, and jevos scored
-  0.584 on arithmetic questions. Check amounts, dates and counts in code.
+- **Criteria that need computing.** "Is the refund amount correct?" is arithmetic, and the first jevos
+  scored 0.584 on arithmetic questions. Check amounts, dates and counts in code.
 - **Criteria that need outside knowledge.** "Is the medical advice sound?" asks about the world.
   A small judge reads the text; it does not know medicine. Use a large model or an expert.
 - **Style preferences you cannot state.** If you cannot write two example outputs, one passing
   and one failing, the criterion is not ready.
-- **Scores from 1 to 10.** jevos answers `score` questions with 2 to 10 levels, early (54% on
-  held-out score questions), and with any judge a scale mixes several properties. If you need levels, write them as threshold
+- **Scores from 1 to 10.** jevos answers `score` questions with the levels you list in `criteria`, early (58.5% right on
+  2,350 held-out score questions, 86% within one level), and with any judge a scale mixes several properties. If you need levels, write them as threshold
   questions; see [scores as yes/no thresholds](scores-as-yes-no-threshold-questions.md).
 
 ## Test the rubric before trusting it
@@ -155,7 +156,7 @@ rewrite the criteria that people or the judge disagree on.
 ## Sources
 
 - Accuracy on negation, stated-fact and arithmetic questions: our 999-question test set, run on
-  `jevos-q4_k_m`.
+  the first jevos.
 - The `criteria` field, `instructions`, and the `score` answers and their accuracy: the
   [jev README](https://github.com/feder-cr/jev).
 

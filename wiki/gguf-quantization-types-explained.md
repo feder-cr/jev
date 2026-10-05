@@ -87,10 +87,9 @@ measurement of your yes/no accuracy.
 
 ## The two jevos builds
 
-jevos ships two GGUF files: `jevos-v2-q4_k_m.gguf` at 619 MB and `jevos-v2-q8_0.gguf` at 943 MB,
-for llama.cpp, Ollama, LM Studio and other tools. jev itself reads neither: it runs the same model
-with 8-bit (INT8) weights through OpenVINO, and on 215 parity cases its answers are within 0.056
-of the q8_0 file's. The speed and size side of choosing between the two GGUF files has its own
+jevos-v4 ships two GGUF files, `jevos-v4-q4_k_m.gguf` and `jevos-v4-q8_0.gguf`, for llama.cpp
+and tools built on it, such as Ollama and LM Studio. jev itself reads neither: it runs the same
+model with 8-bit (INT8) weights through OpenVINO (`jevos-v4-openvino-int8.zip`). The speed and size side of choosing between the two GGUF files has its own
 page, [Q4_K_M vs Q8_0 for a small model](q4-k-m-vs-q8-0-speed-and-size.md).
 
 Being straight about the limit: the accuracy of q4_k_m and q8_0 has not been measured on the
@@ -133,10 +132,9 @@ higher-bit types are usually closer to the original model; measure the ones you 
 
 ## Sources
 
-- Our own measurements: file sizes from the
-  [jevos release](https://github.com/feder-cr/jev/releases/tag/jevos-v2); the 215 parity cases
-  comparing jev's 8-bit answers with the q8_0 file's; the statement that accuracy of the two
-  GGUF builds was not compared on one set.
+- Our own facts: the file names from the
+  [jevos-v4 release](https://github.com/feder-cr/jev/releases/tag/jevos-v4); the statement that
+  accuracy of the two GGUF builds was not compared on one set.
 - [llama-quantize README](https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md),
   fetched 2026-09-29: bits per weight and sizes, imatrix option, the accuracy-loss sentence.
 - [Hugging Face Hub docs: GGUF quantization types](https://huggingface.co/docs/hub/gguf),

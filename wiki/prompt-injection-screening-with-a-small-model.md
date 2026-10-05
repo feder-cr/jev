@@ -58,7 +58,7 @@ as websites or files, does it. A screen can sit at each entry point:
   [gating AI agent tool calls with yes/no checks](gating-ai-agent-tool-calls.md).
 
 Latency is what makes screening every entry point practical. On our reference laptop, a short
-request of about 30 tokens took 26 ms and one of about 190 tokens 112 ms, on a CPU, with nothing
+request took 28 ms and a long one (about 190 tokens) 130 ms, on a CPU, with nothing
 sent to a third party.
 
 ## Why can it not be the security boundary?
@@ -76,8 +76,8 @@ Concretely, for a yes/no screen:
   itself. The screen answers a question about the text, but it is still reading the text.
 - **Attackers iterate and defenders do not see the attempts that pass.** The cheat sheet notes
   that current defences such as content filters "only slow attacks".
-- **We have not measured jevos on injection.** Our measured accuracy is by kind of question on
-  999 questions written after training (intent 0.859, stated facts 0.954). No injection set was
+- **We have not measured jevos on injection.** Our measured accuracy by kind of question is on
+  999 questions written after training, with the first jevos (intent 0.859, stated facts 0.954; per-kind numbers for jevos-v4 are not published). No injection set was
   part of it. Any detection rate you rely on has to come from your own tests.
 
 So the right mental model is a smoke detector, not a lock. It tells you something is happening
@@ -156,7 +156,7 @@ ask for confirmation.
 ## Sources
 
 - Our measurements: latency from the [jev README](https://github.com/feder-cr/jev); accuracy by
-  kind of question from our 999-question test set on `jevos-q4_k_m`. No prompt injection
+  kind of question from our 999-question test set, measured on the first jevos. No prompt injection
   measurement exists; none is claimed.
 - OWASP GenAI Security Project,
   [LLM01:2025 Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/), direct

@@ -67,12 +67,14 @@ A question states the meaning directly and lets the model find it in the text:
 }
 ```
 
-Each question comes back as its own `noul`, the probability of yes. On our 999 questions written
-after training, jevos was right 0.893 of the time on paraphrase questions, 0.858 on negation
-questions and 0.954 on facts stated in the text, the three cases where keyword rules are weakest.
+Each question comes back as its own `noul`, the probability of yes. On our 999 hand-written
+questions, the first jevos was right 0.893 of the time on paraphrase questions, 0.858 on negation
+questions and 0.954 on facts stated in the text, the three cases where keyword rules are weakest
+(per-kind numbers for jevos-v4 are not published; its overall score on the same questions is
+78.9%).
 
 What it does not add is exactness. A probability of 0.8 is a strong yes, not a proof; the model
-reads English only; and on arithmetic, 0.584 in the same test, it is worse than a line of code.
+reads English only; and on arithmetic, 0.584 in the same test on the first jevos, it is worse than a line of code.
 Calculations belong in code, as [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md)
 shows.
 
@@ -99,10 +101,10 @@ question, is on [phishing email screening with a local LLM](phishing-email-scree
 
 | | regex / keywords | yes/no model (jevos) |
 |---|---|---|
-| Cost per text | negligible | 26 ms (about 30 tokens) to 112 ms (about 190) on our laptop CPU |
+| Cost per text | negligible | 28 ms (short request) to 130 ms (long request) on our laptop CPU |
 | Memory | negligible | about 1 GB with the model loaded |
-| Handles paraphrase | only what you listed | yes, 0.893 in our test |
-| Handles negation | badly, by special cases | 0.858 in our test |
+| Handles paraphrase | only what you listed | yes, 0.893 in our test (first jevos) |
+| Handles negation | badly, by special cases | 0.858 in our test (first jevos) |
 | Exact on syntax | yes | no, and not needed |
 | Output | match or no match | P(yes) per question |
 | Changing a rule | edit a pattern | edit a question |
@@ -132,10 +134,10 @@ use words in more than one sense. A list cannot enumerate meaning.
 model to answer meaning questions, code to combine.
 
 **How does a yes/no model handle negation?** Better than keyword rules: 0.858 on negation questions
-in our test. Positive phrasing of the question still helps.
+in our test of the first jevos. Positive phrasing of the question still helps.
 
-**Is a model fast enough to replace keyword rules?** For most message streams on a CPU, yes: 26 to
-112 ms per request in our measurement. It will never be as cheap as a regex.
+**Is a model fast enough to replace keyword rules?** For most message streams on a CPU, yes: 28 to
+130 ms per request in our measurement. It will never be as cheap as a regex.
 
 **See also:** [negation in yes/no questions](negation-in-yes-no-questions.md),
 [checking text for personal data with yes/no questions](pii-check-with-yes-no-questions.md) and
@@ -143,9 +145,10 @@ in our test. Positive phrasing of the question still helps.
 
 ## Sources
 
-- Accuracy by kind (paraphrase 0.893, negation 0.858, fact 0.954, arithmetic 0.584): our 999-question
-  test set on `jevos-q4_k_m`.
-- Latency, memory and the three-question timing: our own measurements, in the
+- Accuracy by kind (paraphrase 0.893, negation 0.858, fact 0.954, arithmetic 0.584): our
+  999-question test set, measured on the first jevos.
+- Latency (measured with jevos-v3, same size and speed as jevos-v4), memory and the
+  three-question timing: our own measurements, in the
   [jev README](https://github.com/feder-cr/jev).
 - "Don't default to an LLM": OpenAI, [Latency optimization](https://developers.openai.com/api/docs/guides/latency-optimization),
   fetched 2026-09-29.

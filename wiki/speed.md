@@ -1,13 +1,13 @@
 ---
 title: "Speed"
-description: "Why jevos answers in 25 to 110 ms on a CPU, what makes an LLM fast or slow, and how to measure latency honestly."
+description: "Why jevos answers in 28 to 130 ms on a CPU, what makes an LLM fast or slow, and how to measure latency honestly."
 nav_order: 4
 has_children: true
 ---
 
 # Speed
 
-Latency is the reason a yes/no model exists: a decision that takes 26 ms can sit inside a request, a webhook or a loop. These pages explain where the time goes in a language model, why a model that generates nothing is fast, and how to measure it without fooling yourself. The measured numbers come from one laptop, an Intel Core Ultra 7 255H with 16 threads.
+Latency is the reason a yes/no model exists: a decision that takes 28 ms can sit inside a request, a webhook or a loop. These pages explain where the time goes in a language model, why a model that generates nothing is fast, and how to measure it without fooling yourself. The measured numbers come from one laptop, an Intel Core Ultra 7 255H with 16 threads.
 
 - [The fastest AI model for yes/no decisions](fastest-ai-model-for-yes-no-decisions.md)
 - [What makes a local LLM fast on a CPU](what-makes-a-local-llm-fast-on-a-cpu.md)

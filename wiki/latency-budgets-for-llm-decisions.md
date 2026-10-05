@@ -1,13 +1,13 @@
 ---
 title: "Latency budgets: where a 200 ms model fits"
-description: "What a 25 to 110 ms decision fits and what it does not: interactive UI, webhooks, batch jobs and game loops, against published time limits."
+description: "What a 30 to 130 ms decision fits and what it does not: interactive UI, webhooks, batch jobs and game loops, against published time limits."
 parent: "Speed"
 nav_order: 9
 ---
 
 # Latency budgets: where a 200 ms model fits
 
-**A decision that takes 25 to 110 ms fits almost everything except work that has to finish
+**A decision that takes 30 to 130 ms fits almost everything except work that has to finish
 inside a single animation frame.** It is well inside a webhook timeout of a few seconds, fast
 enough to feel immediate behind a button, and cheap enough to run on every item of a batch
 job. It does not fit a real-time loop at 60 frames per second, or a user interface that must
@@ -17,7 +17,7 @@ The useful habit is to treat the model as one line of a budget, not the whole of
 request has to be built, sent, answered and acted on, and a 200 ms model inside a 250 ms budget
 leaves nothing for the rest.
 
-This page is the published limits people design to, how a 25 to 110 ms model sits in each
+This page is the published limits people design to, how a 30 to 130 ms model sits in each
 context, how to add up a budget, and what to do when it does not fit.
 
 ## The limits people design to
@@ -36,27 +36,29 @@ having the user feel that the system is reacting instantaneously", 1 second "for
 of thought to stay uninterrupted". RAIL asks web pages to process input within 50 ms so a
 visible response can happen within 100 ms.
 
-jevos, on our reference laptop (Intel Core Ultra 7 255H, 16 threads, INT8 weights), took 26 ms on a
-request of about 30 tokens and 112 ms on one of about 190, each read from scratch. That puts short
-requests well under the "instantaneous" line and long ones near it, well inside the one-second line.
+jevos, on our reference laptop (Intel Core Ultra 7 255H, 16 threads, 8-bit weights), took 28 ms on a
+short request and 130 ms on a long one, each read from scratch (median of 10 requests after 3
+warm-up requests, measured with jevos-v3, which has the same size and speed as jevos-v4). That puts
+short requests well under the "instantaneous" line and long ones just past it, well inside the
+one-second line.
 
 ## Behind a button or a form
 
 A user clicks "submit" on a support form and the app decides where the ticket goes. Under 1
-second the user's flow is not broken, so a 112 ms decision fits with room for the rest of the
+second the user's flow is not broken, so a 130 ms decision fits with room for the rest of the
 request. What fits less well is running the model on every keystroke to give live feedback: a
-short text, at 26 ms of model time plus the round trip, fits the 100 ms target, and a long text,
-at 112 ms, misses it.
+short text, at 28 ms of model time plus the round trip, fits the 100 ms target, and a long text,
+at 130 ms, misses it.
 
 For interactive use, show something immediately and let the decision arrive a moment later.
-Keep the state short: on our laptop a 30-token request took 26 ms and a 191-token one 112 ms;
-the detail is on
+Keep the state short: on our laptop a short request took 28 ms and a long one 130 ms; the
+detail is on
 [why LLM latency grows with the length of the text](why-llm-latency-grows-with-text-length.md).
 
 ## Webhooks and chat bots
 
 Event senders give you a deadline. Slack's Events API says an app "should respond to the event
-request with an HTTP 2xx within three seconds", and retries if it does not. A 112 ms decision
+request with an HTTP 2xx within three seconds", and retries if it does not. A 130 ms decision
 fits many times over. Slack also asks apps to respond "as soon as you can", so acknowledging
 first and deciding after is still the safer design: a slow moment elsewhere does not cause
 retries.
@@ -68,10 +70,9 @@ and for inboxes on [email triage with a local LLM](email-triage-with-a-local-llm
 
 ## Batch jobs
 
-Here latency becomes cost per item. At 112 ms per 190-token record, one process handles about
-nine records per second when requests run one after another (one client measured 8.7 requests
-per second); at 112 ms each a million records would take about 31 hours on one process, which is
-arithmetic, not a measured run. The budget is the length of the job window, not a reaction
+Here latency becomes cost per item. At 130 ms per long record, one process handles about
+seven records per second when requests run one after another; at 130 ms each a million records
+would take about 36 hours on one process, which is arithmetic, not a measured run. The budget is the length of the job window, not a reaction
 time. For files on disk, [batch decisions with jev decide](batch-decisions-with-jev-decide.md)
 covers running requests without a server, and how capacity differs from latency is on
 [throughput vs latency for a decision server](throughput-vs-latency-for-a-decision-server.md).
@@ -83,7 +84,7 @@ the fields the questions need.
 
 ## Game loops and real-time control
 
-This is where a 25 to 110 ms model does not fit. At 60 frames per second a frame is about 16 ms,
+This is where a 30 to 130 ms model does not fit. At 60 frames per second a frame is about 16 ms,
 and RAIL suggests 10 ms of work per frame. Even the short request is longer than a frame.
 
 The honest way around it is to let the loop wait for the model and show the time per decision,
@@ -100,7 +101,7 @@ everything except the model:
 |---|---|
 | Receive request, load the record | 30 ms (illustrative) |
 | Build the state, trim fields | 5 ms (illustrative) |
-| Model, one request, three questions | about 66 ms (measured on our laptop, 95 tokens) |
+| Model, one request, three questions | about 66 ms (measured on our laptop) |
 | Act on thresholds, write a log line | 20 ms (illustrative) |
 | Total | about 120 ms |
 
@@ -122,11 +123,11 @@ tight.
 **Can a local LLM run inside a game loop?** Not per frame. At 60 fps a frame is about 16 ms. Ask
 the model about slower decisions and keep per-frame logic in code.
 
-**Does a 110 ms model fit a webhook?** Yes. Slack, for example, allows three seconds.
+**Does a 130 ms model fit a webhook?** Yes. Slack, for example, allows three seconds.
 
-**How many decisions per second is 110 ms?** About nine, if requests run one after another on
-one process: one client measured 8.7 requests per second. Capacity under concurrency is a
-different measurement: 8 clients reached 10.1 requests per second, at a median of 780 ms.
+**How many decisions per second is 130 ms?** About seven, if requests run one after another on
+one process (arithmetic, not a measured run). Capacity under concurrency is a different
+measurement that is not published for jevos-v4.
 
 **What should I budget against, the median or the p90?** The slow end. A budget met by the
 median is missed by one request in two.
@@ -137,7 +138,7 @@ median is missed by one request in two.
 
 ## Sources
 
-- jevos latencies (26 ms, 112 ms, 66 ms against 49 ms) and throughput (8.7 requests per second with one client, 10.1 with eight): our measurements and the [jev README](https://github.com/feder-cr/jev).
+- jevos latencies (28 ms, 130 ms, 66 ms against 49 ms): our measurements with jevos-v3 (same size and speed as jevos-v4) and the [jev README](https://github.com/feder-cr/jev).
 - Response time limits: Jakob Nielsen,
   [Response Times: The 3 Important Limits](https://www.nngroup.com/articles/response-times-3-important-limits/),
   1993, fetched 2026-09-29.

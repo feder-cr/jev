@@ -84,9 +84,10 @@ For decisions in software, a probability has practical advantages whatever its c
   on your labelled cases adjusts a probability; there is no equivalent knob on a generated
   sentence short of changing the prompt.
 
-What it does not give you is calibration for free. On natural yes/no questions like our held-out
-split, jevos's calibration error was 0.009; on 999 new questions it leaned toward yes, with 152
-wrong yeses against 91 wrong noes, mostly on arithmetic and dates. A probability can be
+What it does not give you is calibration for free. On the first jevos, the calibration error on
+natural yes/no questions like our held-out split was 0.009; on 999 hand-written questions it
+leaned toward yes, with 152 wrong yeses against 91 wrong noes, mostly on arithmetic and dates
+(neither has been re-measured on jevos-v4). A probability can be
 confidently wrong in one direction too, as
 [why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md) documents.
 
@@ -120,7 +121,9 @@ cases.
 **Why does post-training hurt calibration?** The GPT-4 report shows it happening on MMLU; the
 report does not reduce it to one cause, and neither should we.
 
-**Does jevos report a confidence?** It reports P(yes) per question and generates no text.
+**Does jevos report a confidence?** It reports P(yes) per yes/no question and generates no text.
+For `choice` and `score` questions it also returns a `confidence`, where 0 means the model cannot
+place the answer and the case should go to a person.
 
 **How do I check any confidence score?** Label a few hundred cases, draw a reliability diagram,
 and check whether right answers get higher scores than wrong ones.
@@ -131,8 +134,8 @@ and check whether right answers get higher scores than wrong ones.
 
 ## Sources
 
-- Our measurements: ECE 0.009 on 6,397 natural yes/no held-out questions (`jevos-q8_0`); 152 vs
-  91 errors on the 999-question set (`jevos-q4_k_m`). `output_tokens` 0 is from the
+- Our measurements, on the first jevos: ECE 0.009 on 6,397 natural yes/no held-out questions;
+  152 vs 91 errors on the 999-question set. `output_tokens` 0 and `confidence` are from the
   [jev README](https://github.com/feder-cr/jev).
 - Xiong et al. (2024, ICLR),
   [Can LLMs Express Their Uncertainty?](https://arxiv.org/abs/2306.13063), fetched 2026-09-29.

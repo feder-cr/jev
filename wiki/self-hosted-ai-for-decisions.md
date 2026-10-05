@@ -9,7 +9,7 @@ nav_order: 1
 
 **Self-hosting a decision model means running three things you control: a model file, a
 runtime that executes it, and a server on a port that your application calls.** For jevos that
-is the model folder from `jevos-v2-openvino-int8.zip`, the prebuilt `jev` binary for your
+is the model folder from `jevos-v4-openvino-int8.zip`, the prebuilt `jev` binary for your
 platform with OpenVINO's libraries beside it, and `jev serve` listening on `127.0.0.1:8017`.
 There is no GPU to provision and no account to open. What you take on instead is the
 work a hosted API did quietly: knowing which model answered, updating it deliberately, keeping
@@ -27,13 +27,13 @@ choice.
 ## What do you actually install?
 
 Three pieces, all from the
-[release page](https://github.com/feder-cr/jev/releases/tag/jevos-v2), with `SHA256SUMS.txt`
+[release page](https://github.com/feder-cr/jev/releases/tag/jevos-v4), with `SHA256SUMS.txt`
 next to them:
 
 1. The `jev` folder, from `jev-linux-x64.tar.gz`, `jev-windows-x64.zip` or
    `jev-macos-arm64.tar.gz`: the binary, OpenVINO's libraries and the licenses. Nothing is
    compiled, and there is no Python to install.
-2. The model, `jevos-v2-openvino-int8.zip`, unpacked into the `jev` folder as `jev/model`.
+2. The model, `jevos-v4-openvino-int8.zip`, unpacked into the `jev` folder as `jev/model`.
 3. The server, started from the `jev` folder (`.\jev.exe serve` on Windows):
 
 ```bash
@@ -57,15 +57,15 @@ The server is one process holding one model. Treat it like any other internal HT
   total. Log it next to your own wall-clock measurement, so you can tell the model's cost from
   your network's.
 - **Capacity.** The measured figures come from one laptop, an Intel Core Ultra 7 255H with 16
-  threads: 26 ms for a short request and 112 ms for a 191-token one read from scratch, and
-  8.7 requests per second from one client, 10.1 from eight. Your hardware and inputs will
+  threads: 28 ms for a short request and 130 ms for a 191-token one read from scratch. Your hardware and inputs will
   differ; measure them as described on [measuring LLM latency](measuring-llm-latency-median-and-p90.md).
 - **Restarts.** Loading takes time and memory. A supervisor that restarts the process on crash
   and waits for `/health` before routing to it is enough for most setups.
 
 ## How do you know which model is answering?
 
-By hash. Answers name the served model, `jevos-v2`, but a name is not an identity. Check the
+By hash. Answers name the served model, `jevos-v4`, but a name is not an identity. `/health` also reports
+the SHA-256 of each model file and a fingerprint (`model_files`, `fingerprint`). Check the
 release archives you unpack against `SHA256SUMS.txt`, and record those hashes with every
 deployment: two servers unpacked from the same archives run the same binary on the same model.
 
@@ -109,10 +109,10 @@ Self-hosting moves the model onto your machine and the responsibilities with it.
 
 ## When a hosted API is still the better choice
 
-Being straight about the limit: jevos answers yes/no and multiple-choice questions in English
-and, early, scores (54% on held-out score questions). On 2,000 yes/no questions about business
-policies none of the models was tuned on, the hosted Jev was right 0.927 of the time against
-0.810 for jevos. If the decision needs that accuracy, other languages, or scores,
+Being straight about the limit: jevos answers yes/no, multiple-choice and, early, score questions in English
+(58.5% right on 2,350 held-out score questions). On the six-task comparison the hosted Jev
+scored higher on every task, for example 1.00 against 0.95 on admission policy and 0.69 against
+0.50 on fraud points. If the decision needs that accuracy, other languages, or scores,
 the hosted model is the right tool, and because the wire format is the same, moving between
 the two is a base URL change. The broader trade-off is on
 [local vs hosted LLM decisions](local-vs-hosted-llm-decisions.md).
@@ -141,7 +141,7 @@ your time running it.
 ## Sources
 
 - Commands, options, endpoints and release files: the [jev README](https://github.com/feder-cr/jev).
-- Latency, throughput and the 2,000-question comparison: our measurements, reported in the README.
+- Latency and the six-task comparison: our measurements, reported in the README.
 
 ---
 

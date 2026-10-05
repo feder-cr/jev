@@ -11,7 +11,7 @@ nav_order: 7
 whether the customer says it is urgent, whether they are blocked, and whether they mention a
 deadline, then compare any deadline date with today in code.** A yes/no model reads stated
 urgency and impact well. It is weak at deciding whether "by the 14th" is tomorrow or next
-month, because that is date arithmetic, and on our tests date questions were among the worst.
+month, because that is date arithmetic, and on our tests of the first jevos date questions were among the worst.
 For levels such as low, high and critical, ask one question per boundary instead of asking for
 the level.
 
@@ -29,7 +29,7 @@ Ask them as separate questions, because they fail separately:
 
 - **Stated:** "Does the customer say the matter is urgent or ask for a fast answer?" This is
   tone and wording. Tone questions scored 0.938 on our 999 yes/no questions written after
-  training, on a sample of 32.
+  training, on a sample of 32 (first jevos; per-kind numbers for jevos-v4 are not published).
 - **Impact:** "Does the customer say they cannot use the service at all?" or "Does the customer
   say they are losing sales or missing a deadline because of this?" These are stated facts,
   the model's strongest kind at 0.954.
@@ -42,7 +42,7 @@ on [yes/no questions about tone and emotion](yes-no-questions-about-tone.md).
 
 "I need the replacement before the 14th" is urgent if today is the 12th and not if it is the
 1st. A question such as "Is the deadline less than three days away?" asks the model to find the
-date, know today, and subtract. On our 999-question set, date and time questions were right
+date, know today, and subtract. On our 999-question set with the first jevos, date and time questions were right
 0.598 of the time, and on the ones whose answer was no, the mean P(yes) was 0.53: the model
 leans toward yes when it cannot do the sum. The pattern is measured on
 [small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md).
@@ -124,7 +124,7 @@ is on [human in the loop AI with a review band](human-in-the-loop-ai-with-a-revi
 - **English only.**
 
 Urgency is checked on every incoming message, which makes per-call cost and latency matter. On
-our reference laptop a short message takes about 26 ms, and four questions on one message share
+our reference laptop a short message takes about 28 ms, and four questions on one message share
 a single reading of it, so the check fits before a ticket is even shown in a queue. Pairing it
 with [support ticket routing with yes/no questions](support-ticket-routing-with-yes-no-questions.md)
 means one request answers both where the ticket goes and how fast.
@@ -150,7 +150,8 @@ without stated impact goes to a quick human check, not straight to the top.
 ## Sources
 
 - Accuracy by kind of question (tone 0.938, fact 0.954, dates and time 0.598) and the mean
-  P(yes) of 0.53 on no-answer time questions: our 999-question test set, `jevos-q4_k_m`.
+  P(yes) of 0.53 on no-answer time questions: our 999-question test set, first jevos (`jevos-q4_k_m`); per-kind numbers for jevos-v4 are
+  not published.
 - Short-request latency: our reference-laptop measurement in the
   [jev README](https://github.com/feder-cr/jev).
 - Thresholds in the code are placeholders.

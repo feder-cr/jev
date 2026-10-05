@@ -100,10 +100,11 @@ reason to reject on their own.
 ## The limits of the text screen
 
 - **We have not measured jevos on reviews.** Our evidence is by kind of question: on 999 yes/no
-  questions written after training, facts stated in the text scored 0.954 and tone 0.938. The
+  questions, facts stated in the text scored 0.954 and tone 0.938 on the first jevos (per-kind
+  numbers for jevos-v4 are not published). The
   rules above are those shapes, which is encouraging and not a benchmark.
 - **Not-stated cases.** A question such as "Does the reviewer say the product broke?" on a
-  review that says nothing about durability should come back low. The model's accuracy on "not
+  review that says nothing about durability should come back low. The first jevos's accuracy on "not
   stated" questions was 0.847; it is covered on
   [ask whether the text says it at all](ask-whether-the-text-says-it.md).
 - **Sarcasm** ("great, it lasted a whole week") can read as praise. That matters for sentiment,
@@ -143,7 +144,7 @@ details, and use a pattern match to find and mask them exactly.
 ## Sources
 
 - Accuracy by kind of question (fact 0.954, tone 0.938, not stated 0.847): our 999-question test
-  set, `jevos-q4_k_m`.
+  set, first jevos.
 - Three questions in about 66 ms against 49 ms for one, and `jev decide`: the
   [jev README](https://github.com/feder-cr/jev).
 - The decision table thresholds are placeholders, not measured values.

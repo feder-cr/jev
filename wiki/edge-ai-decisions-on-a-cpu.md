@@ -37,7 +37,7 @@ has to happen anyway. That is also the reason the offline setup on
 These are properties of the release, true on any machine that runs it:
 
 - **Files:** the `jev` folder from `jev-windows-x64.zip`, `jev-linux-x64.tar.gz` (glibc 2.35+,
-  for example Ubuntu 22.04+) or `jev-macos-arm64.tar.gz`, with `jevos-v2-openvino-int8.zip`
+  for example Ubuntu 22.04+) or `jev-macos-arm64.tar.gz`, with `jevos-v4-openvino-int8.zip`
   unpacked into it as `jev/model`. No Python and no other runtime to install.
 - **Compute:** CPU only, x86-64 with AVX2 or Apple silicon; fastest on CPUs with AVX-VNNI or
   AVX-512 VNNI. `--threads` defaults to all logical CPUs.
@@ -54,11 +54,13 @@ scope for this setup.
 
 Measured, on an Intel Core Ultra 7 255H laptop with 16 threads, no GPU:
 
-- 26 ms for a request of about 30 tokens, 112 ms for about 190 tokens, with the text read from
-  scratch; 22 ms for the long one when the same text is asked about again;
+- 28 ms for a short request and 130 ms for a long one, with the text read from scratch; 22 ms
+  for the long one when the same text is asked about again;
 - three questions on one text in about 66 ms, against 49 ms for one alone;
-- with several clients at once, 8.7 requests per second for one client (median 110 ms) and
-  10.1 per second for eight (median 780 ms).
+- a three-option `choice` in about 100 ms and a ten-option one in about 170 ms, where a yes/no
+  question takes about 20 ms.
+
+Throughput with several clients at once is not measured on jevos-v4.
 
 Not measured: any ARM board, any mini PC, any older or low-power x64 processor, any server CPU.
 We cannot tell you whether a given small device answers in 100 ms or in two seconds, and we
@@ -89,8 +91,8 @@ If it is too slow, shortening the input usually helps more than anything else yo
 - **Ask several questions in one request.** The text is read once, so the second and third
   questions cost a fraction of the first.
 - **Compute in code.** Dates, totals and comparisons are cheap and exact in code and are the
-  model's weakest questions: 0.584 on arithmetic and 0.598 on dates on our 999-question set,
-  against 0.954 on stated facts. On a slow device, every question you remove is time saved too.
+  model's weakest questions: 0.584 on arithmetic and 0.598 on dates on our 999 hand-written questions (measured on the first
+  jevos; per-kind numbers for jevos-v4 are not published), against 0.954 on stated facts. On a slow device, every question you remove is time saved too.
 
 ## Failing safely when the model is slow or missing
 
@@ -107,9 +109,11 @@ An edge deployment has to decide what happens when the model cannot answer in ti
 
 ## Where the edge is the wrong place
 
-When the decision needs more than the small model gives. It reads English only, answers yes/no
-only, and on 2,000 questions about business policies none of the models was tuned on it was
-right 0.810 of the time against 0.927 for the hosted Jev. If a site can reach a data centre,
+When the decision needs more than the small model gives. It reads English only, and on the
+six-task comparison it trails the hosted Jev: 0.95 against 1.00 on Admission policy (yes/no rules),
+0.76 against 0.91 on Rental policy (choice) and 0.50 against 0.69 on Fraud points (score). Five of
+the six task sets helped choose the released checkpoint, so jevos's scores there may be slightly
+optimistic. If a site can reach a data centre,
 answering locally and sending only the doubtful cases upstream is often the better shape; see
 [a model cascade: small model first](model-cascade-small-model-first.md).
 
@@ -138,8 +142,8 @@ network after the download.
 ## Sources
 
 - Release files, CPU requirements, context, options and endpoints: the [jev README](https://github.com/feder-cr/jev).
-- Platforms: the archives of the [jevos-v2 release](https://github.com/feder-cr/jev/releases/tag/jevos-v2).
-- Latency, throughput and accuracy figures: our measurements on an Intel Core Ultra 7
+- Platforms: the archives of the [jevos-v4 release](https://github.com/feder-cr/jev/releases/tag/jevos-v4).
+- Latency and accuracy figures: our measurements on an Intel Core Ultra 7
   255H laptop; no other hardware has been measured.
 
 ---

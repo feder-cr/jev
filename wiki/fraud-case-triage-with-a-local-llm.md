@@ -36,8 +36,9 @@ support chat carries signals that only exist as sentences:
 - the message presses for speed or threatens to escalate before anything has been checked.
 
 Each of these is a reading question, and reading is where a small model is strongest. On our
-999-question test set written after training, stated facts were answered right 0.954 of the
-time and intent 0.859. Contradiction between a message and a record is a comparison of two
+999-question test set, the first jevos answered stated facts right 0.954 of the time and intent
+0.859 (per-kind numbers for jevos-v4 are not published; jevos-v4 got 78.9% of the 999 right
+overall). Contradiction between a message and a record is a comparison of two
 stated facts, which is the same skill.
 
 ## Why does the fraud score itself belong in code?
@@ -46,11 +47,14 @@ Many fraud processes end in a points model: three points for a new account, two 
 four for a high amount, review above ten. It is tempting to paste that rule into a question and
 ask the model whether the case scores above ten. Do not.
 
-On 2,000 yes/no questions about three business policies it had never seen, jevos was right
-0.810 of the time against 0.927 for TypeSafe's hosted Jev, and the gap was largest on exactly
-this shape: additive point scores, where several signals are summed and compared with a
-cut-off. It was the weakest kind of rule in that comparison. On the 999-question set,
-arithmetic questions were right 0.584 of the time, close to a coin.
+On Fraud points, a score task where a fraud score is built from six rules, jevos-v4 reached
+0.50 against 0.69 for TypeSafe's hosted Jev, and 0.45 for Qwen3.5-4B. That is additive point
+scores, where several signals are summed and compared with a cut-off, and it was the weakest
+kind of rule among our six tasks. On points that add up an earlier jevos (jevos-v2) was right
+34% of the time, barely above the most common level, and confidently wrong. On the 999-question
+set, the first jevos answered arithmetic questions right 0.584 of the time, close to a coin.
+Fraud points was one of five sets that helped choose the released checkpoint, so the 0.50 may be
+slightly optimistic.
 
 So split the work. Ask the model one question per signal, turn each probability into a flag or
 a weight in code, and sum in code. The detail of that split is on
@@ -94,8 +98,8 @@ The output of this step is an order, not a verdict:
    probabilities.
 4. Cases with no flags go through your normal flow. Nothing is refused because of the text alone.
 
-Because the model leans toward yes on questions it cannot work out (152 wrong yeses against 91
-wrong noes on the 999 set), a flag from a single question is weak evidence. Several independent
+Because the first jevos leaned toward yes on questions it could not work out (152 wrong yeses
+against 91 wrong noes on the 999 set; not published for jevos-v4), a flag from a single question is weak evidence. Several independent
 flags on the same case are stronger. If a wrong flag delays an honest customer, set the flag
 threshold above 0.5; the reasoning is on
 [thresholds when a wrong yes costs more](thresholds-when-a-wrong-yes-costs-more.md).
@@ -140,7 +144,8 @@ customer on text alone, so use it to prioritise review.
 queue, and keep blocking decisions with your existing controls and people.
 
 **Can I ask the model to compute a fraud score?** Keep sums and cut-offs in code. Additive point
-scores were the weakest case against Jev in our 2,000-question comparison.
+scores were the weakest case against Jev in our six-task comparison (Fraud points: 0.50
+against 0.69).
 
 **Why run it locally?** Claims contain personal and financial details. A local model reads them
 on your own machine, on a CPU, with no per-token bill.
@@ -150,9 +155,10 @@ on your own machine, on a CPU, with no per-token bill.
 
 ## Sources
 
-- Our measurements: the 2,000-question policy comparison (jevos 0.810, Jev 0.927, largest gap on
-  additive point scores) from the [jev README](https://github.com/feder-cr/jev); accuracy by kind
-  and the 152 to 91 error split from our 999-question test set on `jevos-q4_k_m`.
+- Our measurements: the six-task comparison (Fraud points: jevos-v4 0.50, Jev 0.69,
+  Qwen3.5-4B 0.45, Laya 0.25) and the 34% on points that add up (jevos-v2) from the
+  [jev README](https://github.com/feder-cr/jev); accuracy by kind and the 152 to 91 error split
+  from our 999-question test set, measured on the first jevos.
 - OWASP GenAI Security Project,
   [LLM01:2025 Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/),
   fetched 2026-09-29.
