@@ -9,40 +9,55 @@ P(yes).
 
 ## Benchmarks
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/jevos_bench_dark.png" />
-  <img src="assets/jevos_bench.png" alt="Latency on a short request: jevos-v2 26 ms, Jev 344 ms, Laya 104 ms. On a long request: jevos-v2 112 ms, Jev 345 ms, Laya 449 ms. Accuracy on 2,000 yes/no questions from unseen policies: jevos-v2 0.810, Jev 0.927, Laya 0.489" width="100%" />
-</picture>
+<img src="assets/jevos_tasks.png" alt="Latency on a short / long request: jevos-v4 28 / 130 ms; Jev 311 / 314 ms; Qwen3.5-4B 3,060 / 4,761 ms; Laya 129 / 480 ms. Accuracy on 6 tasks (Admission policy, Rental policy, Rules and scenarios, Authority rules, Fraud points, Patent phrases): jevos-v4 0.95, 0.76, 0.76, 0.81, 0.50, 0.37; Jev 1.00, 0.91, 0.88, 0.98, 0.69, 0.59; Qwen3.5-4B 0.82, 0.60, 0.72, 0.78, 0.45, 0.18; Laya 0.54, 0.31, 0.55, 0.64, 0.25, 0.32" width="100%" />
+
+Every system gets the same questions through the same HTTP client. The right answers come from the rules
+themselves, from the datasets' annotators or from experts.
+
+- **Admission policy** (yes/no): an attendee's record and a venue's admission rules; should this person be
+  admitted?
+- **Rental policy** (choice): a rental application and the landlord's rules; approve, approve with a guarantor,
+  deny, or not enough information to decide.
+- **Rules and scenarios** ([ShARC](https://huggingface.co/datasets/UCLNLP/sharc), yes/no): a rule from a
+  government website, a person's situation and a question about it.
+- **Authority rules** ([SemIf](https://github.com/TheoLeeCJ/SemIf), choice): who may approve or delegate what;
+  a claim to judge as supported, contradicted, or not settled by the text.
+- **Fraud points** (score): a payment's risk signals and a points table; which risk level do they add up to?
+- **Patent phrases** ([Patent Phrase Similarity](https://huggingface.co/datasets/tasksource/patent-phrase-similarity),
+  score): how close two phrases from patents are in meaning, on five levels, as rated by experts.
+
+All but the patent phrases are among the held-out sets used to choose jevos-v4 among its training runs; none of
+their texts was trained on.
 
 jevos-v4 answers 87.0% of 821 hand-written yes/no questions written by another model family (jevos-v3
 86.5%, jevos-v2 82.7%) and 78.9% of the original 999 (jevos-v3 80.8%, the first jevos 75.8%), with the same
 size and speed. It learned from a wider mix than jevos-v3, adding structured records, long policies and public
 decision tasks, and gains most on choices and scores. On the 999 jevos-v3 stays ahead, and it is still
-available in its release. The latencies here were measured with jevos-v2: every version has the same
+available in its release. The latencies here were measured with jevos-v3: every version has the same
 architecture and size.
 
 Latency is the median of 10 requests through the HTTP API, after 3 warm-up requests, on an Intel Core
-Ultra 7 255H laptop with 16 threads, each request reading its text from scratch (`--state-cache 0`).
-By default the server keeps the texts it has read, so asking about the same text again takes 22 ms for
-the long request.
+Ultra 7 255H laptop with 16 threads, each request reading its text from scratch (a new reference number in
+front of every text, so no cache can reuse it). By default the server keeps the texts it has read, so asking
+about the same text again takes 22 ms for the long request.
 
-### Five public tasks
+### When a fact is missing
 
-<img src="assets/jevos_public_tasks.png" alt="Latency on a short / long request: jevos-v3 28 / 130 ms; Jev 311 / 314 ms; Qwen3.5-4B 3,060 / 4,761 ms; Laya 129 / 480 ms. Accuracy on 5 public tasks (Medical Q&A, Agent rules, Merger contracts, Patent phrases, Policy ratings): jevos-v3 0.75, 0.49, 0.59, 0.37, 0.57; Jev 0.90, 0.85, 0.74, 0.59, 0.70; Qwen3.5-4B 0.87, 0.60, 0.68, 0.18, 0.54; Laya 0.66, 0.45, 0.41, 0.32, 0.42" width="100%" />
+<img src="assets/jevos_missing_facts.png" alt="Separation of answerable questions from ones missing a needed fact (AUROC; 0.5 = cannot tell): Admission policy: jevos-v4 0.90, Jev 0.68, Qwen3.5-4B 0.60, Laya 0.58; Fraud points: jevos-v4 0.94, Jev 0.46, Qwen3.5-4B 0.55, Laya 0.50; Policy ratings: jevos-v4 0.95, Jev 0.68, Qwen3.5-4B 0.83, Laya 0.79; Support tickets: jevos-v4 0.81, Jev 0.42, Qwen3.5-4B 0.53, Laya 0.47" width="100%" />
 
-Every system gets the same questions through the same HTTP client. The right answers come from experts,
-annotators or code, and none of these tasks was used to train or choose jevos.
+Some records lack a fact the decision needs, so no answer can be right. A system that knows it is less sure on
+those questions than on the others. The chart measures how well each system's confidence tells the two apart:
+1.0 always, 0.5 not at all. With the fact missing, jevos-v4 still answers with 75% confidence or more on 0–42%
+of these questions, Jev on 60–71%.
 
-- **Medical Q&A** ([PubMedQA](https://github.com/pubmedqa/pubmedqa), yes/no): a biomedical abstract without
-  its conclusion, and the question the study asked.
-- **Agent rules** ([DynaBench](https://huggingface.co/datasets/montehoover/DynaBench), yes/no): an AI agent's
-  rules and a conversation; did the agent follow every rule?
-- **Merger contracts** ([MAUD](https://huggingface.co/datasets/nguha/legalbench), choice): a clause of a merger
-  agreement and a legal question about it, with the options lawyers chose from.
-- **Patent phrases** ([Patent Phrase Similarity](https://huggingface.co/datasets/tasksource/patent-phrase-similarity),
-  score): how close two phrases from patents are in meaning, on five levels.
-- **Policy ratings** ([sys1bench](https://pypi.org/project/sys1bench/), score): support tickets, server logs,
-  phishing emails and other records, rated by a written policy.
+- **Admission policy** and **Fraud points**: the records of the tasks above, some with a field the rules need
+  left out.
+- **Policy ratings** ([sys1bench](https://pypi.org/project/sys1bench/)): support tickets, server logs, phishing
+  emails and other records rated by a written policy; some tickets lack the customer tier.
+- **Support tickets** ([sys1bench](https://pypi.org/project/sys1bench/)): 800 tickets whose priority depends on
+  the customer tier, removed from half of them.
+
+The two sys1bench sets were never used to train or choose jevos.
 
 ## What each one does
 
