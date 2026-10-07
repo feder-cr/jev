@@ -15,11 +15,6 @@ Same questions for every system, through the same HTTP client. Latency is the me
 Intel Core Ultra 7 255H laptop, 16 threads, each text read from scratch. No task text was used to train
 jevos; five of the six sets helped choose the released checkpoint.
 
-<img src="assets/jevos_missing_facts.png" alt="Separation of answerable questions from ones missing a needed fact (AUROC; 0.5 = cannot tell): Admission policy: jevos-v4 0.90, Jev 0.68, Qwen3.5-4B 0.60, Laya 0.58; Fraud points: jevos-v4 0.94, Jev 0.46, Qwen3.5-4B 0.55, Laya 0.50; Policy ratings: jevos-v4 0.95, Jev 0.68, Qwen3.5-4B 0.83, Laya 0.79; Support tickets: jevos-v4 0.81, Jev 0.42, Qwen3.5-4B 0.53, Laya 0.47" width="100%" />
-
-When a record lacks a fact the decision needs, jevos lowers its confidence: it still answers with 75%
-confidence or more on 0–42% of those questions, Jev on 60–71%.
-
 | | **jevos-v4** | Jev | Laya |
 |---|:---:|:---:|:---:|
 | Yes/no questions | ✓ | ✓ | ✓ |
