@@ -109,7 +109,9 @@ Two caveats. The template set is regular by construction, so its perfect score s
 easy cases than about messy customer mail; the 0.847 is the number to plan with. And the
 gate does not fix the other failure, a question the text answers but that needs computing.
 That lean toward yes is measured on
-[why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md).
+[why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md). For the facts you did
+not think to gate, the model's confidence is the second net: how often it drops when a fact is
+missing is measured on [does an LLM know when a fact is missing?](does-an-llm-know-when-a-fact-is-missing.md)
 
 ## Where the gate goes in a decision
 

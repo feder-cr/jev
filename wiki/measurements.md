@@ -16,6 +16,7 @@ and which nothing was tuned on.
 - [Why a small LLM says yes when the answer is no](why-a-small-llm-says-yes.md)
 - [Small LLMs and arithmetic in yes/no questions](small-llm-arithmetic-yes-no-questions.md)
 - [Our held-out benchmark said 0.855, new questions said 0.757](held-out-benchmark-too-optimistic.md)
+- [Does an LLM know when a fact is missing?](does-an-llm-know-when-a-fact-is-missing.md)
 
 Per-kind numbers on the 999 questions were measured on the first jevos; jevos-v4 scores 78.9% overall on that set and its per-kind numbers are not published.
 
