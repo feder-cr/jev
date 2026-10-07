@@ -118,6 +118,10 @@ summarise facts as yes/no answers, order the queue) and let a person decide ever
 legal side in the EU, see [GDPR and automated decision-making](gdpr-and-automated-decision-making.md),
 which is not legal advice either.
 
+A band also only catches what the model is unsure about. Whether records with a missing fact
+actually land in it is measured on
+[does an LLM know when a fact is missing?](does-an-llm-know-when-a-fact-is-missing.md).
+
 ## Short answers to the questions that lead here
 
 **What is human in the loop AI?** A system where people make or check some of the decisions,
