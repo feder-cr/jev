@@ -1,4 +1,11 @@
-# jevos
+<div align="center">
+<picture>
+  <source media="(max-width: 1239px) and (prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/feder-cr/jev/main/assets/banner-phone-dark.gif">
+  <source media="(max-width: 1239px)" srcset="https://raw.githubusercontent.com/feder-cr/jev/main/assets/banner-phone-light.gif">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/feder-cr/jev/main/assets/banner-dark.gif">
+  <img alt="jevos, decisions on a laptop CPU. An animation: a text and a question sent to /v1/systemone, the probability that comes back, 28 ms against 129, 311 and 3,060 for the others, and the one binary that serves it." src="https://raw.githubusercontent.com/feder-cr/jev/main/assets/banner-light.gif" width="100%">
+</picture>
+</div>
 
 **Decisions on a laptop CPU in 28–130 ms.** Send a text and a question (yes/no, multiple choice or a
 score) and get back the probability of each answer, in TypeSafe Jev's API, on your own machine.
