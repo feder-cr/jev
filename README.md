@@ -28,8 +28,8 @@ unzip ../jevos-v4-openvino-int8.zip           # creates model/
 ./jev serve                                   # Windows: jev.exe serve
 ```
 
-The model is also on Hugging Face, [feder-cr/jevos-v4](https://huggingface.co/feder-cr/jevos-v4):
-`hf download feder-cr/jevos-v4 --include "model/*" --local-dir jev` puts it in `jev/model/`.
+The model is also on Hugging Face, [feder-cr/jev](https://huggingface.co/feder-cr/jev):
+`hf download feder-cr/jev --include "model/*" --local-dir jev` puts it in `jev/model/`.
 
 ```bash
 curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '{
