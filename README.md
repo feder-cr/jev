@@ -28,6 +28,9 @@ unzip ../jevos-v4-openvino-int8.zip           # creates model/
 ./jev serve                                   # Windows: jev.exe serve
 ```
 
+The model is also on Hugging Face, [feder-cr/jevos-v4](https://huggingface.co/feder-cr/jevos-v4):
+`hf download feder-cr/jevos-v4 --include "model/*" --local-dir jev` puts it in `jev/model/`.
+
 ```bash
 curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '{
   "model": "jev-latest",
@@ -39,7 +42,8 @@ curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '
 {"model": "jevos-v4", "answers": {"billing": {"type": "noul", "noul": 0.94}}, "usage": {"input_tokens": 27, "output_tokens": 0}}
 ```
 
-One binary, CPU only, no Python. The release also has the model as GGUF for llama.cpp.
+One binary, CPU only, no Python. The release and the Hugging Face repo also have the model as GGUF for
+llama.cpp.
 
 ## Benchmarks
 
