@@ -14,6 +14,9 @@
 //                  [--threads N (all logical CPUs)] [--ctx 8192]
 //                  [--dynamic-quantization 128] (activations in INT8 groups of N values; 0 = f32: slower, and
 //                                    answers no longer move in their last digits with how a call is composed)
+//                  [--hint latency|throughput (latency)] [--streams N (1)]  (OpenVINO's performance hint and
+//                                    inference stream count: streams share a call's work, more decisions a
+//                                    second under concurrent load, slower single requests)
 //
 // JEV_API_KEY set: `jev serve` requires `Authorization: Bearer <key>` on every call but /health.
 // /health reports the SHA-256 of the model folder's files and their fingerprint (model_files, below).
@@ -21,6 +24,7 @@
 // written by export/export_openvino.py.
 
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -101,8 +105,8 @@ int main(int argc, char** argv) try {
     const char* usage = "usage: jev serve [options] | jev decide REQUEST.json [--output FILE] [options] (options: top of src/main.cpp)\n";
     if (argc < 2 || (std::string(argv[1]) != "serve" && std::string(argv[1]) != "decide")) { std::fputs(usage, stderr); return 2; }
     const std::string command = argv[1];
-    std::string host = "127.0.0.1", name, input, output;
-    int port = 8017, threads = static_cast<int>(std::max(1u, std::thread::hardware_concurrency()));
+    std::string host = "127.0.0.1", name, input, output, hint = "LATENCY";
+    int port = 8017, threads = static_cast<int>(std::max(1u, std::thread::hardware_concurrency())), streams = 1;
     // batch_tokens: requests read together pay off while they are small (measured, one call vs separate
     // calls: 4 x 64 tokens -11%, 3 x 120 -16%, 2 x 150 +3%, 4 x 200 +17%): the matmuls gain rows, the
     // attention of every block runs over all the call's cells.
@@ -119,6 +123,9 @@ int main(int argc, char** argv) try {
         else if (a == "--threads") threads = std::stoi(next());
         else if (a == "--ctx") ctx = std::stoul(next());
         else if (a == "--dynamic-quantization") quantization_group = std::stoul(next());
+        else if (a == "--hint") { hint = next(); std::transform(hint.begin(), hint.end(), hint.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+                                  if (hint != "LATENCY" && hint != "THROUGHPUT") throw std::runtime_error(a + " is latency or throughput"); }
+        else if (a == "--streams") streams = std::stoi(next());
         else if (serving && a == "--host") host = next();
         else if (serving && a == "--port") port = std::stoi(next());
         else if (serving && a == "--warmup") warmup = std::stoul(next());
@@ -157,7 +164,7 @@ int main(int argc, char** argv) try {
     if (command == "serve") files = std::async(std::launch::async, model_files, model_dir);
     Vocab vocab(model_dir / "tokenizer.gguf");
     std::fprintf(stderr, "jev: loading %s (OpenVINO %s)\n", model_dir.string().c_str(), Model::openvino_version().c_str());
-    Model model(model_dir, threads, command == "serve" ? state_cache : 0, state_cache_tokens, quantization_group);
+    Model model(model_dir, threads, hint, streams, command == "serve" ? state_cache : 0, state_cache_tokens, quantization_group);
     if (command == "decide") {
         Scheduler scheduler(model, 0, 0);
         Api api{model, vocab, scheduler, name, ctx, ojson::object()};
