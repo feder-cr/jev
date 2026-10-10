@@ -53,11 +53,13 @@ struct Model::Impl {
     std::vector<bool> seen;  // call lengths T already run: their kernels exist
     std::atomic<size_t> batched{0};
     size_t quantization_group;
+    std::string hint;
+    int streams;
     ov::CompiledModel compiled;
     ov::InferRequest req;
 
-    Impl(const fs::path& d, int threads, size_t snapshots, size_t snapshot_tokens, size_t quantization_group)
-        : dir(d), snaps(snapshots, snapshot_tokens), seen(PIECE_TOKENS + 1, false), quantization_group(quantization_group) {
+    Impl(const fs::path& d, int threads, const std::string& hint, int streams, size_t snapshots, size_t snapshot_tokens, size_t quantization_group)
+        : dir(d), snaps(snapshots, snapshot_tokens), seen(PIECE_TOKENS + 1, false), quantization_group(quantization_group), hint(hint), streams(streams) {
         auto graph = core.read_model((dir / "openvino_model.xml").string());
         std::set<std::string> names;
         for (auto& in : graph->inputs())
@@ -83,7 +85,10 @@ struct Model::Impl {
             head_dim = static_cast<size_t>(ps[3].get_length());
         }
         for (auto& n : kv_names) present_names.push_back("present_" + n.substr(5));  // past_key.N -> present_key.N
-        ov::AnyMap cfg = {{"PERFORMANCE_HINT", "LATENCY"}, {"NUM_STREAMS", "1"}, {"INFERENCE_NUM_THREADS", threads},
+        // PERFORMANCE_HINT/NUM_STREAMS are the released defaults (--hint latency, --streams 1); throughput
+        // and streams > 1 share a call's work: more decisions a second under concurrent load, slower single
+        // requests.
+        ov::AnyMap cfg = {{"PERFORMANCE_HINT", hint}, {"NUM_STREAMS", std::to_string(streams)}, {"INFERENCE_NUM_THREADS", threads},
                           // Activations quantized to INT8 in groups of quantization_group values (0: kept f32).
                           // 128 rather than 32: -17% on one question, the same accuracy on the 999 set (0.758 vs
                           // 0.759; mean |dP| 0.008). 256 saves 3% more, max |dP| 0.29.
@@ -313,8 +318,8 @@ struct Model::Impl {
     }
 };
 
-Model::Model(const fs::path& dir, int threads, size_t snapshots, size_t snapshot_tokens, size_t quantization_group)
-    : impl_(std::make_unique<Impl>(dir, threads, snapshots, snapshot_tokens, quantization_group)) {}
+Model::Model(const fs::path& dir, int threads, const std::string& hint, int streams, size_t snapshots, size_t snapshot_tokens, size_t quantization_group)
+    : impl_(std::make_unique<Impl>(dir, threads, hint, streams, snapshots, snapshot_tokens, quantization_group)) {}
 Model::~Model() = default;
 
 std::vector<std::vector<double>> Model::score_batch(const std::vector<const ScoreRequest*>& reqs) { return impl_->score_batch(reqs); }
@@ -334,7 +339,7 @@ void Model::warmup() {
 ojson Model::describe() const {
     const Impl& m = *impl_;
     ojson e = {{"runtime", "openvino"}, {"version", openvino_version()}, {"device", "cpu"}, {"model_dir", m.dir.string()},
-               {"dynamic_quantization", m.quantization_group}};
+               {"dynamic_quantization", m.quantization_group}, {"performance_hint", m.hint}, {"streams", m.streams}};
     e["state_snapshots"] = m.snaps.stats();
     e["state_snapshots"]["bytes"] = m.snaps.kept_tokens() * m.kv_names.size() * m.kv_heads * m.head_dim * sizeof(float);
     e["batched_requests"] = m.batched.load();

@@ -31,8 +31,10 @@ public:
     // `dir` holds openvino_model.xml/.bin; `snapshots` states of at most `snapshot_tokens` tokens in all
     // are kept for later requests (0 = none). Activations are quantized to INT8 in groups of
     // `quantization_group` values (0 = kept f32: slower, and an answer no longer moves, in its last digits,
-    // with how a call is composed).
-    Model(const std::filesystem::path& dir, int threads, size_t snapshots, size_t snapshot_tokens, size_t quantization_group);
+    // with how a call is composed). `hint` (LATENCY/THROUGHPUT) and `streams` are OpenVINO's performance
+    // hint and inference stream count: streams share a call's work, more decisions a second under
+    // concurrent load, slower single requests.
+    Model(const std::filesystem::path& dir, int threads, const std::string& hint, int streams, size_t snapshots, size_t snapshot_tokens, size_t quantization_group);
     ~Model();
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;
