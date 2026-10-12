@@ -21,3 +21,4 @@ The question is the program. The same text can get a reliable answer or a guess 
 - [Asking about intent: what does the writer want?](yes-no-questions-about-intent.md)
 - [Yes/no questions about long documents](yes-no-questions-about-long-documents.md)
 - [Using an English-only LLM with other languages](using-an-english-only-model-with-other-languages.md)
+- [Multi-class text classification with a choice question](multi-class-text-classification-with-a-choice-question.md)

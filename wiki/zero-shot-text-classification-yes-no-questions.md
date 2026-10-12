@@ -38,7 +38,9 @@ The cost is that the probabilities are independent. They do not sum to 1, and tw
 both be high. The code below deals with that explicitly. If you want exactly one label, jevos-v4
 also answers a `choice` question: you give the options in `criteria` and get back the most
 probable option, a probability per option and a `confidence`; with `confidence` 0 it cannot place
-the answer, and you route it to a person.
+the answer, and you route it to a person. How to write the options, and when one choice beats
+several yes/no questions, is on
+[multi-class text classification with a choice question](multi-class-text-classification-with-a-choice-question.md).
 
 ## The request
 

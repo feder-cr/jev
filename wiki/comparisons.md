@@ -25,3 +25,5 @@ wrong choice, the page says so.
 - [Local vs hosted LLM decisions: latency, cost, privacy](local-vs-hosted-llm-decisions.md)
 - [A yes/no LLM vs a business rules engine](yes-no-llm-vs-business-rules-engine.md)
 - [LLM decisions vs keyword rules and regex](llm-decisions-vs-keyword-rules.md)
+- [An open-source alternative to Microsoft-Decision-1](open-source-alternative-to-microsoft-decision-1.md)
+- [Decision engine vs decision model](decision-engine-vs-decision-model.md)

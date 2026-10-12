@@ -18,3 +18,7 @@ probability back per question. What changes is what the question is for.
   covers business rules, which is where the model is weakest and where the wording matters most.
 - [LLM as a judge on a CPU](llm-as-a-judge-on-a-cpu.md) uses the same questions to grade another
   model's output.
+- [What is a decision model in AI?](what-is-a-decision-model.md) defines the category jevos, Jev and
+  Microsoft-Decision-1 belong to.
+- [AI decision making with probabilities and thresholds](ai-decision-making-with-probabilities.md)
+  follows one decision from the question to the action, the review and the record.

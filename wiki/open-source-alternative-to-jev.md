@@ -11,7 +11,7 @@ nav_order: 2
 questions written for Jev move over by pointing the client at `http://127.0.0.1:8017` instead of
 TypeSafe's API.** The request body, the `jev-latest` model name and the shape of the answers stay
 the same, for `choice` and `score` questions too. Two things do not: `score` answers are early
-(54% on held-out score questions, 82% within one level), and on a yes/no question Jev's optional
+(58.5% on held-out score questions, 86% within one level), and on a yes/no question Jev's optional
 `criteria` field is optional and checked but not read, so the rule has to live in `instructions`
 (`choice` and `score` questions require `criteria`, and use it). Whether the switch is worth it depends on how a local model does on your questions, not on the
 code.
@@ -98,15 +98,13 @@ policy refunds items reported missing within 30 days of delivery. Should this cu
 refund?" is the README's own example of a rule written into `instructions`, and the reasoning
 behind it is on [LLM policy decisions: put the rule in the question](llm-policy-decisions-put-the-rule-in-the-question.md).
 
-A `choice` question is answered the way the model saw choices in training: one yes/no question
-per option, each listing all the options, and each option's P(yes) divided by the sum over the
-options. `probabilities` sum to 1, in the options' order, and `confidence` is Jev's: the peak
-probability rescaled from uniform (0) to certain (1). The text is read once, and each option
-costs about as much as one more yes/no question. When a text can fit several options at once,
-separate yes/no questions per option, as in
+A `choice` answer has Jev's shape: `probabilities` sum to 1, in the options' order, and
+`confidence` is the peak probability rescaled from uniform (0) to certain (1). More options cost
+more time: on the README's laptop a three-option choice takes about 100 ms and a ten-option one
+about 170 ms, where one yes/no question takes about 20 ms. When a text can fit several options at
+once, separate yes/no questions per option, as in
 [zero-shot classification with yes/no questions](zero-shot-text-classification-yes-no-questions.md),
-give each option its own probability instead of a share of 1. A `score` becomes one "is it at least level n?"
-question per boundary.
+give each option its own probability instead of a share of 1.
 
 ## How to confirm which model answered
 
@@ -133,6 +131,10 @@ Keep Jev, or keep it for part of the traffic, when:
 - **Your texts are not in English.**
 - **You do not want to operate anything.** A local server is a folder and a port, and
   you own its uptime.
+
+Jev is not the only hosted model of this kind any more: what Microsoft's hosted decision model
+offers, and what running one yourself changes, is on
+[an open-source alternative to Microsoft-Decision-1](open-source-alternative-to-microsoft-decision-1.md).
 
 Because the wire format is shared, the split does not have to be all or nothing. The pattern on
 [a model cascade: small model first, large model on doubt](model-cascade-small-model-first.md)

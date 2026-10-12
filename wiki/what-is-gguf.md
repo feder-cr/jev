@@ -16,7 +16,8 @@ it. No folder of configs and tokenizer files has to travel with it.
 The non-obvious point for a classifier is that the file is also the model's identity. If the
 hash of the file is the same, the weights, the tokenizer and the template are the same, so the
 same request gives the same answer on the same runtime. That makes the file hash the thing to
-log, to pin in a deployment and to check after a download.
+log, to pin in a deployment and to check after a download. Getting one file out of a model repo
+and checking it is on [download a GGUF model from Hugging Face](download-a-gguf-model-from-hugging-face.md).
 
 This page is what is inside a GGUF file, why the single-file design matters when you ship a
 decision model, which metadata is worth reading, where GGUF files come from, and what the

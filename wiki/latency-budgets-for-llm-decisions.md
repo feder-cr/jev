@@ -11,7 +11,9 @@ nav_order: 9
 inside a single animation frame.** It is well inside a webhook timeout of a few seconds, fast
 enough to feel immediate behind a button, and cheap enough to run on every item of a batch
 job. It does not fit a real-time loop at 60 frames per second, or a user interface that must
-react within a tenth of a second to every keystroke. Those are the two edges of the budget.
+react within a tenth of a second to every keystroke. Those are the two edges of the budget, and
+what happens to a slower model inside such a loop is measured on
+[Snake AI: a local model vs a cloud API](snake-ai-local-model-vs-cloud-api.md).
 
 The useful habit is to treat the model as one line of a budget, not the whole of it. The
 request has to be built, sent, answered and acted on, and a 200 ms model inside a 250 ms budget

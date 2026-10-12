@@ -12,7 +12,9 @@ question: is this retrieved passage relevant to the query, is every claim in the
 supported by the passages, and does the answer respond to what was asked.** Each question
 returns a probability, the probabilities become a rate per stage, and the rates tell you whether
 a bad answer came from retrieval or from generation. With a local model such as jevos the whole
-evaluation runs on a CPU, and your documents and user queries never leave the machine.
+evaluation runs on a CPU, and your documents and user queries never leave the machine. The same
+relevance question can also reorder the passages before generation instead of grading them
+after, which is on [reranking search results with yes/no questions](reranking-with-yes-no-relevance-questions.md).
 
 The non-obvious point is that a single quality score for a RAG system is close to useless for
 fixing it. A wrong answer built on the wrong passages needs a better retriever. A wrong answer

@@ -43,7 +43,8 @@ llama.cpp, the usual runtime for GGUF files, supports integer quantization from 
 "for faster inference and reduced memory use", in its own words. Its quantization README lists
 Q4_K_M at about 4.9 bits per weight and Q8_0 at about 8.5 for the model it uses as an example.
 For jevos-v4 the two released GGUF files are `jevos-v4-q4_k_m.gguf` and `jevos-v4-q8_0.gguf`; jev itself
-runs the model with 8-bit (INT8) weights through OpenVINO. The GGUF trade-off, including what we
+runs the model with 8-bit (INT8) weights through OpenVINO, which is explained on
+[OpenVINO for LLM inference on a CPU](openvino-for-llm-inference-on-a-cpu.md). The GGUF trade-off, including what we
 have not measured yet, is on [Q4_K_M vs Q8_0: speed and size](q4-k-m-vs-q8-0-speed-and-size.md), and
 what the names mean is on [GGUF quantization types explained](gguf-quantization-types-explained.md).
 

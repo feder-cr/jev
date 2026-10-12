@@ -29,3 +29,4 @@ Each page takes one workload and shows the questions you would ask, what code do
 - [Contract clause detection with a local LLM](contract-clause-detection-with-a-local-llm.md)
 - [Refund request triage with a local LLM](refund-request-triage-with-a-local-llm.md)
 - [Detecting cancellation intent in customer messages](cancellation-intent-detection.md)
+- [Reranking search results with yes/no questions](reranking-with-yes-no-relevance-questions.md)
