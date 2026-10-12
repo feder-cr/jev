@@ -12,6 +12,8 @@ LLM reads free text and tells you, with a probability, whether a fact is there.*
 alternatives. The engine cannot read "the box arrived empty, this is the second time!", and the
 model should not be the one comparing 5 days with a 30-day limit. The design that works is a
 split: the model turns text into facts, and the engine, or plain code, applies the rules to them.
+The same split at the level of the two categories, including DMN decision tables, is on
+[decision engine vs decision model](decision-engine-vs-decision-model.md).
 
 Conflict of interest, in one line: we build jevos, a yes/no model, and our own measurements are
 the reason this page tells you not to let it apply your rules alone.

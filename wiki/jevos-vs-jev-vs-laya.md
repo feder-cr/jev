@@ -13,7 +13,8 @@ languages.** On the same laptop and the same requests, jevos answered
 in 28 ms and 130 ms, Laya in 129 ms and 480 ms, and Jev in about 311 and 314 ms, most of it
 network. On six tasks, Jev scored higher than jevos-v4 on every one, for example 1.00 against
 0.95 on Admission policy (yes/no rules), and jevos-v4 scored higher than Laya on every one
-(0.95 against 0.54 on the same task).
+(0.95 against 0.54 on the same task). All three belong to the category described on
+[what is a decision model in AI](what-is-a-decision-model.md).
 
 A conflict of interest, stated first: we build jevos. Every number below was measured on the
 same requests or the same questions for all three, and the places where jevos loses are in the

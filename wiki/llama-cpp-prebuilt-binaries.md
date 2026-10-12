@@ -13,7 +13,8 @@ compiler by downloading the archive that matches your machine.** For a service, 
 is to pin one release, record the sha256 of the archive you use, and report the release at
 runtime. jev itself does not load llama.cpp's runtime (it runs 8-bit OpenVINO weights and
 compiles in only llama.cpp's tokenizer), but the jevos-v4 release ships the model as GGUF files,
-and those are what you would run on a prebuilt llama.cpp.
+and those are what you would run on a prebuilt llama.cpp (the same files are on Hugging Face, see
+[download a GGUF model from Hugging Face](download-a-gguf-model-from-hugging-face.md)).
 
 Why it matters: a model's answers depend on two things, the GGUF file and the runtime that
 executes it. Most teams pin the first and let the second float. Pinning the runtime too turns

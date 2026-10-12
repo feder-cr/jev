@@ -21,3 +21,5 @@ Latency is the reason a yes/no model exists: a decision that takes 28 ms can sit
 - [Measuring LLM latency: median, p90 and warm-up](measuring-llm-latency-median-and-p90.md)
 - [Q4_K_M vs Q8_0: speed and size for a small model](q4-k-m-vs-q8-0-speed-and-size.md)
 - [Throughput vs latency for a decision server](throughput-vs-latency-for-a-decision-server.md)
+- [OpenVINO for LLM inference on a CPU](openvino-for-llm-inference-on-a-cpu.md)
+- [INT8 weight quantization explained](int8-weight-quantization-explained.md)

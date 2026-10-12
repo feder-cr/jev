@@ -17,6 +17,9 @@ The point is not to split work fairly between person and machine. It is to put p
 where the model is least reliable, and to make that share a number you can plan for, instead of
 an escalation that happens whenever someone notices a problem.
 
+The band is one step of a longer workflow, from the question to the action and the record, which
+is on [AI decision making with probabilities and thresholds](ai-decision-making-with-probabilities.md).
+
 This page is why a band beats a single threshold, how to size it, what to log, why the band is
 often lopsided for a small model, how to keep it honest over time, and when a band is not
 enough.

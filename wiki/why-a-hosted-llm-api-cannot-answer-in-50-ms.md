@@ -16,7 +16,9 @@ on a long one, while the same requests ran locally in 28 and 130 ms.
 
 The flatness is the tell. When a request with six times more text takes the same time, the
 model is not what you are waiting for. That also means a hosted API can be the right choice for
-long texts or hard questions, where its fixed cost is spread over more work.
+long texts or hard questions, where its fixed cost is spread over more work. Where the fixed
+cost hurts most is a loop that does not wait, such as a game: the measured case is
+[Snake AI: a local model vs a cloud API](snake-ai-local-model-vs-cloud-api.md).
 
 This page is the ledger of where the time goes, the physics nobody can optimise away, how to
 read our two numbers, what you can shave off, and when hosted is still the better option.

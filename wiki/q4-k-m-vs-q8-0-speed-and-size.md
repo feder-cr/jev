@@ -10,7 +10,9 @@ nav_order: 11
 **Of the two GGUF files of jevos, `q4_k_m` is the smaller one and the one to start with in
 llama.cpp, Ollama, LM Studio or another tool that reads GGUF: about 4.9 bits per weight against
 8.5.** `jev`
-itself reads neither file: it runs the model with 8-bit (INT8) weights through OpenVINO. What we
+itself reads neither file: it runs the model with 8-bit (INT8) weights through OpenVINO (what 8-bit
+weights are, and what they cost in accuracy in general, is on
+[INT8 weight quantization explained](int8-weight-quantization-explained.md)). What we
 cannot tell you yet is how much accuracy, if any, the smaller file gives up, because the two
 builds have not been measured on the same question set. Until they are, the honest choice is
 `q4_k_m` for size and a test on your own questions if accuracy is tight.

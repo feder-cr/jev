@@ -17,3 +17,4 @@ The jevos-v4 release ships the model as GGUF files for llama.cpp and similar too
 - [llama.cpp on Windows without compiling](llama-cpp-on-windows.md)
 - [Running llama.cpp CPU only](llama-cpp-cpu-only.md)
 - [Using llama.cpp prebuilt binaries instead of building](llama-cpp-prebuilt-binaries.md)
+- [Download a GGUF model from Hugging Face](download-a-gguf-model-from-hugging-face.md)
