@@ -18,13 +18,13 @@ score) and get back the probability of each answer, in TypeSafe Jev's API, on yo
 
 ## Quickstart
 
-From the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v4), download the archive for your
-system and `jevos-v4-openvino-int8.zip`, then:
+From the [release](https://github.com/feder-cr/jev/releases/tag/jevos-v5), download the archive for your
+system and `jevos-v5-openvino-int8.zip`, then:
 
 ```bash
 tar -xzf jev-linux-x64.tar.gz                 # Windows: unzip jev-windows-x64.zip
 cd jev
-unzip ../jevos-v4-openvino-int8.zip           # creates model/
+unzip ../jevos-v5-openvino-int8.zip           # creates model/
 ./jev serve                                   # Windows: jev.exe serve
 ```
 
@@ -34,12 +34,12 @@ The model is also on Hugging Face, [feder-cr/jev](https://huggingface.co/feder-c
 ```bash
 curl http://127.0.0.1:8017/v1/systemone -H 'Content-Type: application/json' -d '{
   "model": "jev-latest",
-  "state": "I was charged twice for the same order.",
+  "state": "My invoice shows a charge I do not recognize.",
   "questions": {"billing": {"type": "noul", "instructions": "Is this a billing problem?"}}}'
 ```
 
 ```json
-{"model": "jevos-v4", "answers": {"billing": {"type": "noul", "noul": 0.94}}, "usage": {"input_tokens": 27, "output_tokens": 0}}
+{"model": "jevos-v5", "answers": {"billing": {"type": "noul", "noul": 0.97}}, "usage": {"input_tokens": 28, "output_tokens": 0}}
 ```
 
 One binary, CPU only, no Python. The release and the Hugging Face repo also have the model as GGUF for
@@ -47,13 +47,14 @@ llama.cpp.
 
 ## Benchmarks
 
-<img src="assets/jevos_tasks.png" alt="Latency on a short / long request: jevos-v4 28 / 130 ms; Jev 311 / 314 ms; Qwen3.5-4B 3,060 / 4,761 ms; Laya 129 / 480 ms. Accuracy on 6 tasks (Admission policy, Rental policy, Rules and scenarios, Authority rules, Fraud points, Patent phrases): jevos-v4 0.95, 0.76, 0.76, 0.81, 0.50, 0.37; Jev 1.00, 0.91, 0.88, 0.98, 0.69, 0.59; Qwen3.5-4B 0.82, 0.60, 0.72, 0.78, 0.45, 0.18; Laya 0.54, 0.31, 0.55, 0.64, 0.25, 0.32" width="100%" />
+<img src="assets/jevos_tasks.png" alt="Latency on a short / long request: jevos-v5 30 / 132 ms; Jev 311 / 314 ms; Qwen3.5-4B 3,060 / 4,761 ms; Laya 129 / 480 ms. Accuracy on 7 tasks (Admission policy, Rental policy, Rules and scenarios, Agent rules, Authority rules, Fraud points, Patent phrases): jevos-v5 0.92, 0.81, 0.76, 0.74, 0.79, 0.53, 0.36; Jev 1.00, 0.91, 0.88, 0.85, 0.98, 0.69, 0.59; Qwen3.5-4B 0.82, 0.60, 0.72, 0.60, 0.78, 0.45, 0.18; Laya 0.54, 0.31, 0.55, 0.45, 0.64, 0.25, 0.32" width="100%" />
 
-Same questions for every system, through the same HTTP client. Latency is the median of 10 requests on an
-Intel Core Ultra 7 255H laptop, 16 threads, each text read from scratch. No task text was used to train
-jevos; five of the six sets helped choose the released checkpoint.
+Same questions for every system, through the same HTTP client. Latency is the median of 10 requests (for
+jevos, of 40 over four sessions) on an Intel Core Ultra 7 255H laptop, 16 threads, each text read from
+scratch. No task text was used to train jevos; all seven sets were among those used to choose the released
+checkpoint.
 
-| | **jevos-v4** | Jev | Laya |
+| | **jevos-v5** | Jev | Laya |
 |---|:---:|:---:|:---:|
 | Yes/no questions | ✓ | ✓ | ✓ |
 | Multiple choice | ✓ | ✓ | ✓ |
