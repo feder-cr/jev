@@ -1,0 +1,112 @@
+{
+ "scenarios": 120,
+ "per_question": {
+  "danger/hit": {
+   "n": 120,
+   "agree": 1.0,
+   "cpu_acc": 0.4667,
+   "gpu_acc": 0.4667,
+   "mean_dp": 0.0289,
+   "p95_dp": 0.0546,
+   "max_dp": 0.0612
+  },
+  "danger/land": {
+   "n": 120,
+   "agree": 1.0,
+   "cpu_acc": 0.4667,
+   "gpu_acc": 0.4667,
+   "mean_dp": 0.0181,
+   "p95_dp": 0.0301,
+   "max_dp": 0.0319
+  },
+  "fire/should": {
+   "n": 120,
+   "agree": 0.9583,
+   "cpu_acc": 0.2,
+   "gpu_acc": 0.225,
+   "mean_dp": 0.048,
+   "p95_dp": 0.1144,
+   "max_dp": 0.1348
+  },
+  "fire/line": {
+   "n": 120,
+   "agree": 0.95,
+   "cpu_acc": 0.2583,
+   "gpu_acc": 0.3083,
+   "mean_dp": 0.097,
+   "p95_dp": 0.1796,
+   "max_dp": 0.3132
+  },
+  "fire/hit": {
+   "n": 120,
+   "agree": 0.8,
+   "cpu_acc": 0.275,
+   "gpu_acc": 0.2583,
+   "mean_dp": 0.0822,
+   "p95_dp": 0.1645,
+   "max_dp": 0.1938
+  },
+  "fire/aiming": {
+   "n": 120,
+   "agree": 0.6417,
+   "cpu_acc": 0.275,
+   "gpu_acc": 0.6,
+   "mean_dp": 0.1562,
+   "p95_dp": 0.3109,
+   "max_dp": 0.508
+  },
+  "spatial/bombL": {
+   "n": 120,
+   "agree": 0.8417,
+   "cpu_acc": 0.7917,
+   "gpu_acc": 0.7333,
+   "mean_dp": 0.0914,
+   "p95_dp": 0.3335,
+   "max_dp": 0.4275
+  },
+  "spatial/alienL": {
+   "n": 120,
+   "agree": 0.9,
+   "cpu_acc": 0.875,
+   "gpu_acc": 0.825,
+   "mean_dp": 0.0776,
+   "p95_dp": 0.3504,
+   "max_dp": 0.5818
+  },
+  "dodge/choice": {
+   "n": 32,
+   "agree": 1.0
+  }
+ },
+ "overall_agree": 0.8901,
+ "latency": {
+  "short/1q": {
+   "cpu": {
+    "p50_ms": 292.2,
+    "p95_ms": 437.3,
+    "mean_ms": 302.4,
+    "n": 30
+   },
+   "gpu": {
+    "p50_ms": 22.1,
+    "p95_ms": 28.1,
+    "mean_ms": 22.8,
+    "n": 30
+   }
+  },
+  "long/5q": {
+   "cpu": {
+    "p50_ms": 1372.2,
+    "p95_ms": 2170.3,
+    "mean_ms": 1600.2,
+    "n": 30
+   },
+   "gpu": {
+    "p50_ms": 72.6,
+    "p95_ms": 91.4,
+    "mean_ms": 74.0,
+    "n": 30
+   }
+  }
+ }
+}
